@@ -20,6 +20,15 @@ import { initAdminUsers } from "./admin-users.js";
 import { loadMyProfileCard } from "./my-profile-card.js";
 import { initProfilePage } from "./profile-carousel.js";
 
+import { initAdminUsers } from "./admin-users.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+  const adminTable = document.getElementById("adminUsers");
+
+  if (adminTable) {
+    initAdminUsers();
+  }
+});
 
 initHomeRedirect();
 initProfilePage();

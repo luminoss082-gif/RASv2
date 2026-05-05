@@ -6,15 +6,12 @@ import { supabaseClient } from "./config.js";
 import { createNotification } from "./notifications.js";
 import { requireAdmin } from "./admin-guard.js";
 
-
 export async function initAdminUsers() {
-  const isAdmin = await requireAdmin();
-  if (!isAdmin) return;
-
   const adminUsers = document.getElementById("adminUsers");
   if (!adminUsers) return;
 
-
+  const isAdmin = await requireAdmin();
+  if (!isAdmin) return;
 
   async function loadAdminUsers() {
     const { data: profiles } = await supabaseClient
