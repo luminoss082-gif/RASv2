@@ -21,17 +21,20 @@ export async function uploadAvatar(userId, avatarFile) {
   if (!avatarFile || avatarFile.size <= 0) return null;
 
   const fileExt = avatarFile.name.split(".").pop();
-  const filePath = `${userId}.${fileExt}`;
+  const filePath = `${userId}/avatar.${fileExt}`;
 
   const { error: uploadError } = await supabaseClient.storage
     .from("avatars")
-    .upload(filePath, avatarFile, { upsert: true });
+    .upload(filePath, avatarFile, {
+      upsert: true,
+      contentType: avatarFile.type
+    });
 
   if (uploadError) throw uploadError;
 
-  const { data: publicURL } = supabaseClient.storage
+  const { data } = supabaseClient.storage
     .from("avatars")
     .getPublicUrl(filePath);
 
-  return publicURL.publicUrl;
+  return data.publicUrl;
 }
