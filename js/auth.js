@@ -51,7 +51,7 @@ export async function getCurrentProfile() {
 
 export function initHomeRedirect() {
   document.addEventListener("DOMContentLoaded", async () => {
-    if (!window.location.pathname.includes("home.html")) return;
+    if (!window.location.pathname.includes("index.html")) return;
     const profile = await getCurrentProfile();
     window.location.href = profile ? "liste.html" : "create-profile.html";
   });

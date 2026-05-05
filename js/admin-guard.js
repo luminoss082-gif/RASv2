@@ -4,7 +4,7 @@ export async function requireAdmin() {
   const { data: { user } } = await supabaseClient.auth.getUser();
 
   if (!user) {
-    window.location.href = "home.html";
+    window.location.href = "index.html";
     return false;
   }
 
@@ -17,7 +17,7 @@ export async function requireAdmin() {
 
   if (!profile || profile.role !== "admin") {
     alert("Accès refusé (admin uniquement)");
-    window.location.href = "home.html";
+    window.location.href = "index.html";
     return false;
   }
 
