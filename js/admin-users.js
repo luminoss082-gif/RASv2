@@ -4,7 +4,7 @@
 
 import { supabaseClient } from "./config.js";
 import { createNotification } from "./notifications.js";
-import { requireAdmin } from "./js/admin-guard.js";
+import { requireAdmin } from "./admin-guard.js";
 
 
 export async function initAdminUsers() {
