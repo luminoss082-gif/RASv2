@@ -13,6 +13,7 @@ export async function initAdminUsers() {
   const isAdmin = await requireAdmin();
   if (!isAdmin) return;
 
+
   async function loadAdminUsers() {
     const { data: profiles } = await supabaseClient
       .from("profiles")
