@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Support – LoveConnect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<script type="module" src="js/app-init.js"></script>
+  <link rel="stylesheet" href="styles.css">
+    <script type="module" src="js/config.js"></script>
+</head>
+
+<body class="theme-light">
+
+<header>
+  <div class="logo">LoveConnect</div>
+  <nav>
+    <a href="home.html">Accueil</a>
+    <a href="liste.html" class="active">Profils</a>
+    <a href="premium.html">Premium</a>
+    <a href="notifications.html">Notifications</a>
+    <a href="support.html">Support</a>
+    <a href="chat.html" id="chatLink">Chat</a>
+    <a href="admin.html" id="adminLink">Admin</a>
+    <button id="themeToggle" class="icon-btn">🌓</button>
+  </nav>
+</header>
+
+<main class="section">
+
+  <h1>Support & Aide</h1>
+  <p class="subtitle">Besoin d’aide ? Ouvre un ticket et discute directement avec l’équipe.</p>
+
+  <!-- Création d’un ticket -->
+  <form id="createTicketForm" class="card-form">
+    <h2>Créer un ticket</h2>
+
+    <select id="ticketCategory" required>
+      <option value="">Catégorie</option>
+      <option value="bug">🐞 Bug</option>
+      <option value="signalement">🚨 Signalement</option>
+      <option value="demande">❓ Demande</option>
+      <option value="autre">📄 Autre</option>
+    </select>
+
+    <input type="text" id="ticketSubject" placeholder="Sujet du ticket" required>
+
+    <button class="btn primary full" type="submit">Créer le ticket</button>
+  </form>
+
+  <hr>
+
+  <!-- Liste des tickets -->
+  <h2>Mes tickets</h2>
+  <div id="ticketsList" class="tickets-list">
+    <!-- Rempli automatiquement par app.js -->
+  </div>
+
+  <hr>
+
+  <!-- Chat du ticket -->
+  <section id="ticketChatSection" class="ticket-chat hidden">
+
+    <h2 id="ticketTitle">Ticket</h2>
+
+    <div id="ticketMessages" class="ticket-messages">
+      <!-- Messages affichés ici -->
+    </div>
+
+    <form id="ticketMessageForm" class="ticket-message-form">
+      <textarea id="ticketMessageInput" placeholder="Votre message..." required></textarea>
+
+      <label class="file-upload">
+        📎 Pièce jointe
+        <input type="file" id="ticketAttachment">
+      </label>
+
+      <button class="btn primary full" type="submit">Envoyer</button>
+    </form>
+
+  </section>
+
+</main>
+
+<!-- Notifications internes -->
+<div id="notifBell" class="notif-bell">🔔</div>
+<div id="notifPanel" class="notif-panel"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Premium – LoveConnect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<script type="module" src="js/app-init.js"></script>
+  <link rel="stylesheet" href="styles.css">
+    <script type="module" src="js/config.js"></script>
+</head>
+
+<body class="theme-light">
+
+<header>
+  <div class="logo">LoveConnect</div>
+  <nav>
+    <a href="home.html">Accueil</a>
+    <a href="liste.html" class="active">Profils</a>
+    <a href="premium.html">Premium</a>
+    <a href="notifications.html">Notifications</a>
+    <a href="support.html">Support</a>
+    <a href="chat.html" id="chatLink">Chat</a>
+    <a href="admin.html" id="adminLink">Admin</a>
+    <button id="themeToggle" class="icon-btn">🌓</button>
+  </nav>
+</header>
+
+<main class="section premium-page">
+
+
+  <h1>LoveConnect Premium</h1>
+  <p class="subtitle">
+    Passe au niveau supérieur et maximise tes chances de trouver l’amour.
+  </p>
+
+
+    <p class="premium-price"> Pour 9,99€ les 30 jours</p>
+  <div class="premium-cards">
+
+    <div class="premium-card">
+      <h2>💬 Chat illimité</h2>
+      <p>Discute librement avec tous tes matchs, sans aucune restriction.</p>
+    </div>
+
+    <div class="premium-card">
+      <h2>⭐ Visibilité boostée</h2>
+      <p>Ton profil apparaît en priorité dans les résultats et les suggestions.</p>
+    </div>
+
+    <div class="premium-card">
+      <h2>🔍 Filtres avancés</h2>
+      <p>Affiche uniquement les profils qui correspondent vraiment à tes critères.</p>
+    </div>
+
+    <div class="premium-card">
+      <h2>❤️ Match prioritaire</h2>
+      <p>Augmente tes chances d’être vu et aimé par les profils compatibles.</p>
+    </div>
+
+    <div class="premium-card">
+      <h2>⚡ Support prioritaire</h2>
+      <p>Accès direct et rapide au support via le chat admin ↔ utilisateur.</p>
+    </div>
+
+  </div>
+
+  <button class="btn primary big" onclick="alert('Veuillez contactez un admin pour en savoir plus !')">
+    Devenir Premium
+  </button>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+</body>
+</html>

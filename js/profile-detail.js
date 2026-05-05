@@ -1,0 +1,98 @@
+/* =========================
+   PROFIL DÉTAILLÉ + ACTIONS
+========================= */
+
+import { supabaseClient, ADMIN_ID } from "./config.js";
+import { createNotification } from "./notifications.js";
+import { toggleFavorite } from "./favorites.js";
+
+export function initProfileDetail() {
+  const profileDetail = document.getElementById("profileDetail");
+  if (!profileDetail) return;
+
+  (async () => {
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+
+    const { data: profile, error } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !profile) {
+      profileDetail.innerHTML = "<p>Profil introuvable.</p>";
+      return;
+    }
+
+    profileDetail.innerHTML = `
+      <img src="${profile.avatar_url}" class="avatar-img" style="width:140px;height:140px;border-radius:20px;">
+      <h2>${profile.pseudo}${profile.age ? ", " + profile.age : ""} ${profile.is_verified ? "✔️" : ""}</h2>
+      <p>${profile.city || ""}</p>
+      <p>${profile.tagline || ""}</p>
+      <button id="chatBtn" class="btn primary full">💬 Envoyer un message</button>
+      <button id="favoriteBtn" class="btn ghost full">⭐ Favori</button>
+      <button id="reportBtn" class="btn danger full">🚨 Signaler</button>
+      <button id="blockBtn" class="btn danger ghost full">⛔ Bloquer</button>
+    `;
+
+    const chatBtn = document.getElementById("chatBtn");
+    const favoriteBtn = document.getElementById("favoriteBtn");
+    const reportBtn = document.getElementById("reportBtn");
+    const blockBtn = document.getElementById("blockBtn");
+
+    if (chatBtn) {
+      chatBtn.onclick = async () => {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        const { data: me } = await supabaseClient
+          .from("profiles")
+          .select("is_premium")
+          .eq("id", user.id)
+          .single();
+
+        if (!me.is_premium) {
+          alert("Le chat est réservé aux membres Premium.");
+          return;
+        }
+
+        const content = prompt("Ton message :");
+        if (!content) return;
+
+        await supabaseClient.from("messages").insert({ sender: user.id, receiver: id, content });
+        await createNotification(id, "message", "Vous avez reçu un nouveau message", `chat.html?user=${user.id}`);
+        alert("Message envoyé !");
+      };
+    }
+
+    if (favoriteBtn) {
+      favoriteBtn.onclick = async () => {
+        await toggleFavorite(id);
+        alert("Favoris mis à jour !");
+      };
+    }
+
+    if (reportBtn) {
+      reportBtn.onclick = async () => {
+        const reason = prompt("Pourquoi signalez-vous ce profil ?");
+        if (!reason) return;
+
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        await supabaseClient.from("reports").insert({ reporter: user.id, target: id, reason });
+        await createNotification(ADMIN_ID, "report", "Un nouveau signalement a été envoyé", "admin-dashboard.html");
+        alert("Signalement envoyé.");
+      };
+    }
+
+    if (blockBtn) {
+      blockBtn.onclick = async () => {
+        const confirmBlock = confirm("Voulez-vous vraiment bloquer ce profil ?");
+        if (!confirmBlock) return;
+
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        await supabaseClient.from("blocks").insert({ blocker: user.id, blocked: id });
+        alert("Profil bloqué.");
+        window.location.href = "liste.html";
+      };
+    }
+  })();
+}

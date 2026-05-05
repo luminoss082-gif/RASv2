@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Modifier mon profil – LoveConnect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module" src="js/app-init.js"></script>
+  <script type="module" src="js/config.js"></script>
+</head>
+<body class="theme-light">
+
+<header>
+  <div class="logo">LoveConnect</div>
+  <nav>
+    <a href="home.html">Accueil</a>
+    <a href="liste.html" class="active">Profils</a>
+    <a href="premium.html">Premium</a>
+    <a href="notifications.html">Notifications</a>
+    <a href="support.html">Support</a>
+    <a href="chat.html" id="chatLink">Chat</a>
+    <a href="admin.html" id="adminLink">Admin</a>
+    <button id="themeToggle" class="icon-btn">🌓</button>
+  </nav>
+</header>
+
+<main class="section">
+  <h1>Modifier mon profil</h1>
+    
+  <form id="editProfileForm" enctype="multipart/form-data" class="card-form">
+
+    <label>Pseudo</label>
+    <input type="text" id="editPseudo" name="pseudo" placeholder="Pseudo">
+
+    <label>Âge</label>
+    <input type="number" id="editAge" name="age" placeholder="Âge">
+
+    <label>Ville</label>
+    <input type="text" id="editCity" name="city" placeholder="Ville">
+
+    <label>Genre</label>
+    <select id="editGender" name="gender">
+      <option value="">Genre</option>
+      <option value="H">Homme</option>
+      <option value="F">Femme</option>
+      <option value="Autre">Autre</option>
+    </select>
+
+    <label>Je recherche</label>
+    <select id="editLookingFor" name="looking_for">
+      <option value="">Choisir</option>
+      <option value="H">Homme</option>
+      <option value="F">Femme</option>
+      <option value="Autre">Autre</option>
+    </select>
+
+    <label>Phrase d’accroche</label>
+    <input type="text" id="editTagline" name="tagline" placeholder="Phrase d’accroche">
+
+    <label>Nouvel avatar (optionnel)</label>
+   <h3>Mes photos</h3>
+
+<div id="photoUploadArea" class="photo-upload-area">
+  <input type="file" id="photoInput" accept="image/*" multiple>
+  <button class="btn primary full" id="uploadPhotosBtn">Ajouter des photos</button>
+</div>
+
+<div id="photoGallery" class="photo-gallery"></div>
+
+    <button class="btn primary full" type="submit">Enregistrer</button>
+  </form>
+</main>
+</body>
+</html>
