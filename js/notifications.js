@@ -26,6 +26,22 @@ export function updateNotifUI() {
       <br><small>${n.date}</small>
     </div>
   `).join("");
+ const notificationsList = document.getElementById("notificationsList");
+
+if (notificationsList) {
+  notificationsList.innerHTML = state.notifList.length
+    ? state.notifList.map(n => `
+        <div class="notif-item">
+          <strong>${n.is_read ? "🔔" : "🔴"}</strong>
+          ${n.content}
+          <br>
+          <small>${n.date}</small>
+          ${n.link ? `<br><a href="${n.link}">Ouvrir</a>` : ""}
+        </div>
+      `).join("")
+    : "<p>Aucune notification.</p>";
+}
+
 }
 
 export async function loadPersistentNotifications() {

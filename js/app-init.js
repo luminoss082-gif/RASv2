@@ -19,6 +19,7 @@ import { initChat } from "./chat-premium.js";
 import { initAdminUsers } from "./admin-users.js";
 import { loadMyProfileCard } from "./my-profile-card.js";
 import { initProfilePage } from "./profile-carousel.js";
+import { initSupport } from "./support.js";
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -78,5 +79,6 @@ async function protectAdminUI() {
   initStoriesUpload();
   initChat();
   loadMyProfileCard();
+  initSupport();
 
 })();
