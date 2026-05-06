@@ -32,6 +32,28 @@ document.addEventListener("DOMContentLoaded", () => {
 initHomeRedirect();
 initProfilePage();
 
+async function protectAdminUI() {
+  const adminLink = document.getElementById("adminLink");
+  if (!adminLink) return;
+
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    adminLink.style.display = "none";
+    return;
+  }
+
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile || profile.role !== "admin") {
+    adminLink.style.display = "none";
+  }
+}
+
 (async () => {
   initTheme();
   registerServiceWorker();
@@ -40,7 +62,7 @@ initProfilePage();
   await initCurrentUser();
   await checkExistingProfile();
   await loadPersistentNotifications();
-
+  await protectAdminUI();
   initNotificationUI();
   initRealtimeNotifications();
   initSupportRealtime();

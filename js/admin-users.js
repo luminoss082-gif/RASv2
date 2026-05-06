@@ -25,7 +25,13 @@ export async function initAdminUsers() {
     (profiles || []).forEach((p) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><img src="${p.avatar_url}" class="chat-avatar"></td>
+      <td>
+  <img 
+    src="${p.avatar_url || 'default-avatar.png'}" 
+    class="chat-avatar"
+    onerror="this.src='default-avatar.png'"
+  >
+</td>
         <td>${p.pseudo}</td>
         <td>${p.is_premium ? "Oui" : "Non"}</td>
         <td>${p.is_verified ? "✔️" : ""}</td>
