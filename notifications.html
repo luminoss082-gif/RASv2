@@ -2,41 +2,44 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Notifications – LoveConnect</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notifications – LoveConnect</title>
+
   <link rel="stylesheet" href="styles.css">
-  
 </head>
 
 <body class="theme-light">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script type="module" src="js/config.js"></script>
-<script type="module" src="js/app-init.js"></script>
-<header>
-  <div class="logo">LoveConnect</div>
-  <nav>
-    <a href="index.html">Accueil</a>
-    <a href="liste.html" class="active">Profils</a>
-    <a href="premium.html">Premium</a>
-    <a href="notifications.html">Notifications</a>
-    <a href="support.html">Support</a>
-    <a href="chat.html" id="chatLink">Chat</a>
-    <a href="admin.html" id="adminLink">Admin</a>
-    <button id="themeToggle" class="icon-btn">🌓</button>
-  </nav>
-</header>
-<main class="section">
 
-  <h1>Notifications</h1>
-  <p class="subtitle">Toutes vos notifications importantes sont regroupées ici.</p>
+  <header>
+    <div class="logo">LoveConnect</div>
 
-  <div id="notificationsList" class="notifications-list">
-    <!-- Rempli automatiquement par app.js -->
-  </div>
+    <nav>
+      <a href="index.html">Accueil</a>
+      <a href="liste.html">Profils</a>
+      <a href="premium.html">Premium</a>
+      <a href="notifications.html" class="active">Notifications</a>
+      <a href="support.html">Support</a>
+      <a href="chat.html" id="chatLink">Chat</a>
+      <a href="admin.html" id="adminLink">Admin</a>
+      <button id="themeToggle" class="icon-btn" type="button">🌓</button>
+    </nav>
+  </header>
 
-</main>
+  <main class="section notifications-page">
+    <h1>Notifications</h1>
+    <p class="subtitle">Toutes vos notifications importantes sont regroupées ici.</p>
 
+    <section class="card notifications-card">
+      <div id="notificationsList" class="notifications-list">
+        <p>Chargement des notifications...</p>
+      </div>
+    </section>
+  </main>
 
+  <div id="notifBell" class="notif-bell">🔔</div>
+  <div id="notifPanel" class="notif-panel"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="js/app-init.js"></script>
 </body>
 </html>
