@@ -1,28 +1,22 @@
 /* =========================
-   NOTIFICATIONS INTERNES + PERSISTANTES
+   NOTIFICATIONS INTERNES
 ========================= */
 
 import { supabaseClient } from "./config.js";
 import { state, setCurrentUserId, setNotifList } from "./core.js";
 import { sendPushNotification } from "./push.js";
 
-export function addNotificationLocal(n) {
-  state.notifList.unshift(n);
-  updateNotifUI();
-}
-
 let currentFilter = "all";
 
 function getFilteredNotifications() {
-  if (currentFilter === "all") {
-    return state.notifList;
-  }
-
-  if (currentFilter === "unread") {
-    return state.notifList.filter(n => !n.is_read);
-  }
-
+  if (currentFilter === "all") return state.notifList;
+  if (currentFilter === "unread") return state.notifList.filter(n => !n.is_read);
   return state.notifList.filter(n => n.type === currentFilter);
+}
+
+export function addNotificationLocal(n) {
+  state.notifList.unshift(n);
+  updateNotifUI();
 }
 
 export function updateNotifUI() {
@@ -34,18 +28,20 @@ export function updateNotifUI() {
 
   if (notifBell) {
     const unread = state.notifList.some(n => !n.is_read);
-
-    if (unread) notifBell.classList.add("active");
-    else notifBell.classList.remove("active");
+    notifBell.classList.toggle("active", unread);
   }
 
   if (notifPanel) {
-    notifPanel.innerHTML = state.notifList.map(n => `
-      <div class="notif-item" data-id="${n.id || ""}">
-        <strong>•</strong> ${n.content}
-        <br><small>${n.date}</small>
-      </div>
-    `).join("");
+    notifPanel.innerHTML = state.notifList.length
+      ? state.notifList.map(n => `
+          <div class="notif-item" data-id="${n.id || ""}">
+            <strong>${n.is_read ? "🔔" : "🔴"}</strong>
+            ${n.content}
+            <br>
+            <small>${n.date}</small>
+          </div>
+        `).join("")
+      : "<p>Aucune notification.</p>";
   }
 
   if (notificationsList) {
@@ -68,16 +64,23 @@ export async function loadPersistentNotifications() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     setCurrentUserId(user?.id || null);
   }
+
   if (!state.currentUserId) return;
 
-  const { data: notifs } = await supabaseClient
+  const { data: notifs, error } = await supabaseClient
     .from("notifications")
     .select("*")
     .eq("user_id", state.currentUserId)
     .order("created_at", { ascending: false });
 
+  if (error) {
+    console.error("Erreur notifications:", error);
+    return;
+  }
+
   setNotifList((notifs || []).map(n => ({
     id: n.id,
+    type: n.type,
     content: n.content,
     link: n.link,
     is_read: n.is_read,
@@ -95,7 +98,11 @@ export async function markNotificationsRead() {
     .update({ is_read: true })
     .eq("user_id", state.currentUserId);
 
-  setNotifList(filtered.map(n => ({ ...n, is_read: true })));
+  setNotifList(state.notifList.map(n => ({
+    ...n,
+    is_read: true
+  })));
+
   updateNotifUI();
 }
 
@@ -104,7 +111,12 @@ export async function createNotification(userId, type, content, link) {
 
   const { data, error } = await supabaseClient
     .from("notifications")
-    .insert({ user_id: userId, type, content, link })
+    .insert({
+      user_id: userId,
+      type,
+      content,
+      link
+    })
     .select()
     .single();
 
@@ -115,13 +127,19 @@ export async function createNotification(userId, type, content, link) {
 
   addNotificationLocal({
     id: data.id,
+    type: data.type,
     content: data.content,
     link: data.link,
     is_read: data.is_read,
     date: new Date(data.created_at).toLocaleString()
   });
 
-  sendPushNotification(userId, "LoveConnect", content, link || "home.html");
+  sendPushNotification(
+    userId,
+    "LoveConnect",
+    content,
+    link || "index.html"
+  );
 }
 
 export function initNotificationUI() {
@@ -131,26 +149,18 @@ export function initNotificationUI() {
   if (notifBell) {
     notifBell.onclick = () => {
       if (!notifPanel) return;
-      notifPanel.style.display = notifPanel.style.display === "block" ? "none" : "block";
+
+      notifPanel.style.display =
+        notifPanel.style.display === "block" ? "none" : "block";
+
       markNotificationsRead();
     };
-document.querySelectorAll("[data-filter]").forEach((btn) => {
-  btn.onclick = () => {
-    currentFilter = btn.dataset.filter;
-    updateNotifUI();
-  };
-});
-}
-
-function getFilteredNotifications() {
-
-  if (currentFilter === "all") {
-    return state.notifList;
   }
 
-  if (currentFilter === "unread") {
-    return state.notifList.filter(n => !n.is_read);
-  }
-
-  return state.notifList.filter(n => n.type === currentFilter);
+  document.querySelectorAll("[data-filter]").forEach((btn) => {
+    btn.onclick = () => {
+      currentFilter = btn.dataset.filter;
+      updateNotifUI();
+    };
+  });
 }
