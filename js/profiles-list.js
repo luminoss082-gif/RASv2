@@ -47,6 +47,10 @@ export function renderMyProfile() {
       <h3>${me.pseudo}${me.age ? ", " + me.age : ""} ${me.is_verified ? "✔️" : ""}</h3>
       <p>${me.city || ""}</p>
       <p>${me.tagline || ""}</p>
+      ${p.is_online
+  ? `<span class="online-badge">🟢 En ligne</span>`
+  : `<span class="offline-badge">⏰ ${formatLastSeen(p.last_seen)}</span>`
+}
       <button class="btn ghost" onclick="window.location.href='edit-profile.html'">Modifier mon profil</button>
     </div>
   `;
@@ -94,6 +98,10 @@ export function renderProfiles() {
         <h3>${p.pseudo}${p.age ? ", " + p.age : ""} ${p.is_verified ? "✔️" : ""}</h3>
         <p>${p.city || ""}</p>
         <p>${p.tagline || ""}</p>
+        ${p.is_online
+  ? `<span class="online-badge">🟢 En ligne</span>`
+  : `<span class="offline-badge">⏰ ${formatLastSeen(p.last_seen)}</span>`
+}
       </div>
     `;
 
@@ -112,11 +120,6 @@ export function renderProfiles() {
   });
 }
 
-export function initProfilesList() {
-  const filtersForm = document.getElementById("filtersForm");
-  if (filtersForm) filtersForm.addEventListener("input", renderProfiles);
-  loadProfiles();
-}
 function formatLastSeen(dateString) {
   const date = new Date(dateString);
   const diff = Math.floor((Date.now() - date.getTime()) / 60000);
@@ -131,10 +134,13 @@ function formatLastSeen(dateString) {
   const days = Math.floor(hours / 24);
 
   return `Vu il y a ${days}j`;
-  ${p.is_online
-  ? `<span class="online-badge">🟢 En ligne</span>`
-  : `<span class="offline-badge">⏰ ${formatLastSeen(p.last_seen)}</span>`
+ 
 }
+export function initProfilesList() {
+  const filtersForm = document.getElementById("filtersForm");
+  if (filtersForm) filtersForm.addEventListener("input", renderProfiles);
+  loadProfiles();
+  
 }
 
 createNotification(userId, "message", "Nouveau message", "chat.html");
