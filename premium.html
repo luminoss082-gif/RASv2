@@ -2,76 +2,67 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Premium – LoveConnect</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Premium – LoveConnect</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="theme-light">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script type="module" src="js/config.js"></script>
-<script type="module" src="js/app-init.js"></script>
+<body class="theme-light page-premium">
 <header>
   <div class="logo">LoveConnect</div>
-  <nav>
+  <nav aria-label="Navigation principale">
     <a href="index.html">Accueil</a>
-    <a href="liste.html" class="active">Profils</a>
-    <a href="premium.html">Premium</a>
+    <a href="liste.html">Profils</a>
+    <a href="premium.html" class="active">Premium</a>
     <a href="notifications.html">Notifications</a>
     <a href="support.html">Support</a>
     <a href="chat.html" id="chatLink">Chat</a>
     <a href="admin.html" id="adminLink">Admin</a>
-    <button id="themeToggle" class="icon-btn">🌓</button>
+    <button id="themeToggle" class="icon-btn" type="button" aria-label="Changer le thème">🌓</button>
   </nav>
 </header>
 
 <main class="section premium-page">
+  <section class="premium-hero">
+    <p class="subtitle">Passe au niveau supérieur</p>
+    <h1>LoveConnect Premium</h1>
+    <p>Maximise tes chances de trouver une connexion sincère avec plus de visibilité, plus de filtres et un accès prioritaire.</p>
+    <p class="premium-price">9,99€ <span>/ 30 jours</span></p>
+    <button class="btn primary big" type="button" onclick="alert('Veuillez contacter un admin pour en savoir plus !')">Devenir Premium</button>
+  </section>
 
-
-  <h1>LoveConnect Premium</h1>
-  <p class="subtitle">
-    Passe au niveau supérieur et maximise tes chances de trouver l’amour.
-  </p>
-
-
-    <p class="premium-price"> Pour 9,99€ les 30 jours</p>
-  <div class="premium-cards">
-
-    <div class="premium-card">
+  <section class="premium-cards" aria-label="Avantages Premium">
+    <article class="premium-card">
       <h2>💬 Chat illimité</h2>
       <p>Discute librement avec tous tes matchs, sans aucune restriction.</p>
-    </div>
+    </article>
 
-    <div class="premium-card">
+    <article class="premium-card">
       <h2>⭐ Visibilité boostée</h2>
       <p>Ton profil apparaît en priorité dans les résultats et les suggestions.</p>
-    </div>
+    </article>
 
-    <div class="premium-card">
+    <article class="premium-card">
       <h2>🔍 Filtres avancés</h2>
       <p>Affiche uniquement les profils qui correspondent vraiment à tes critères.</p>
-    </div>
+    </article>
 
-    <div class="premium-card">
+    <article class="premium-card">
       <h2>❤️ Match prioritaire</h2>
       <p>Augmente tes chances d’être vu et aimé par les profils compatibles.</p>
-    </div>
+    </article>
 
-    <div class="premium-card">
+    <article class="premium-card">
       <h2>⚡ Support prioritaire</h2>
       <p>Accès direct et rapide au support via le chat admin ↔ utilisateur.</p>
-    </div>
-
-  </div>
-
-  <button class="btn primary big" onclick="alert('Veuillez contactez un admin pour en savoir plus !')">
-    Devenir Premium
-  </button>
-
+    </article>
+  </section>
 </main>
 
+<div id="notifBell" class="notif-bell">🔔</div>
+<div id="notifPanel" class="notif-panel"></div>
 
-
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module" src="js/app-init.js"></script>
 </body>
 </html>

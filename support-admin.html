@@ -2,103 +2,91 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Support Admin – LoveConnect</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Support Admin – LoveConnect</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="theme-light">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script type="module" src="js/config.js"></script>
-<script type="module" src="js/app-init.js"></script>
+<body class="theme-light page-support-admin">
 <header>
   <div class="logo">LoveConnect</div>
-  <nav>
+  <nav aria-label="Navigation principale">
     <a href="index.html">Accueil</a>
-    <a href="liste.html" class="active">Profils</a>
+    <a href="liste.html">Profils</a>
     <a href="premium.html">Premium</a>
     <a href="notifications.html">Notifications</a>
     <a href="support.html">Support</a>
     <a href="chat.html" id="chatLink">Chat</a>
     <a href="admin.html" id="adminLink">Admin</a>
-    <button id="themeToggle" class="icon-btn">🌓</button>
+    <button id="themeToggle" class="icon-btn" type="button" aria-label="Changer le thème">🌓</button>
   </nav>
 </header>
 
-<main class="section">
-
-  <h1>Support – Administration</h1>
-  <p class="subtitle">Gérez les tickets, répondez aux utilisateurs et suivez les pièces jointes.</p>
-
-  <!-- Filtres -->
-  <div class="filters admin-filters">
-    <select id="filterCategory">
-      <option value="">Catégorie</option>
-      <option value="bug">🐞 Bug</option>
-      <option value="signalement">🚨 Signalement</option>
-      <option value="demande">❓ Demande</option>
-      <option value="autre">📄 Autre</option>
-    </select>
-
-    <select id="filterStatus">
-      <option value="">Statut</option>
-      <option value="open">Ouvert</option>
-      <option value="in_progress">En cours</option>
-      <option value="resolved">Résolu</option>
-    </select>
-  </div>
-
-  <!-- Liste des tickets -->
-  <h2>Tickets</h2>
-  <div id="adminTicketsList" class="tickets-list">
-    <!-- Rempli automatiquement par app.js -->
-  </div>
-
-  <hr>
-
-  <!-- Chat du ticket -->
-  <section id="adminTicketChatSection" class="ticket-chat hidden">
-
-    <h2 id="adminTicketTitle">Ticket</h2>
-
-    <!-- Changer le statut -->
-    <div class="status-box">
-      <label>Statut :</label>
-      <select id="adminTicketStatus">
-        <option value="open">Ouvert</option>
-        <option value="in_progress">En cours</option>
-        <option value="resolved">Résolu</option>
-      </select>
-      <button id="updateStatusBtn" class="btn ghost small">Mettre à jour</button>
-    </div>
-
-    <!-- Messages -->
-    <div id="adminTicketMessages" class="ticket-messages">
-      <!-- Messages affichés ici -->
-    </div>
-
-    <!-- Formulaire d’envoi -->
-    <form id="adminTicketMessageForm" class="ticket-message-form">
-      <textarea id="adminTicketMessageInput" placeholder="Votre réponse..." required></textarea>
-
-      <label class="file-upload">
-        📎 Pièce jointe
-        <input type="file" id="adminTicketAttachment">
-      </label>
-
-      <button class="btn primary full" type="submit">Envoyer</button>
-    </form>
-
+<main class="section support-admin-page">
+  <section class="page-intro">
+    <p class="subtitle">Gérez les tickets, répondez aux utilisateurs et suivez les demandes.</p>
+    <h1>Support – Administration</h1>
   </section>
 
+  <section class="support-grid">
+    <aside class="ticket-list card-form" aria-labelledby="ticketsAdminTitle">
+      <h2 id="ticketsAdminTitle">Tickets reçus</h2>
+
+      <div class="filters admin-filters">
+        <label for="filterCategory">Catégorie</label>
+        <select id="filterCategory">
+          <option value="">Toutes les catégories</option>
+          <option value="bug">🐞 Bug</option>
+          <option value="signalement">🚨 Signalement</option>
+          <option value="demande">❓ Demande</option>
+          <option value="autre">📄 Autre</option>
+        </select>
+
+        <label for="filterStatus">Statut</label>
+        <select id="filterStatus">
+          <option value="">Tous les statuts</option>
+          <option value="open">Ouvert</option>
+          <option value="in_progress">En cours</option>
+          <option value="resolved">Résolu</option>
+        </select>
+      </div>
+
+      <div id="adminTicketsList" class="tickets-list"></div>
+    </aside>
+
+    <section id="adminTicketChatSection" class="ticket-chat hidden" aria-labelledby="adminTicketTitle">
+      <div class="ticket-chat-header">
+        <h2 id="adminTicketTitle">Ticket</h2>
+        <div class="status-box">
+          <label for="adminTicketStatus">Statut</label>
+          <select id="adminTicketStatus">
+            <option value="open">Ouvert</option>
+            <option value="in_progress">En cours</option>
+            <option value="resolved">Résolu</option>
+          </select>
+          <button id="updateStatusBtn" class="btn ghost small" type="button">Mettre à jour</button>
+        </div>
+      </div>
+
+      <div id="adminTicketMessages" class="ticket-messages"></div>
+
+      <form id="adminTicketMessageForm" class="ticket-message-form">
+        <label for="adminTicketMessageInput">Réponse</label>
+        <textarea id="adminTicketMessageInput" placeholder="Votre réponse..." required></textarea>
+
+        <label class="file-upload" for="adminTicketAttachment">📎 Pièce jointe</label>
+        <input type="file" id="adminTicketAttachment">
+
+        <button class="btn primary full" type="submit">Envoyer</button>
+      </form>
+    </section>
+  </section>
 </main>
 
-<!-- Notifications internes -->
 <div id="notifBell" class="notif-bell">🔔</div>
 <div id="notifPanel" class="notif-panel"></div>
 
-
-
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module" src="js/app-init.js"></script>
 </body>
 </html>

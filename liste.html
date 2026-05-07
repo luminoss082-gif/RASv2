@@ -2,18 +2,15 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Profils – LoveConnect</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profils – LoveConnect</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="theme-light">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script type="module" src="js/config.js"></script>
-<script type="module" src="js/app-init.js"></script>
+<body class="theme-light page-profiles">
 <header>
   <div class="logo">LoveConnect</div>
-  <nav>
+  <nav aria-label="Navigation principale">
     <a href="index.html">Accueil</a>
     <a href="liste.html" class="active">Profils</a>
     <a href="premium.html">Premium</a>
@@ -21,27 +18,31 @@
     <a href="support.html">Support</a>
     <a href="chat.html" id="chatLink">Chat</a>
     <a href="admin.html" id="adminLink">Admin</a>
-    <button id="themeToggle" class="icon-btn">🌓</button>
+    <button id="themeToggle" class="icon-btn" type="button" aria-label="Changer le thème">🌓</button>
   </nav>
 </header>
 
-<main class="section">
+<main class="section profiles-page">
+  <section class="page-intro">
+    <p class="subtitle">Découvre les profils, filtre les résultats et retrouve tes favoris.</p>
+    <h1>Profils</h1>
+  </section>
 
-  <!-- Mon profil résumé -->
-  <section id="myProfileCard" class="my-profile-card"></section>
+  <section id="myProfileCard" class="my-profile-card" aria-label="Mon profil résumé"></section>
+  <section id="matchBox" class="match-box hidden" aria-label="Matching automatique"></section>
 
-  <!-- Matching automatique -->
-  <section id="matchBox" class="match-box hidden"></section>
+  <section class="stories-section" aria-labelledby="storiesTitle">
+    <div class="section-heading">
+      <h2 id="storiesTitle">Stories</h2>
+      <button id="addStoryBtn" class="btn ghost small" type="button">Ajouter une story</button>
+    </div>
+    <section id="storiesBar" class="stories-bar"></section>
+  </section>
 
-  <!-- Stories -->
-  <section id="storiesBar" class="stories-bar"></section>
-  <button id="addStoryBtn" class="btn ghost small">Ajouter une story</button>
-
-  <!-- Filtres -->
-  <form id="filtersForm" class="filters">
+  <form id="filtersForm" class="filters" aria-label="Filtres de recherche">
     <input type="text" id="searchInput" placeholder="Rechercher un pseudo ou une phrase...">
-    <input type="number" id="ageMin" placeholder="Âge min">
-    <input type="number" id="ageMax" placeholder="Âge max">
+    <input type="number" id="ageMin" placeholder="Âge min" min="18">
+    <input type="number" id="ageMax" placeholder="Âge max" min="18">
     <input type="text" id="cityFilter" placeholder="Ville">
     <select id="genderFilter">
       <option value="">Genre</option>
@@ -49,20 +50,21 @@
       <option value="F">Femme</option>
       <option value="Autre">Autre</option>
     </select>
-    <label>
+    <label class="checkbox-inline">
       <input type="checkbox" id="favoritesOnly"> Favoris uniquement
     </label>
   </form>
 
-  <!-- Liste des profils -->
-  <div id="profilesList" class="profiles-list"></div>
-
+  <section aria-labelledby="profilesTitle">
+    <h2 id="profilesTitle">Tous les profils</h2>
+    <div id="profilesList" class="profiles-list"></div>
+  </section>
 </main>
 
-<!-- Notifications internes -->
 <div id="notifBell" class="notif-bell">🔔</div>
 <div id="notifPanel" class="notif-panel"></div>
 
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module" src="js/app-init.js"></script>
 </body>
 </html>
