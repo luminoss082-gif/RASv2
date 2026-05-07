@@ -1,28 +1,69 @@
+
 /* =========================
    APP INIT
 ========================= */
+
 import { supabaseClient } from "./config.js";
-import { autoLogin, initCurrentUser, checkExistingProfile, initHomeRedirect } from "./auth.js";
+
+import {
+  autoLogin,
+  initCurrentUser,
+  checkExistingProfile,
+  initHomeRedirect
+} from "./auth.js";
+
 import { initTheme } from "./theme.js";
-import { loadPersistentNotifications, initNotificationUI } from "./notifications.js";
-import { registerServiceWorker, initPushRegistration } from "./push.js";
-import { initRealtimeNotifications, initSupportRealtime } from "./realtime.js";
+
+import {
+  loadPersistentNotifications,
+  initNotificationUI
+} from "./notifications.js";
+
+import {
+  registerServiceWorker,
+  initPushRegistration
+} from "./push.js";
+
+import {
+  initRealtimeNotifications,
+  initSupportRealtime
+} from "./realtime.js";
+
 import { initAvatarPreview } from "./avatar-upload.js";
+
 import { initCreateProfile } from "./profile-create.js";
+
 import { initEditProfile } from "./profile-edit.js";
+
 import { initPhotosUpload } from "./photos-upload.js";
+
 import { initProfilesList } from "./profiles-list.js";
+
 import { initProfileDetail } from "./profile-detail.js";
+
 import { initStories } from "./stories.js";
+
 import { initStoriesUpload } from "./stories-upload.js";
+
 import { initChat } from "./chat-premium.js";
+
 import { initAdminUsers } from "./admin-users.js";
+
 import { loadMyProfileCard } from "./my-profile-card.js";
+
 import { initProfilePage } from "./profile-carousel.js";
+
 import { initSupport } from "./support.js";
 
+/* =========================
+   ONLINE STATUS
+========================= */
+
 async function updateOnlineStatus() {
-  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
 
   if (!user) return;
 
@@ -35,8 +76,21 @@ async function updateOnlineStatus() {
     })
     .eq("id", user.id);
 
-  // quand il quitte
+  // mise à jour activité
+  setInterval(async () => {
+
+    await supabaseClient
+      .from("profiles")
+      .update({
+        last_seen: new Date().toISOString()
+      })
+      .eq("id", user.id);
+
+  }, 30000);
+
+  // utilisateur quitte
   window.addEventListener("beforeunload", async () => {
+
     await supabaseClient
       .from("profiles")
       .update({
@@ -44,36 +98,27 @@ async function updateOnlineStatus() {
         last_seen: new Date().toISOString()
       })
       .eq("id", user.id);
+
   });
 
-  // refresh activité toutes les 30 sec
-  setInterval(async () => {
-    await supabaseClient
-      .from("profiles")
-      .update({
-        last_seen: new Date().toISOString()
-      })
-      .eq("id", user.id);
-  }, 30000);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const adminTable = document.getElementById("adminUsers");
-
-  if (adminTable) {
-    initAdminUsers();
-  }
-});
-
-initHomeRedirect();
-initProfilePage();
+/* =========================
+   ADMIN LINK
+========================= */
 
 async function protectAdminUI() {
-  const adminLink = document.getElementById("adminLink");
+
+  const adminLink =
+    document.getElementById("adminLink");
+
   if (!adminLink) return;
 
-  const { data: { user } } = await supabaseClient.auth.getUser();
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
 
+  // pas connecté
   if (!user) {
     adminLink.style.display = "none";
     return;
@@ -85,36 +130,114 @@ async function protectAdminUI() {
     .eq("id", user.id)
     .maybeSingle();
 
+  // pas admin
   if (!profile || profile.role !== "admin") {
     adminLink.style.display = "none";
   }
+
 }
 
-(async () => {
-  initTheme();
-  registerServiceWorker();
+/* =========================
+   ADMIN PAGE
+========================= */
 
-  await autoLogin();
-  await initCurrentUser();
-  await checkExistingProfile();
-  await loadPersistentNotifications();
-  await protectAdminUI();
-  await updateOnlineStatus();
-  initNotificationUI();
-  initRealtimeNotifications();
-  initSupportRealtime();
-  initPushRegistration();
+function initAdminPage() {
 
-  initAvatarPreview();
-  initCreateProfile();
-  initEditProfile();
-  initPhotosUpload();
-  initProfilesList();
-  initProfileDetail();
-  initStories();
-  initStoriesUpload();
-  initChat();
-  loadMyProfileCard();
-  initSupport();
+  const adminUsers =
+    document.getElementById("adminUsers");
 
-})();
+  if (adminUsers) {
+    initAdminUsers();
+  }
+
+}
+
+/* =========================
+   APP START
+========================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    try {
+
+      /* thème */
+      initTheme();
+
+      /* service worker */
+      registerServiceWorker();
+
+      /* auth */
+      await autoLogin();
+
+      await initCurrentUser();
+
+      await checkExistingProfile();
+
+      /* online */
+      await updateOnlineStatus();
+
+      /* notifications */
+      await loadPersistentNotifications();
+
+      initNotificationUI();
+
+      initRealtimeNotifications();
+
+      /* support realtime */
+      initSupportRealtime();
+
+      /* push */
+      initPushRegistration();
+
+      /* admin */
+      await protectAdminUI();
+
+      initAdminPage();
+
+      /* profile */
+      initAvatarPreview();
+
+      initCreateProfile();
+
+      initEditProfile();
+
+      initPhotosUpload();
+
+      loadMyProfileCard();
+
+      /* profils */
+      initProfilesList();
+
+      initProfileDetail();
+
+      initProfilePage();
+
+      /* stories */
+      initStories();
+
+      initStoriesUpload();
+
+      /* chat */
+      initChat();
+
+      /* support */
+      initSupport();
+
+      /* home */
+      initHomeRedirect();
+
+      console.log("✅ App initialisée");
+
+    } catch (err) {
+
+      console.error(
+        "❌ Erreur app-init:",
+        err
+      );
+
+    }
+
+  }
+);
