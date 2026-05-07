@@ -749,7 +749,7 @@ main {
 }
 
 .card {
-  background: radial-gradient(circle at top left, #1f2937, #020617);
+  background: radial-gradient(circle at top left, #263577);
   border-radius: 1rem;
   padding: 1.4rem;
   border: 1px solid rgba(148, 163, 184, 0.3);
@@ -785,7 +785,7 @@ main {
   padding: 0.7rem 0.8rem;
   border-radius: 0.6rem;
   border: 1px solid rgba(148, 163, 184, 0.4);
-  background: #020617;
+  background: #000000;
   color: #e5e7eb;
 }
 
