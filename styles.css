@@ -870,3 +870,48 @@ footer {
     }
 
 
+
+/* =========================
+   THEMES
+========================= */
+
+.theme-light {
+  background: #f7f7fb;
+  color: #111;
+}
+
+.theme-dark {
+  background: #121212;
+  color: #fff;
+}
+
+/* cartes */
+.theme-dark .card,
+.theme-dark .profile-item,
+.theme-dark .chat-window,
+.theme-dark .chat-users,
+.theme-dark .ticket-item,
+.theme-dark .premium-card,
+.theme-dark .card-form {
+  background: #1e1e1e;
+  color: white;
+}
+
+/* inputs */
+.theme-dark input,
+.theme-dark textarea,
+.theme-dark select {
+  background: #2a2a2a;
+  color: white;
+  border: 1px solid #444;
+}
+
+/* navbar */
+.theme-dark header {
+  background: #1b1b1b;
+}
+
+/* liens */
+.theme-dark a {
+  color: white;
+}

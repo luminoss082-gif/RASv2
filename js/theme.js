@@ -1,26 +1,43 @@
+
 /* =========================
-   THEME / MODE SOMBRE
+   THEME LIGHT / DARK
 ========================= */
 
 export function initTheme() {
-  const body = document.body;
+
   const themeToggle = document.getElementById("themeToggle");
 
-  const saved = localStorage.getItem("loveconnect-theme");
-  if (saved) {
-    if (saved === "dark") body.classList.add("theme-dark");
-  } else {
-    const hour = new Date().getHours();
-    if (hour >= 20 || hour <= 7) body.classList.add("theme-dark");
-  }
+  if (!themeToggle) return;
 
-  if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-      body.classList.toggle("theme-dark");
-      localStorage.setItem(
-        "loveconnect-theme",
-        body.classList.contains("theme-dark") ? "dark" : "light"
-      );
-    });
-  }
+  // thème sauvegardé
+  const savedTheme =
+    localStorage.getItem("theme") || "theme-light";
+
+  document.body.classList.remove(
+    "theme-light",
+    "theme-dark"
+  );
+
+  document.body.classList.add(savedTheme);
+
+  // bouton toggle
+  themeToggle.addEventListener("click", () => {
+
+    const isDark =
+      document.body.classList.contains("theme-dark");
+
+    document.body.classList.remove(
+      "theme-light",
+      "theme-dark"
+    );
+
+    const newTheme = isDark
+      ? "theme-light"
+      : "theme-dark";
+
+    document.body.classList.add(newTheme);
+
+    localStorage.setItem("theme", newTheme);
+  });
+
 }
