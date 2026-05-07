@@ -2,34 +2,87 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="LoveConnect, une plateforme de rencontre moderne pour créer des connexions sincères.">
   <title>LoveConnect – Accueil</title>
   <link rel="stylesheet" href="styles.css">
-
 </head>
-<body>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script type="module" src="js/config.js"></script>
-<script type="module" src="js/app-init.js"></script>
-<header>
-  <div class="logo">LoveConnect</div>
-  <nav>
-    <a href="index.html">Accueil</a>
-    <a href="liste.html" class="active">Profils</a>
-    <a href="premium.html">Premium</a>
-    <a href="admin.html" id="adminLink">Admin</a>
-    <button id="themeToggle" class="icon-btn">🌓</button>
-  </nav>
-</header>
 
-<main class="hero">
-  <h1>Rencontrez des personnes qui vous ressemblent</h1>
-  <p>Des connexions authentiques, respectueuses et sincères.</p>
-  <a href="create-profile.html" class="btn-primary">Créer mon profil</a>
-</main>
+<body class="theme-light home-page">
+  <header>
+    <div class="logo">LoveConnect</div>
 
-<footer>
-  <p>© 2026 LoveConnect — Tous droits réservés.</p>
-</footer>
+    <nav aria-label="Navigation principale">
+      <a href="index.html" class="active">Accueil</a>
+      <a href="liste.html">Profils</a>
+      <a href="premium.html">Premium</a>
+      <a href="notifications.html">Notifications</a>
+      <a href="support.html">Support</a>
+      <a href="chat.html" id="chatLink">Chat</a>
+      <a href="admin.html" id="adminLink">Admin</a>
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Changer le thème">🌓</button>
+    </nav>
+  </header>
 
+  <main>
+    <section class="hero home-hero">
+      <div class="hero-content">
+        <p class="eyebrow">Rencontres sérieuses • Profils réels • Chat sécurisé</p>
+        <h1>Rencontrez des personnes qui vous ressemblent vraiment</h1>
+        <p class="hero-subtitle">
+          Créez votre profil, découvrez des profils compatibles et commencez une conversation sincère en quelques clics.
+        </p>
+
+        <div class="hero-actions">
+          <a href="create-profile.html" class="btn-primary">Créer mon profil</a>
+          <a href="liste.html" class="btn ghost">Voir les profils</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section home-section" aria-labelledby="featuresTitle">
+      <h2 id="featuresTitle">Pourquoi choisir LoveConnect ?</h2>
+
+      <div class="cards">
+        <article class="card">
+          <h3>❤️ Matching intelligent</h3>
+          <p>Trouvez plus facilement des personnes qui correspondent à vos préférences.</p>
+        </article>
+
+        <article class="card">
+          <h3>💬 Chat simple</h3>
+          <p>Discutez avec vos matchs dans une interface claire, rapide et agréable.</p>
+        </article>
+
+        <article class="card">
+          <h3>🔔 Notifications</h3>
+          <p>Recevez les informations importantes directement depuis votre espace.</p>
+        </article>
+
+        <article class="card">
+          <h3>🛡️ Support & sécurité</h3>
+          <p>Ouvrez un ticket support et échangez avec l’équipe en cas de besoin.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section home-section premium-box" aria-labelledby="premiumTitle">
+      <h2 id="premiumTitle">Passez au niveau supérieur</h2>
+      <p>
+        Avec LoveConnect Premium, profitez d’une meilleure visibilité, du chat illimité et d’un support prioritaire.
+      </p>
+      <a href="premium.html" class="btn primary">Découvrir Premium</a>
+    </section>
+  </main>
+
+  <div id="notifBell" class="notif-bell" aria-label="Notifications">🔔</div>
+  <div id="notifPanel" class="notif-panel"></div>
+
+  <footer>
+    <p>© 2026 LoveConnect — Tous droits réservés.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="js/app-init.js"></script>
 </body>
 </html>
