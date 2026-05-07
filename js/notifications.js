@@ -76,7 +76,7 @@ export async function markNotificationsRead() {
     .update({ is_read: true })
     .eq("user_id", state.currentUserId);
 
-  setNotifList(state.notifList.map(n => ({ ...n, is_read: true })));
+  setNotifList(filtered.map(n => ({ ...n, is_read: true })));
   updateNotifUI();
 }
 
@@ -137,4 +137,3 @@ function getFilteredNotifications() {
 
   return state.notifList.filter(n => n.type === currentFilter);
 }
-const filtered = getFilteredNotifications();
