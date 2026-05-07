@@ -66,7 +66,6 @@ export async function loadProfiles() {
 
 const visibleProfiles = (profiles || []).filter(p => {
   // Pour les tests : on affiche aussi mon propre profil
-  if (p.id !== state.currentUserId && blockedIds.has(p.id)) return false;
   if (p.is_banned) return false;
   return true;
 });
