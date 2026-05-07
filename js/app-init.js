@@ -21,6 +21,41 @@ import { loadMyProfileCard } from "./my-profile-card.js";
 import { initProfilePage } from "./profile-carousel.js";
 import { initSupport } from "./support.js";
 
+async function updateOnlineStatus() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  if (!user) return;
+
+  // utilisateur connecté
+  await supabaseClient
+    .from("profiles")
+    .update({
+      is_online: true,
+      last_seen: new Date().toISOString()
+    })
+    .eq("id", user.id);
+
+  // quand il quitte
+  window.addEventListener("beforeunload", async () => {
+    await supabaseClient
+      .from("profiles")
+      .update({
+        is_online: false,
+        last_seen: new Date().toISOString()
+      })
+      .eq("id", user.id);
+  });
+
+  // refresh activité toutes les 30 sec
+  setInterval(async () => {
+    await supabaseClient
+      .from("profiles")
+      .update({
+        last_seen: new Date().toISOString()
+      })
+      .eq("id", user.id);
+  }, 30000);
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const adminTable = document.getElementById("adminUsers");
@@ -64,6 +99,7 @@ async function protectAdminUI() {
   await checkExistingProfile();
   await loadPersistentNotifications();
   await protectAdminUI();
+  await updateOnlineStatus();
   initNotificationUI();
   initRealtimeNotifications();
   initSupportRealtime();

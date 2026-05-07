@@ -117,3 +117,28 @@ export function initProfilesList() {
   if (filtersForm) filtersForm.addEventListener("input", renderProfiles);
   loadProfiles();
 }
+function formatLastSeen(dateString) {
+  const date = new Date(dateString);
+  const diff = Math.floor((Date.now() - date.getTime()) / 60000);
+
+  if (diff < 1) return "À l’instant";
+  if (diff < 60) return `Vu il y a ${diff} min`;
+
+  const hours = Math.floor(diff / 60);
+
+  if (hours < 24) return `Vu il y a ${hours}h`;
+
+  const days = Math.floor(hours / 24);
+
+  return `Vu il y a ${days}j`;
+  ${p.is_online
+  ? `<span class="online-badge">🟢 En ligne</span>`
+  : `<span class="offline-badge">⏰ ${formatLastSeen(p.last_seen)}</span>`
+}
+}
+
+createNotification(userId, "message", "Nouveau message", "chat.html");
+
+createNotification(userId, "support", "Réponse support", "support.html");
+
+createNotification(userId, "like", "Quelqu’un vous aime ❤️", "profile.html");
