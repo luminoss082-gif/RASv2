@@ -38,12 +38,15 @@ export async function loadProfiles() {
   const { data: { user } } = await supabaseClient.auth.getUser();
   setCurrentUserId(user?.id || null);
 
+if (state.currentUserId) {
   await loadFavorites();
+}
 
-  const { data: profiles, error } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .order("created_at", { ascending: false });
+const { data: profiles, error } = await supabaseClient
+  .from("profiles")
+  .select("*")
+  .order("pseudo", { ascending: true });
+
 
   if (error) {
     console.error("Erreur profils:", error);
