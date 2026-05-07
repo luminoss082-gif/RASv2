@@ -64,11 +64,12 @@ export async function loadProfiles() {
     blockedIds = new Set((blocks || []).map(b => b.blocked));
   }
 
-  const visibleProfiles = (profiles || []).filter(p => {
-    if (blockedIds.has(p.id)) return false;
-    if (p.is_banned) return false;
-    return true;
-  });
+const visibleProfiles = (profiles || []).filter(p => {
+  // Pour les tests : on affiche aussi mon propre profil
+  if (p.id !== state.currentUserId && blockedIds.has(p.id)) return false;
+  if (p.is_banned) return false;
+  return true;
+});
 
   setProfilesCache(visibleProfiles);
 
