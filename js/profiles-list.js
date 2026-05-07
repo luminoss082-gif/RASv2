@@ -47,10 +47,6 @@ export function renderMyProfile() {
       <h3>${me.pseudo}${me.age ? ", " + me.age : ""} ${me.is_verified ? "✔️" : ""}</h3>
       <p>${me.city || ""}</p>
       <p>${me.tagline || ""}</p>
-      ${p.is_online
-  ? `<span class="online-badge">🟢 En ligne</span>`
-  : `<span class="offline-badge">⏰ ${formatLastSeen(p.last_seen)}</span>`
-}
       <button class="btn ghost" onclick="window.location.href='edit-profile.html'">Modifier mon profil</button>
     </div>
   `;
@@ -92,16 +88,16 @@ export function renderProfiles() {
     div.innerHTML = `
       <button class="favorite-btn ${state.favoritesSet.has(p.id) ? "filled" : ""}" data-fav="${p.id}">
         ${state.favoritesSet.has(p.id) ? "♥" : "♡"}
+        ${p.is_online
+  ? `<span class="online-badge">🟢 En ligne</span>`
+  : `<span class="offline-badge">⏰ ${formatLastSeen(p.last_seen)}</span>`
+}
       </button>
       <img src="${p.avatar_url}" class="avatar-img">
       <div class="profile-info">
         <h3>${p.pseudo}${p.age ? ", " + p.age : ""} ${p.is_verified ? "✔️" : ""}</h3>
         <p>${p.city || ""}</p>
         <p>${p.tagline || ""}</p>
-        ${p.is_online
-  ? `<span class="online-badge">🟢 En ligne</span>`
-  : `<span class="offline-badge">⏰ ${formatLastSeen(p.last_seen)}</span>`
-}
       </div>
     `;
 
