@@ -1,7 +1,7 @@
 /* =========================
    APP INIT
 ========================= */
-
+import { supabaseClient } from "./config.js";
 import { autoLogin, initCurrentUser, checkExistingProfile, initHomeRedirect } from "./auth.js";
 import { initTheme } from "./theme.js";
 import { loadPersistentNotifications, initNotificationUI } from "./notifications.js";
