@@ -11,37 +11,56 @@ export function addNotificationLocal(n) {
   updateNotifUI();
 }
 
+let currentFilter = "all";
+
+function getFilteredNotifications() {
+  if (currentFilter === "all") {
+    return state.notifList;
+  }
+
+  if (currentFilter === "unread") {
+    return state.notifList.filter(n => !n.is_read);
+  }
+
+  return state.notifList.filter(n => n.type === currentFilter);
+}
+
 export function updateNotifUI() {
   const notifBell = document.getElementById("notifBell");
   const notifPanel = document.getElementById("notifPanel");
-  if (!notifBell || !notifPanel) return;
+  const notificationsList = document.getElementById("notificationsList");
 
-  const unread = state.notifList.some(n => !n.is_read);
-  if (unread) notifBell.classList.add("active");
-  else notifBell.classList.remove("active");
+  const filtered = getFilteredNotifications();
 
-  notifPanel.innerHTML = filtered.map(n => `
-    <div class="notif-item" data-id="${n.id || ""}">
-      <strong>•</strong> ${n.content}
-      <br><small>${n.date}</small>
-    </div>
-  `).join("");
- const notificationsList = document.getElementById("notificationsList");
+  if (notifBell) {
+    const unread = state.notifList.some(n => !n.is_read);
 
-if (notificationsList) {
-  notificationsList.innerHTML = state.notifList.length
-    ? filtered.map(n => `
-        <div class="notif-item">
-          <strong>${n.is_read ? "🔔" : "🔴"}</strong>
-          ${n.content}
-          <br>
-          <small>${n.date}</small>
-          ${n.link ? `<br><a href="${n.link}">Ouvrir</a>` : ""}
-        </div>
-      `).join("")
-    : "<p>Aucune notification.</p>";
-}
-let currentFilter = "all";
+    if (unread) notifBell.classList.add("active");
+    else notifBell.classList.remove("active");
+  }
+
+  if (notifPanel) {
+    notifPanel.innerHTML = state.notifList.map(n => `
+      <div class="notif-item" data-id="${n.id || ""}">
+        <strong>•</strong> ${n.content}
+        <br><small>${n.date}</small>
+      </div>
+    `).join("");
+  }
+
+  if (notificationsList) {
+    notificationsList.innerHTML = filtered.length
+      ? filtered.map(n => `
+          <div class="notif-item">
+            <strong>${n.is_read ? "🔔" : "🔴"}</strong>
+            ${n.content}
+            <br>
+            <small>${n.date}</small>
+            ${n.link ? `<br><a href="${n.link}">Ouvrir</a>` : ""}
+          </div>
+        `).join("")
+      : "<p>Aucune notification.</p>";
+  }
 }
 
 export async function loadPersistentNotifications() {
@@ -115,16 +134,14 @@ export function initNotificationUI() {
       notifPanel.style.display = notifPanel.style.display === "block" ? "none" : "block";
       markNotificationsRead();
     };
-    document.querySelectorAll("[data-filter]").forEach((btn) => {
-
+document.querySelectorAll("[data-filter]").forEach((btn) => {
   btn.onclick = () => {
     currentFilter = btn.dataset.filter;
     updateNotifUI();
   };
-
 });
-  }
 }
+
 function getFilteredNotifications() {
 
   if (currentFilter === "all") {
