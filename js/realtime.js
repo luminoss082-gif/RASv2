@@ -7,6 +7,7 @@ import { state, setCurrentUserId } from "./core.js";
 import { createNotification, addNotificationLocal } from "./notifications.js";
 import { appendSupportMessage } from "./support.js";
 
+
 export function initRealtimeNotifications() {
   supabaseClient.channel("notif-messages").on(
     "postgres_changes",
