@@ -1,4 +1,3 @@
-
 /* =========================
    PROFILS + LISTE + FILTRES
 ========================= */
@@ -18,34 +17,58 @@ function formatLastSeen(dateString) {
   if (diff < 60) return `Vu il y a ${diff} min`;
 
   const hours = Math.floor(diff / 60);
-
   if (hours < 24) return `Vu il y a ${hours}h`;
 
   const days = Math.floor(hours / 24);
-
   return `Vu il y a ${days}j`;
+}
+
+function normalizeGender(value) {
+  if (!value) return "";
+  if (value === "Homme") return "H";
+  if (value === "Femme") return "F";
+  return value;
 }
 
 export async function loadProfiles() {
   if (!window.location.pathname.includes("liste.html")) return;
+
+  const profilesList = document.getElementById("profilesList");
 
   const { data: { user } } = await supabaseClient.auth.getUser();
   setCurrentUserId(user?.id || null);
 
   await loadFavorites();
 
-  const { data: profiles } = await supabaseClient
+  const { data: profiles, error } = await supabaseClient
     .from("profiles")
     .select("*")
     .order("created_at", { ascending: false });
 
-  const { data: blocks } = await supabaseClient
-    .from("blocks")
-    .select("blocked")
-    .eq("blocker", state.currentUserId);
+  if (error) {
+    console.error("Erreur profils:", error);
+    if (profilesList) {
+      profilesList.innerHTML = `<p class="error-msg">${error.message}</p>`;
+    }
+    return;
+  }
 
-  const blockedIds = new Set((blocks || []).map(b => b.blocked));
-  const visibleProfiles = (profiles || []).filter(p => !blockedIds.has(p.id));
+  let blockedIds = new Set();
+
+  if (state.currentUserId) {
+    const { data: blocks } = await supabaseClient
+      .from("blocks")
+      .select("blocked")
+      .eq("blocker", state.currentUserId);
+
+    blockedIds = new Set((blocks || []).map(b => b.blocked));
+  }
+
+  const visibleProfiles = (profiles || []).filter(p => {
+    if (blockedIds.has(p.id)) return false;
+    if (p.is_banned) return false;
+    return true;
+  });
 
   setProfilesCache(visibleProfiles);
 
@@ -56,14 +79,19 @@ export async function loadProfiles() {
 
 export function renderMyProfile() {
   const myProfileCard = document.getElementById("myProfileCard");
-
   if (!myProfileCard || !state.currentUserId) return;
 
-  const me = state.allProfilesCache.find(
-    p => p.id === state.currentUserId
-  );
+  const me = state.allProfilesCache.find(p => p.id === state.currentUserId);
 
-  if (!me) return;
+  if (!me) {
+    myProfileCard.innerHTML = `
+      <div class="card">
+        <p>Vous n’avez pas encore de profil.</p>
+        <a href="create-profile.html" class="btn primary">Créer mon profil</a>
+      </div>
+    `;
+    return;
+  }
 
   myProfileCard.innerHTML = `
     <img
@@ -73,9 +101,8 @@ export function renderMyProfile() {
     >
 
     <div class="profile-info">
-
       <h3>
-        ${me.pseudo}
+        ${me.pseudo || "Mon profil"}
         ${me.age ? ", " + me.age : ""}
         ${me.is_verified ? "✔️" : ""}
       </h3>
@@ -90,156 +117,102 @@ export function renderMyProfile() {
       <p>${me.city || ""}</p>
       <p>${me.tagline || ""}</p>
 
-      <button
-        class="btn ghost"
-        onclick="window.location.href='edit-profile.html'"
-      >
+      <button class="btn ghost" onclick="window.location.href='edit-profile.html'">
         Modifier mon profil
       </button>
-
     </div>
   `;
 }
 
 export function renderProfiles() {
   const profilesList = document.getElementById("profilesList");
-
   if (!profilesList) return;
 
-  const search = (
-    document.getElementById("searchInput")?.value || ""
-  ).toLowerCase();
+  const search = (document.getElementById("searchInput")?.value || "").toLowerCase();
+  const ageMin = parseInt(document.getElementById("ageMin")?.value || "0");
+  const ageMax = parseInt(document.getElementById("ageMax")?.value || "200");
+  const city = (document.getElementById("cityFilter")?.value || "").toLowerCase();
+  const gender = document.getElementById("genderFilter")?.value || "";
+  const favoritesOnly = document.getElementById("favoritesOnly")?.checked || false;
 
-  const ageMin = parseInt(
-    document.getElementById("ageMin")?.value || "0"
-  );
+  const filteredProfiles = state.allProfilesCache.filter(p => {
+    if (favoritesOnly && !state.favoritesSet.has(p.id)) return false;
 
-  const ageMax = parseInt(
-    document.getElementById("ageMax")?.value || "200"
-  );
+    if (search) {
+      const haystack = `${p.pseudo || ""} ${p.tagline || ""}`.toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
 
-  const city = (
-    document.getElementById("cityFilter")?.value || ""
-  ).toLowerCase();
+    if (!isNaN(ageMin) && p.age && p.age < ageMin) return false;
+    if (!isNaN(ageMax) && p.age && p.age > ageMax) return false;
 
-  const gender =
-    document.getElementById("genderFilter")?.value || "";
+    if (city && (!p.city || !p.city.toLowerCase().includes(city))) return false;
 
-  const favoritesOnly =
-    document.getElementById("favoritesOnly")?.checked || false;
+    if (gender && normalizeGender(p.gender) !== gender) return false;
+
+    return true;
+  });
 
   profilesList.innerHTML = "";
 
-  state.allProfilesCache
-    .filter(p => {
+  if (filteredProfiles.length === 0) {
+    profilesList.innerHTML = `<p>Aucun profil trouvé.</p>`;
+    return;
+  }
 
-      if (p.is_banned) return false;
+  filteredProfiles.forEach((p) => {
+    const div = document.createElement("div");
+    div.className = "profile-item";
+    div.setAttribute("data-id", p.id);
 
-      if (
-        favoritesOnly &&
-        !state.favoritesSet.has(p.id)
-      ) {
-        return false;
-      }
+    div.innerHTML = `
+      <button
+        class="favorite-btn ${state.favoritesSet.has(p.id) ? "filled" : ""}"
+        data-fav="${p.id}"
+      >
+        ${state.favoritesSet.has(p.id) ? "♥" : "♡"}
+      </button>
 
-      if (search) {
-        const haystack = `
-          ${p.pseudo || ""}
-          ${p.tagline || ""}
-        `.toLowerCase();
+      <img
+        src="${p.avatar_url || "default-avatar.png"}"
+        class="avatar-img"
+        onerror="this.src='default-avatar.png'"
+      >
 
-        if (!haystack.includes(search)) return false;
-      }
+      <div class="profile-info">
+        <h3>
+          ${p.pseudo || "Profil"}
+          ${p.age ? ", " + p.age : ""}
+          ${p.is_verified ? "✔️" : ""}
+        </h3>
 
-      if (!isNaN(ageMin) && p.age && p.age < ageMin) {
-        return false;
-      }
-
-      if (!isNaN(ageMax) && p.age && p.age > ageMax) {
-        return false;
-      }
-
-      if (
-        city &&
-        (!p.city || !p.city.toLowerCase().includes(city))
-      ) {
-        return false;
-      }
-
-      if (gender && p.gender !== gender) {
-        return false;
-      }
-
-      return true;
-    })
-
-    .forEach((p) => {
-
-      const div = document.createElement("div");
-
-      div.className = "profile-item";
-
-      div.setAttribute("data-id", p.id);
-
-      div.innerHTML = `
-
-        <button
-          class="favorite-btn ${state.favoritesSet.has(p.id) ? "filled" : ""}"
-          data-fav="${p.id}"
-        >
-          ${state.favoritesSet.has(p.id) ? "♥" : "♡"}
-        </button>
-
-        <img
-          src="${p.avatar_url || "default-avatar.png"}"
-          class="avatar-img"
-          onerror="this.src='default-avatar.png'"
-        >
-
-        <div class="profile-info">
-
-          <h3>
-            ${p.pseudo}
-            ${p.age ? ", " + p.age : ""}
-            ${p.is_verified ? "✔️" : ""}
-          </h3>
-
-          <div class="profile-status">
-            ${p.is_online
-              ? `<span class="online-badge">🟢 En ligne</span>`
-              : `<span class="offline-badge">⏰ ${formatLastSeen(p.last_seen)}</span>`
-            }
-          </div>
-
-          <p>${p.city || ""}</p>
-
-          <p>${p.tagline || ""}</p>
-
+        <div class="profile-status">
+          ${p.is_online
+            ? `<span class="online-badge">🟢 En ligne</span>`
+            : `<span class="offline-badge">⏰ ${formatLastSeen(p.last_seen)}</span>`
+          }
         </div>
-      `;
 
-      div.addEventListener("click", (e) => {
+        <p>${p.city || ""}</p>
+        <p>${p.tagline || ""}</p>
+      </div>
+    `;
 
-        if (e.target.closest(".favorite-btn")) return;
-
-        window.location.href = `profile.html?id=${p.id}`;
-      });
-
-      const favBtn = div.querySelector(".favorite-btn");
-
-      favBtn.addEventListener("click", (e) => {
-
-        e.stopPropagation();
-
-        toggleFavorite(p.id);
-      });
-
-      profilesList.appendChild(div);
+    div.addEventListener("click", (e) => {
+      if (e.target.closest(".favorite-btn")) return;
+      window.location.href = `profile.html?id=${p.id}`;
     });
+
+    div.querySelector(".favorite-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleFavorite(p.id);
+    });
+
+    profilesList.appendChild(div);
+  });
 }
 
 export function initProfilesList() {
-
   const filtersForm = document.getElementById("filtersForm");
 
   if (filtersForm) {
@@ -248,4 +221,3 @@ export function initProfilesList() {
 
   loadProfiles();
 }
-
