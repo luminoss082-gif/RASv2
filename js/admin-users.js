@@ -6,6 +6,23 @@ import { supabaseClient } from "./config.js";
 import { createNotification } from "./notifications.js";
 import { requireAdmin } from "./admin-guard.js";
 
+function getPremiumRemainingDays(dateString) {
+
+  if (!dateString) return "-";
+
+  const now = new Date();
+  const end = new Date(dateString);
+
+  const diff = end - now;
+
+  if (diff <= 0) return "Expiré";
+
+  const days = Math.ceil(
+    diff / (1000 * 60 * 60 * 24)
+  );
+
+  return `${days} jours`;
+}
 export async function initAdminUsers() {
   const adminUsers = document.getElementById("adminUsers");
   if (!adminUsers) return;
@@ -13,6 +30,7 @@ export async function initAdminUsers() {
   const isAdmin = await requireAdmin();
   if (!isAdmin) return;
 
+  
 
   async function loadAdminUsers() {
     const { data: profiles } = await supabaseClient
@@ -24,26 +42,54 @@ export async function initAdminUsers() {
 
     (profiles || []).forEach((p) => {
       const tr = document.createElement("tr");
-      tr.innerHTML = `
-      <td>
-  <img 
-    src="${p.avatar_url || 'default-avatar.png'}" 
-    class="chat-avatar"
-    onerror="this.src='default-avatar.png'"
-  >
-</td>
-        <td>${p.pseudo}</td>
-        <td>${p.is_premium ? "Oui" : "Non"}</td>
-        <td>${p.is_verified ? "✔️" : ""}</td>
-        <td>${p.is_banned ? "Oui" : "Non"}</td>
-        <td>
-          <button data-premium="${p.id}" class="btn ghost">${p.is_premium ? "Retirer Premium" : "Premium"}</button>
-          <button data-ban="${p.id}" class="btn danger">${p.is_banned ? "Débannir" : "Bannir"}</button>
-          <button data-verify="${p.id}" class="btn">${p.is_verified ? "Retirer ✔️" : "Vérifier ✔️"}</button>
-        </td>
-      `;
+   tr.innerHTML = `
+  <td>
+    <img
+      src="${p.avatar_url || 'default-avatar.png'}"
+      class="chat-avatar"
+      onerror="this.src='default-avatar.png'"
+    >
+  </td>
+
+  <td>${p.pseudo}</td>
+
+  <td>
+    ${p.is_premium ? "Oui" : "Non"}
+  </td>
+
+  <td>
+    ${p.is_premium
+      ? getPremiumRemainingDays(p.premium_expires_at)
+      : "-"
+    }
+  </td>
+
+  <td>${p.is_verified ? "✔️" : ""}</td>
+
+  <td>${p.is_banned ? "Oui" : "Non"}</td>
+
+  <td>
+    <button class="btn ghost" data-premium="${p.id}">   
+      ${p.is_premium ? "Retirer Premium" : "Rendre Premium"}
+    </button>
+  </td>
+  
+  <td>  
+    <button class="btn ghost" data-verify="${p.id}">
+      ${p.is_verified ? "Retirer Vérifié" : "Vérifier"}
+    </button>
+  </td>
+  
+  <td>
+    <button class="btn ghost" data-ban="${p.id}">
+      ${p.is_banned ? "Lever Bannissement" : "Bannir"}
+    </button>
+  </td>
+`;
       adminUsers.appendChild(tr);
-    });
+    }
+    );  
+      
 
     adminUsers.querySelectorAll("[data-premium]").forEach((btn) => {
       btn.onclick = async () => {
@@ -78,3 +124,20 @@ export async function initAdminUsers() {
 
   loadAdminUsers();
 }
+
+/* =========================
+   PREMIUM
+========================= */
+const premiumEnabled = !user.is_premium;
+
+await supabaseClient
+  .from("profiles")
+  .update({
+    is_premium: premiumEnabled,
+    premium_expires_at: premiumEnabled
+      ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+      : null
+  })
+  .eq("id", id);
+
+  
