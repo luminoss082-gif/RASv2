@@ -74,12 +74,36 @@ export async function loadProfiles() {
     return;
   }
 
-  const visibleProfiles = (profiles || []).filter((p) => {
-    if (p.is_banned) return false;
-    return true;
-  });
+let visibleProfiles = (profiles || []).filter((p) => {
+  if (p.is_banned) return false;
+  return true;
+});
 
-  setProfilesCache(visibleProfiles);
+/* FORCE MON PROFIL DANS LA LISTE */
+if (state.currentUserId) {
+  const alreadyInList = visibleProfiles.some(
+    (p) => p.id === state.currentUserId
+  );
+
+  if (!alreadyInList) {
+    const { data: myProfile, error: myProfileError } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", state.currentUserId)
+      .maybeSingle();
+
+    if (myProfileError) {
+      console.error("Erreur chargement mon profil:", myProfileError);
+    }
+
+    if (myProfile) {
+      visibleProfiles.unshift(myProfile);
+    }
+  }
+}
+
+setProfilesCache(visibleProfiles);
+state.allProfilesCache = visibleProfiles;
 
   renderProfiles();
   renderMyProfile();
