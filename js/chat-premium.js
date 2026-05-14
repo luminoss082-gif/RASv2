@@ -40,39 +40,40 @@ export async function initChat() {
 
 async function loadChatUsers() {
   const chatUsers = document.getElementById("chatUsers");
-  const chatHeader = document.getElementById("chatHeader");
-
   if (!chatUsers) return;
 
-  const { data: profiles, error } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .order("pseudo", { ascending: true });
+  const { data: access, error } = await supabaseClient
+    .from("chat_access")
+    .select(`
+      target_id,
+      profiles:target_id (*)
+    `)
+    .eq("buyer_id", state.currentUserId);
 
   if (error) {
-    console.error("Erreur profils chat:", error);
     chatUsers.innerHTML = `<p>${error.message}</p>`;
     return;
   }
 
   chatUsers.innerHTML = "";
 
-  if (!profiles || profiles.length === 0) {
+  if (!access || access.length === 0) {
     chatUsers.innerHTML = `
       <div class="chat-empty">
         <div>
-          <strong>Aucun profil trouvé</strong>
-          <span>Les profils créés apparaîtront ici.</span>
+          <strong>Aucun chat débloqué</strong>
+          <span>Va sur la page Profils pour acheter un accès chat.</span>
         </div>
       </div>
     `;
     return;
   }
 
-  profiles.forEach((profile) => {
+  access.forEach((row) => {
+    const profile = row.profiles;
+
     const div = document.createElement("div");
     div.className = "chat-user";
-    div.dataset.id = profile.id;
 
     div.innerHTML = `
       <img
@@ -82,35 +83,18 @@ async function loadChatUsers() {
       >
 
       <div class="chat-user-info">
-        <strong>
-          ${profile.pseudo || "Utilisateur"}
-          ${profile.age ? ", " + profile.age : ""}
-          ${profile.is_verified ? "✔️" : ""}
-        </strong>
-
+        <strong>${profile.pseudo || "Utilisateur"}</strong>
         <small>${profile.city || ""}</small>
-
-        <div class="chat-status">
-          ${profile.is_online ? "🟢 En ligne" : "⚫ Hors ligne"}
-        </div>
       </div>
     `;
 
     div.onclick = async () => {
       currentChatUserId = profile.id;
 
-      document.querySelectorAll(".chat-user").forEach((u) => {
-        u.classList.remove("active");
-      });
-
-      div.classList.add("active");
-
-      if (chatHeader) {
-        chatHeader.innerHTML = `
-          <h2>${profile.pseudo || "Conversation"}</h2>
-          <p>${profile.is_online ? "🟢 En ligne" : "⚫ Hors ligne"}</p>
-        `;
-      }
+      document.getElementById("chatHeader").innerHTML = `
+        <h2>${profile.pseudo || "Conversation"}</h2>
+        <p>Chat débloqué</p>
+      `;
 
       await loadMessages(profile.id);
     };

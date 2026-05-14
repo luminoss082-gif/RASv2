@@ -199,6 +199,13 @@ export function renderProfiles() {
 
         <p>${p.city || ""}</p>
         <p>${p.tagline || ""}</p>
+           <a
+  href="https://paypal.me/jeffreygadal1/10.00"
+  target="_blank"
+  class="btn primary"
+>
+  Payer pour parler avec cette personne : 10€
+</a>
       </div>
     `;
 
@@ -224,4 +231,28 @@ export function initProfilesList() {
   }
 
   loadProfiles();
+}
+const buyChatBtn = div.querySelector("[data-buy-chat]");
+
+if (buyChatBtn) {
+  buyChatBtn.addEventListener("click", async (e) => {
+    e.stopPropagation();
+
+    const targetId = buyChatBtn.dataset.buyChat;
+
+    const { error } = await supabaseClient
+      .from("chat_access")
+      .insert({
+        buyer_id: state.currentUserId,
+        target_id: targetId
+      });
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert("Accès chat débloqué !");
+    window.location.href = "chat.html";
+  });
 }
