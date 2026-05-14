@@ -1,5 +1,3 @@
-
-
 /* =========================
    CHAT SYSTEM
 ========================= */
@@ -244,38 +242,3 @@ function subscribeRealtimeMessages() {
     )
     .subscribe();
 }
-```
-
-# IMPORTANT
-
-Dans Supabase, vérifie aussi que la table `messages` a bien ces colonnes :
-
-```sql
-sender_id uuid
-receiver_id uuid
-content text
-created_at timestamptz
-```
-
-Et ajoute cette policy :
-
-```sql
-create policy "Users can send messages"
-on public.messages
-for insert
-to authenticated
-with check (
-  auth.uid() = sender_id
-);
-```
-
-```sql
-create policy "Users can read own messages"
-on public.messages
-for select
-to authenticated
-using (
-  auth.uid() = sender_id
-  or
-  auth.uid() = receiver_id
-);
