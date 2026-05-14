@@ -114,6 +114,7 @@ export async function loadProfiles() {
         return false;
       }
 
+      
       return true;
     });
 
