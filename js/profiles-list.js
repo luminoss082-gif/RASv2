@@ -206,7 +206,27 @@ export function renderMyProfile() {
     </div>
   `;
 }
+/* =========================
+   FORCE MON PROFIL
+========================= */
 
+if (
+  state.currentUserId &&
+  !filteredProfiles.find(
+    (p) => p.id === state.currentUserId
+  )
+) {
+
+  const me =
+    state.allProfilesCache.find(
+      (p) => p.id === state.currentUserId
+    );
+
+  if (me) {
+    filteredProfiles.unshift(me);
+  }
+
+}
 /* =========================
    RENDER PROFILS
 ========================= */
