@@ -21,20 +21,16 @@ function formatLastSeen(dateString) {
   if (diff < 60) return `Vu il y a ${diff} min`;
 
   const hours = Math.floor(diff / 60);
-
   if (hours < 24) return `Vu il y a ${hours}h`;
 
   const days = Math.floor(hours / 24);
-
   return `Vu il y a ${days}j`;
 }
 
 function normalizeGender(value) {
   if (!value) return "";
-
   if (value === "Homme") return "H";
   if (value === "Femme") return "F";
-
   return value;
 }
 
@@ -43,13 +39,9 @@ function normalizeGender(value) {
 ========================= */
 
 export async function loadProfiles() {
+  if (!window.location.pathname.includes("liste.html")) return;
 
-  if (!window.location.pathname.includes("liste.html")) {
-    return;
-  }
-
-  const profilesList =
-    document.getElementById("profilesList");
+  const profilesList = document.getElementById("profilesList");
 
   const {
     data: { user }
@@ -61,111 +53,76 @@ export async function loadProfiles() {
     await loadFavorites();
   }
 
-  const { data: profiles, error } =
-    await supabaseClient
-      .from("profiles")
-      .select("*")
-      .order("pseudo", { ascending: true });
+  const { data: profiles, error } = await supabaseClient
+    .from("profiles")
+    .select("*")
+    .order("pseudo", { ascending: true });
 
-  console.log("PROFILES:", profiles);
+  console.log("USER CONNECTÉ:", state.currentUserId);
+  console.log("PROFILS SUPABASE:", profiles);
   console.log("ERROR PROFILES:", error);
 
   if (error) {
-
     console.error(error);
 
     if (profilesList) {
       profilesList.innerHTML = `
-        <p class="error-msg">
-          ${error.message}
-        </p>
+        <p class="error-msg">${error.message}</p>
       `;
     }
 
     return;
   }
 
-  let blockedIds = new Set();
-
-  if (state.currentUserId) {
-
-    const { data: blocks } =
-      await supabaseClient
-        .from("blocks")
-        .select("blocked")
-        .eq("blocker", state.currentUserId);
-
-    blockedIds = new Set(
-      (blocks || []).map((b) => b.blocked)
-    );
-  }
-
-console.log("USER CONNECTÉ:", state.currentUserId);
-console.log("PROFILS SUPABASE:", profiles);
-
-const visibleProfiles = (profiles || []).filter((p) => {
-  if (p.is_banned) return false;
-  return true;
-});
-
-  state.allProfilesCache = visibleProfiles;
+  const visibleProfiles = (profiles || []).filter((p) => {
+    if (p.is_banned) return false;
+    return true;
+  });
 
   setProfilesCache(visibleProfiles);
 
   renderProfiles();
-
   renderMyProfile();
 
   try {
     computeMatches();
   } catch (err) {
-    console.warn(err);
+    console.warn("computeMatches ignoré:", err);
   }
-
 }
 
 /* =========================
-   MON PROFIL
+   MON PROFIL EN HAUT
 ========================= */
 
 export function renderMyProfile() {
-
-  const myProfileCard =
-    document.getElementById("myProfileCard");
+  const myProfileCard = document.getElementById("myProfileCard");
 
   if (!myProfileCard) return;
 
   if (!state.currentUserId) {
-
     myProfileCard.innerHTML = `
       <div class="card">
         <p>Connectez-vous.</p>
       </div>
     `;
-
     return;
   }
 
-  const me =
-    state.allProfilesCache.find(
-      (p) => p.id === state.currentUserId
-    );
+  const me = state.allProfilesCache.find(
+    (p) => p.id === state.currentUserId
+  );
 
   if (!me) {
-
     myProfileCard.innerHTML = `
       <div class="card">
         <p>Vous n’avez pas encore de profil.</p>
 
-        <a
-          href="create-profile.html"
-          class="btn primary"
-        >
+        <a href="create-profile.html" class="btn primary">
           Créer mon profil
         </a>
       </div>
     `;
-
     return;
   }
 
@@ -174,10 +131,10 @@ export function renderMyProfile() {
       src="${me.avatar_url || "default-avatar.png"}"
       class="avatar-img"
       onerror="this.src='default-avatar.png'"
+      alt="Mon avatar"
     >
 
     <div class="profile-info">
-
       <h3>
         ${me.pseudo || "Mon profil"}
         ${me.age ? ", " + me.age : ""}
@@ -193,48 +150,25 @@ export function renderMyProfile() {
       </div>
 
       <p>${me.city || ""}</p>
-
       <p>${me.tagline || ""}</p>
 
       <button
         class="btn ghost"
+        type="button"
         onclick="window.location.href='edit-profile.html'"
       >
         Modifier mon profil
       </button>
-
     </div>
   `;
 }
-/* =========================
-   FORCE MON PROFIL
-========================= */
 
-if (
-  state.currentUserId &&
-  !filteredProfiles.find(
-    (p) => p.id === state.currentUserId
-  )
-) {
-
-  const me =
-    state.allProfilesCache.find(
-      (p) => p.id === state.currentUserId
-    );
-
-  if (me) {
-    filteredProfiles.unshift(me);
-  }
-
-}
 /* =========================
    RENDER PROFILS
 ========================= */
 
 export function renderProfiles() {
-
-  const profilesList =
-    document.getElementById("profilesList");
+  const profilesList = document.getElementById("profilesList");
 
   if (!profilesList) return;
 
@@ -243,11 +177,13 @@ export function renderProfiles() {
   ).toLowerCase();
 
   const ageMin = parseInt(
-    document.getElementById("ageMin")?.value || "0"
+    document.getElementById("ageMin")?.value || "0",
+    10
   );
 
   const ageMax = parseInt(
-    document.getElementById("ageMax")?.value || "200"
+    document.getElementById("ageMax")?.value || "200",
+    10
   );
 
   const city = (
@@ -260,134 +196,110 @@ export function renderProfiles() {
   const favoritesOnly =
     document.getElementById("favoritesOnly")?.checked || false;
 
-  const filteredProfiles =
-    state.allProfilesCache.filter((p) => {
+  const filteredProfiles = state.allProfilesCache.filter((p) => {
+    if (favoritesOnly && !state.favoritesSet.has(p.id)) {
+      return false;
+    }
 
-      if (
-        favoritesOnly &&
-        !state.favoritesSet.has(p.id)
-      ) {
-        return false;
-      }
+    if (search) {
+      const haystack = `${p.pseudo || ""} ${p.tagline || ""}`.toLowerCase();
 
-      if (search) {
+      if (!haystack.includes(search)) return false;
+    }
 
-        const haystack =
-          `${p.pseudo || ""} ${p.tagline || ""}`
-            .toLowerCase();
+    if (!isNaN(ageMin) && p.age && p.age < ageMin) {
+      return false;
+    }
 
-        if (!haystack.includes(search)) {
-          return false;
-        }
-      }
+    if (!isNaN(ageMax) && p.age && p.age > ageMax) {
+      return false;
+    }
 
-      if (
-        !isNaN(ageMin) &&
-        p.age &&
-        p.age < ageMin
-      ) {
-        return false;
-      }
+    if (city && (!p.city || !p.city.toLowerCase().includes(city))) {
+      return false;
+    }
 
-      if (
-        !isNaN(ageMax) &&
-        p.age &&
-        p.age > ageMax
-      ) {
-        return false;
-      }
+    if (gender && normalizeGender(p.gender) !== gender) {
+      return false;
+    }
 
-      if (
-        city &&
-        (
-          !p.city ||
-          !p.city.toLowerCase().includes(city)
-        )
-      ) {
-        return false;
-      }
+    return true;
+  });
 
-      if (
-        gender &&
-        normalizeGender(p.gender) !== gender
-      ) {
-        return false;
-      }
+  /* =========================
+     FORCE MON PROFIL DANS LA LISTE
+  ========================= */
 
-      return true;
-    });
+  if (
+    state.currentUserId &&
+    !filteredProfiles.find((p) => p.id === state.currentUserId)
+  ) {
+    const me = state.allProfilesCache.find(
+      (p) => p.id === state.currentUserId
+    );
+
+    if (me) {
+      filteredProfiles.unshift(me);
+    }
+  }
 
   profilesList.innerHTML = "";
 
   if (filteredProfiles.length === 0) {
-
     profilesList.innerHTML = `
       <p>Aucun profil trouvé.</p>
     `;
-
     return;
   }
 
   filteredProfiles.forEach((p) => {
+    const div = document.createElement("div");
 
-    const div =
-      document.createElement("div");
-
-    div.className = "profile-item";
+    div.className =
+      p.id === state.currentUserId
+        ? "profile-item my-profile"
+        : "profile-item";
 
     div.setAttribute("data-id", p.id);
 
     div.innerHTML = `
-
       <button
-        class="favorite-btn ${
-          state.favoritesSet.has(p.id)
-            ? "filled"
-            : ""
-        }"
+        class="favorite-btn ${state.favoritesSet.has(p.id) ? "filled" : ""}"
         data-fav="${p.id}"
+        type="button"
+        aria-label="Favori"
       >
-        ${
-          state.favoritesSet.has(p.id)
-            ? "♥"
-            : "♡"
-        }
+        ${state.favoritesSet.has(p.id) ? "♥" : "♡"}
       </button>
 
       <img
-        src="${
-          p.avatar_url ||
-          "default-avatar.png"
-        }"
+        src="${p.avatar_url || "default-avatar.png"}"
         class="avatar-img"
         onerror="this.src='default-avatar.png'"
+        alt="Avatar"
       >
 
       <div class="profile-info">
-
         <h3>
           ${p.pseudo || "Profil"}
           ${p.age ? ", " + p.age : ""}
           ${p.is_verified ? "✔️" : ""}
           ${
-  p.id === state.currentUserId
-    ? `<span class="badge-self">Mon profil</span>`
-    : ""
-}
+            p.id === state.currentUserId
+              ? `<span class="badge-self">Mon profil</span>`
+              : ""
+          }
         </h3>
 
         <div class="profile-status">
-
           ${
             p.is_online
               ? `<span class="online-badge">🟢 En ligne</span>`
               : `<span class="offline-badge">⏰ ${formatLastSeen(p.last_seen)}</span>`
           }
-
         </div>
 
         <p>${p.city || ""}</p>
-
         <p>${p.tagline || ""}</p>
 
         ${
@@ -395,6 +307,7 @@ export function renderProfiles() {
             ? `
               <button
                 class="btn primary"
+                type="button"
                 data-request-chat="${p.id}"
               >
                 Demander à discuter
@@ -402,6 +315,7 @@ export function renderProfiles() {
 
               <button
                 class="btn success"
+                type="button"
                 data-pay-chat="${p.id}"
               >
                 Payer et contacter admin
@@ -413,7 +327,6 @@ export function renderProfiles() {
               </span>
             `
         }
-
       </div>
     `;
 
@@ -422,7 +335,6 @@ export function renderProfiles() {
     ========================= */
 
     div.addEventListener("click", (e) => {
-
       if (
         e.target.closest(".favorite-btn") ||
         e.target.closest("[data-request-chat]") ||
@@ -431,146 +343,93 @@ export function renderProfiles() {
         return;
       }
 
-      window.location.href =
-        `profile.html?id=${p.id}`;
-
+      window.location.href = `profile.html?id=${p.id}`;
     });
 
     /* =========================
        FAVORIS
     ========================= */
 
-    const favBtn =
-      div.querySelector(".favorite-btn");
+    const favBtn = div.querySelector(".favorite-btn");
 
     if (favBtn) {
+      favBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
 
-      favBtn.addEventListener(
-        "click",
-        async (e) => {
-
-          e.stopPropagation();
-
-          if (!state.currentUserId) {
-            alert(
-              "Connectez-vous."
-            );
-            return;
-          }
-
-          await toggleFavorite(p.id);
-
+        if (!state.currentUserId) {
+          alert("Connectez-vous.");
+          return;
         }
-      );
 
+        await toggleFavorite(p.id);
+      });
     }
 
     /* =========================
        DEMANDE DISCUSSION
     ========================= */
 
-    const requestChatBtn =
-      div.querySelector(
-        "[data-request-chat]"
-      );
+    const requestChatBtn = div.querySelector("[data-request-chat]");
 
     if (requestChatBtn) {
+      requestChatBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
 
-      requestChatBtn.addEventListener(
-        "click",
-        async (e) => {
-
-          e.stopPropagation();
-
-          if (!state.currentUserId) {
-
-            alert(
-              "Connectez-vous."
-            );
-
-            return;
-          }
-
-          const { error } =
-            await supabaseClient
-              .from("chat_requests")
-              .insert({
-                requester_id:
-                  state.currentUserId,
-                target_id: p.id,
-                status: "pending"
-              });
-
-          if (error) {
-
-            if (
-              error.code === "23505"
-            ) {
-
-              alert(
-                "Demande déjà envoyée."
-              );
-
-              return;
-            }
-
-            alert(error.message);
-
-            return;
-          }
-
-          alert(
-            "Demande envoyée !"
-          );
-
+        if (!state.currentUserId) {
+          alert("Connectez-vous.");
+          return;
         }
-      );
 
+        const { error } = await supabaseClient
+          .from("chat_requests")
+          .insert({
+            requester_id: state.currentUserId,
+            target_id: p.id,
+            status: "pending"
+          });
+
+        if (error) {
+          if (error.code === "23505") {
+            alert("Demande déjà envoyée.");
+            return;
+          }
+
+          alert(error.message);
+          return;
+        }
+
+        alert("Demande envoyée !");
+      });
     }
 
     /* =========================
        PAYPAL + WHATSAPP
     ========================= */
 
-    const payChatBtn =
-      div.querySelector(
-        "[data-pay-chat]"
-      );
+    const payChatBtn = div.querySelector("[data-pay-chat]");
 
     if (payChatBtn) {
+      payChatBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
 
-      payChatBtn.addEventListener(
-        "click",
-        (e) => {
+        window.open(
+          "https://paypal.me/jeffreygqadal1/5.00",
+          "_blank"
+        );
 
-          e.stopPropagation();
+        const message = encodeURIComponent(
+          `Bonjour, j'ai payé pour débloquer le chat avec ${p.pseudo || "ce profil"}. Mon ID utilisateur est : ${state.currentUserId}. Merci !`
+        );
 
-          window.open(
-            "https://paypal.me/jeffreygqadal1/5.00",
-            "_blank"
-          );
-
-          const message =
-            encodeURIComponent(
-              `Bonjour, j'ai payé pour débloquer le chat avec ${p.pseudo || "ce profil"}. Mon pseudo est : ${state.currentUserId}. Merci !`
-            );
-
-          setTimeout(() => {
-
-            window.location.href =
-              `https://wa.me/33676615490?text=${message}`;
-
-          }, 1500);
-
-        }
-      );
-
+        setTimeout(() => {
+          window.location.href =
+            `https://wa.me/33676615490?text=${message}`;
+        }, 1500);
+      });
     }
 
     profilesList.appendChild(div);
-
   });
-
 }
 
 /* =========================
@@ -578,19 +437,11 @@ export function renderProfiles() {
 ========================= */
 
 export function initProfilesList() {
-
-  const filtersForm =
-    document.getElementById("filtersForm");
+  const filtersForm = document.getElementById("filtersForm");
 
   if (filtersForm) {
-
-    filtersForm.addEventListener(
-      "input",
-      renderProfiles
-    );
-
+    filtersForm.addEventListener("input", renderProfiles);
   }
 
   loadProfiles();
-
 }
