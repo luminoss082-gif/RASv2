@@ -1349,3 +1349,17 @@ textarea {
     margin-top: 8px;
   }
 }
+
+#myProfileCard img,
+#myProfileCard .avatar-img,
+.my-profile-card img,
+.my-profile-card .avatar-img {
+  width: 70px !important;
+  height: 70px !important;
+  max-width: 70px !important;
+  max-height: 70px !important;
+  min-width: 70px !important;
+  min-height: 70px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+}
