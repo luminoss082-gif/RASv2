@@ -109,7 +109,7 @@ const visibleProfiles = (profiles || []).filter((p) => {
 });
 
   state.allProfilesCache = visibleProfiles;
-  
+
   setProfilesCache(visibleProfiles);
 
   renderProfiles();
@@ -349,6 +349,11 @@ export function renderProfiles() {
           ${p.pseudo || "Profil"}
           ${p.age ? ", " + p.age : ""}
           ${p.is_verified ? "✔️" : ""}
+          ${
+  p.id === state.currentUserId
+    ? `<span class="badge-self">Mon profil</span>`
+    : ""
+}
         </h3>
 
         <div class="profile-status">
