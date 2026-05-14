@@ -40,31 +40,39 @@ export async function initChat() {
 
 async function loadChatUsers() {
   const chatUsers = document.getElementById("chatUsers");
+  const chatHeader = document.getElementById("chatHeader");
 
   if (!chatUsers) return;
 
   const { data: profiles, error } = await supabaseClient
     .from("profiles")
     .select("*")
-    .neq("id", state.currentUserId)
     .order("pseudo", { ascending: true });
 
   if (error) {
-    console.error(error);
+    console.error("Erreur profils chat:", error);
+    chatUsers.innerHTML = `<p>${error.message}</p>`;
     return;
   }
 
   chatUsers.innerHTML = "";
 
   if (!profiles || profiles.length === 0) {
-    chatUsers.innerHTML = `<p>Aucun utilisateur trouvé.</p>`;
+    chatUsers.innerHTML = `
+      <div class="chat-empty">
+        <div>
+          <strong>Aucun profil trouvé</strong>
+          <span>Les profils créés apparaîtront ici.</span>
+        </div>
+      </div>
+    `;
     return;
   }
 
   profiles.forEach((profile) => {
     const div = document.createElement("div");
-
     div.className = "chat-user";
+    div.dataset.id = profile.id;
 
     div.innerHTML = `
       <img
@@ -76,14 +84,14 @@ async function loadChatUsers() {
       <div class="chat-user-info">
         <strong>
           ${profile.pseudo || "Utilisateur"}
+          ${profile.age ? ", " + profile.age : ""}
           ${profile.is_verified ? "✔️" : ""}
         </strong>
 
+        <small>${profile.city || ""}</small>
+
         <div class="chat-status">
-          ${profile.is_online
-            ? "🟢 En ligne"
-            : "⚫ Hors ligne"
-          }
+          ${profile.is_online ? "🟢 En ligne" : "⚫ Hors ligne"}
         </div>
       </div>
     `;
@@ -96,6 +104,13 @@ async function loadChatUsers() {
       });
 
       div.classList.add("active");
+
+      if (chatHeader) {
+        chatHeader.innerHTML = `
+          <h2>${profile.pseudo || "Conversation"}</h2>
+          <p>${profile.is_online ? "🟢 En ligne" : "⚫ Hors ligne"}</p>
+        `;
+      }
 
       await loadMessages(profile.id);
     };
