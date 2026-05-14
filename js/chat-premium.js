@@ -1,145 +1,281 @@
+
+
 /* =========================
-   CHAT PREMIUM
+   CHAT SYSTEM
 ========================= */
 
 import { supabaseClient } from "./config.js";
 import { state, setCurrentUserId } from "./core.js";
-import { createNotification } from "./notifications.js";
 
-export function initChat() {
+let currentChatUserId = null;
+
+/* =========================
+   INIT CHAT
+========================= */
+
+export async function initChat() {
+  if (!window.location.pathname.includes("chat.html")) {
+    return;
+  }
+
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  setCurrentUserId(user.id);
+
+  await loadChatUsers();
+
+  initChatForm();
+
+  subscribeRealtimeMessages();
+}
+
+/* =========================
+   LOAD USERS
+========================= */
+
+async function loadChatUsers() {
   const chatUsers = document.getElementById("chatUsers");
-  const chatMessages = document.getElementById("chatMessages");
-  const chatForm = document.getElementById("chatForm");
-  const chatInput = document.getElementById("chatInput");
 
-  async function start() {
-    if (!chatUsers) return;
+  if (!chatUsers) return;
 
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    setCurrentUserId(user.id);
+  const { data: profiles, error } = await supabaseClient
+    .from("profiles")
+    .select("*")
+    .neq("id", state.currentUserId)
+    .order("pseudo", { ascending: true });
 
-    const { data: me } = await supabaseClient
-      .from("profiles")
-      .eq("id", user.id)
-      .single();
-
-    if (!me.is_premium) {
-      chatUsers.innerHTML = "<p>Chat réservé aux membres Premium.</p>";
-      return;
-    }
-
-    const { data: msgs } = await supabaseClient
-      .from("messages")
-      .select("sender, receiver")
-      .or(`sender.eq.${user.id},receiver.eq.${user.id}`);
-
-    const ids = new Set();
-    (msgs || []).forEach((m) => {
-      if (m.sender !== user.id) ids.add(m.sender);
-      if (m.receiver !== user.id) ids.add(m.receiver);
-    });
-
-    if (ids.size === 0) {
-      chatUsers.innerHTML = "<p>Aucune conversation pour l'instant.</p>";
-      return;
-    }
-
-    const { data: profiles } = await supabaseClient
-      .from("profiles")
-      .select("id,pseudo,avatar_url")
-      .in("id", Array.from(ids));
-
-    chatUsers.innerHTML = "";
-
-    (profiles || []).forEach((p) => {
-      const div = document.createElement("div");
-      div.className = "chat-user";
-      div.innerHTML = `
-        <img src="${p.avatar_url}" class="chat-avatar">
-        <span>${p.pseudo}</span>
-      `;
-      div.onclick = () => {
-        state.currentChatUserId = p.id;
-        loadMessages();
-      };
-      chatUsers.appendChild(div);
-    });
-
-    supabaseClient.channel("chat-realtime").on(
-      "postgres_changes",
-      { event: "INSERT", schema: "public", table: "messages" },
-      (payload) => {
-        const m = payload.new;
-        if (
-          state.currentChatUserId &&
-          ((m.sender === state.currentUserId && m.receiver === state.currentChatUserId) ||
-          (m.sender === state.currentChatUserId && m.receiver === state.currentUserId))
-        ) appendMessage(m);
-      }
-    ).subscribe();
+  if (error) {
+    console.error(error);
+    return;
   }
 
-  async function loadMessages() {
-    if (!state.currentChatUserId || !chatMessages) return;
+  chatUsers.innerHTML = "";
 
-    const { data: blocks } = await supabaseClient
-      .from("blocks")
-      .select("blocked")
-      .eq("blocker", state.currentUserId);
-
-    const blockedIds = new Set((blocks || []).map(b => b.blocked));
-
-    if (blockedIds.has(state.currentChatUserId)) {
-      chatMessages.innerHTML = "<p>Vous avez bloqué cet utilisateur.</p>";
-      return;
-    }
-
-    const { data } = await supabaseClient
-      .from("messages")
-      .select("*")
-      .or(`and(sender.eq.${state.currentUserId},receiver.eq.${state.currentChatUserId}),and(sender.eq.${state.currentChatUserId},receiver.eq.${state.currentUserId})`)
-      .order("created_at", { ascending: true });
-
-    chatMessages.innerHTML = "";
-    (data || []).forEach(appendMessage);
+  if (!profiles || profiles.length === 0) {
+    chatUsers.innerHTML = `<p>Aucun utilisateur trouvé.</p>`;
+    return;
   }
 
-  function appendMessage(m) {
-    if (!chatMessages) return;
+  profiles.forEach((profile) => {
     const div = document.createElement("div");
-    div.className = "chat-message";
-    if (m.sender === state.currentUserId) div.classList.add("me");
-    div.textContent = m.content;
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    div.className = "chat-user";
+
+    div.innerHTML = `
+      <img
+        src="${profile.avatar_url || "default-avatar.png"}"
+        class="chat-avatar"
+        onerror="this.src='default-avatar.png'"
+      >
+
+      <div class="chat-user-info">
+        <strong>
+          ${profile.pseudo || "Utilisateur"}
+          ${profile.is_verified ? "✔️" : ""}
+        </strong>
+
+        <div class="chat-status">
+          ${profile.is_online
+            ? "🟢 En ligne"
+            : "⚫ Hors ligne"
+          }
+        </div>
+      </div>
+    `;
+
+    div.onclick = async () => {
+      currentChatUserId = profile.id;
+
+      document.querySelectorAll(".chat-user").forEach((u) => {
+        u.classList.remove("active");
+      });
+
+      div.classList.add("active");
+
+      await loadMessages(profile.id);
+    };
+
+    chatUsers.appendChild(div);
+  });
+}
+
+/* =========================
+   LOAD MESSAGES
+========================= */
+
+async function loadMessages(otherUserId) {
+  const chatMessages = document.getElementById("chatMessages");
+
+  if (!chatMessages) return;
+
+  const { data: messages, error } = await supabaseClient
+    .from("messages")
+    .select("*")
+    .or(
+      `and(sender_id.eq.${state.currentUserId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${state.currentUserId})`
+    )
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    return;
   }
 
-  if (chatForm) {
-    chatForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!state.currentChatUserId) return;
+  chatMessages.innerHTML = "";
 
-      const content = chatInput.value.trim();
-      if (!content) return;
+  (messages || []).forEach((msg) => {
+    appendMessage(msg);
+  });
 
-      const { data: { user } } = await supabaseClient.auth.getUser();
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
-      await supabaseClient.from("messages").insert({
-        sender: user.id,
-        receiver: state.currentChatUserId,
+/* =========================
+   APPEND MESSAGE
+========================= */
+
+function appendMessage(msg) {
+  const chatMessages = document.getElementById("chatMessages");
+
+  if (!chatMessages) return;
+
+  const div = document.createElement("div");
+
+  div.className =
+    msg.sender_id === state.currentUserId
+      ? "msg me"
+      : "msg";
+
+  div.innerHTML = `
+    <div class="msg-content">
+      ${msg.content}
+    </div>
+
+    <small>
+      ${new Date(msg.created_at).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      })}
+    </small>
+  `;
+
+  chatMessages.appendChild(div);
+
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+/* =========================
+   SEND MESSAGE
+========================= */
+
+function initChatForm() {
+  const chatForm = document.getElementById("chatForm");
+
+  if (!chatForm) return;
+
+  chatForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (!currentChatUserId) {
+      alert("Sélectionnez une conversation.");
+      return;
+    }
+
+    const input = document.getElementById("chatInput");
+
+    if (!input) return;
+
+    const content = input.value.trim();
+
+    if (!content) return;
+
+    const { error } = await supabaseClient
+      .from("messages")
+      .insert({
+        sender_id: state.currentUserId,
+        receiver_id: currentChatUserId,
         content
       });
 
-      await createNotification(
-        state.currentChatUserId,
-        "message",
-        "Vous avez reçu un nouveau message",
-        `chat.html?user=${user.id}`
-      );
+    if (error) {
+      console.error(error);
+      alert(error.message);
+      return;
+    }
 
-      chatInput.value = "";
-    });
-  }
-
-  start();
+    input.value = "";
+  });
 }
+
+/* =========================
+   REALTIME
+========================= */
+
+function subscribeRealtimeMessages() {
+  supabaseClient
+    .channel("messages-realtime")
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "messages"
+      },
+      (payload) => {
+        const msg = payload.new;
+
+        const isCurrentConversation =
+          (msg.sender_id === state.currentUserId &&
+            msg.receiver_id === currentChatUserId) ||
+          (msg.receiver_id === state.currentUserId &&
+            msg.sender_id === currentChatUserId);
+
+        if (!isCurrentConversation) return;
+
+        appendMessage(msg);
+      }
+    )
+    .subscribe();
+}
+```
+
+# IMPORTANT
+
+Dans Supabase, vérifie aussi que la table `messages` a bien ces colonnes :
+
+```sql
+sender_id uuid
+receiver_id uuid
+content text
+created_at timestamptz
+```
+
+Et ajoute cette policy :
+
+```sql
+create policy "Users can send messages"
+on public.messages
+for insert
+to authenticated
+with check (
+  auth.uid() = sender_id
+);
+```
+
+```sql
+create policy "Users can read own messages"
+on public.messages
+for select
+to authenticated
+using (
+  auth.uid() = sender_id
+  or
+  auth.uid() = receiver_id
+);
