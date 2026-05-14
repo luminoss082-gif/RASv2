@@ -47,14 +47,16 @@ export function initCreateProfile() {
       if (errorMsg) errorMsg.textContent = "Utilisateur non connecté.";
       return;
     }
+let avatar_url = null;
 
-    let avatar_url = null;
-    try {
-      avatar_url = await uploadAvatar(user.id, avatarFile);
-    } catch (uploadError) {
-      if (errorMsg) errorMsg.textContent = uploadError.message;
-      return;
-    }
+try {
+  if (avatarFile && avatarFile.size > 0) {
+    avatar_url = await uploadAvatar(user.id, avatarFile);
+  }
+} catch (uploadError) {
+  console.warn("Avatar non envoyé :", uploadError.message);
+  avatar_url = null;
+}
 
     const { error } = await supabaseClient.from("profiles").insert({
       id: user.id,
