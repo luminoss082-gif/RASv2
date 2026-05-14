@@ -7,10 +7,6 @@ import { state, setCurrentUserId, setProfilesCache } from "./core.js";
 import { loadFavorites, toggleFavorite } from "./favorites.js";
 import { computeMatches } from "./matching.js";
 
-/* =========================
-   HELPERS
-========================= */
-
 function formatLastSeen(dateString) {
   if (!dateString) return "Hors ligne";
 
@@ -34,19 +30,16 @@ function normalizeGender(value) {
   return value;
 }
 
-/* =========================
-   LOAD PROFILS
-========================= */
+function getAvatarUrl(url) {
+  return url && url.startsWith("http") ? url : "default-avatar.png";
+}
 
 export async function loadProfiles() {
   if (!window.location.pathname.includes("liste.html")) return;
 
   const profilesList = document.getElementById("profilesList");
 
-  const {
-    data: { user }
-  } = await supabaseClient.auth.getUser();
-
+  const { data: { user } } = await supabaseClient.auth.getUser();
   setCurrentUserId(user?.id || null);
 
   if (state.currentUserId) {
@@ -63,47 +56,18 @@ export async function loadProfiles() {
   console.log("ERROR PROFILES:", error);
 
   if (error) {
-    console.error(error);
-
     if (profilesList) {
-      profilesList.innerHTML = `
-        <p class="error-msg">${error.message}</p>
-      `;
+      profilesList.innerHTML = `<p class="error-msg">${error.message}</p>`;
     }
-
     return;
   }
 
-let visibleProfiles = (profiles || []).filter((p) => {
-  if (p.is_banned) return false;
-  return true;
-});
+  const visibleProfiles = (profiles || []).filter((p) => {
+    if (p.is_banned) return false;
+    return true;
+  });
 
-/* FORCE MON PROFIL DANS LA LISTE */
-if (state.currentUserId) {
-  const alreadyInList = visibleProfiles.some(
-    (p) => p.id === state.currentUserId
-  );
-
-  if (!alreadyInList) {
-    const { data: myProfile, error: myProfileError } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id", state.currentUserId)
-      .maybeSingle();
-
-    if (myProfileError) {
-      console.error("Erreur chargement mon profil:", myProfileError);
-    }
-
-    if (myProfile) {
-      visibleProfiles.unshift(myProfile);
-    }
-  }
-}
-
-setProfilesCache(visibleProfiles);
-state.allProfilesCache = visibleProfiles;
+  setProfilesCache(visibleProfiles);
 
   renderProfiles();
   renderMyProfile();
@@ -115,13 +79,8 @@ state.allProfilesCache = visibleProfiles;
   }
 }
 
-/* =========================
-   MON PROFIL EN HAUT
-========================= */
-
 export function renderMyProfile() {
   const myProfileCard = document.getElementById("myProfileCard");
-
   if (!myProfileCard) return;
 
   if (!state.currentUserId) {
@@ -133,29 +92,24 @@ export function renderMyProfile() {
     return;
   }
 
-  const me = state.allProfilesCache.find(
-    (p) => p.id === state.currentUserId
-  );
+  const me = state.allProfilesCache.find((p) => p.id === state.currentUserId);
 
   if (!me) {
     myProfileCard.innerHTML = `
       <div class="card">
         <p>Vous n’avez pas encore de profil.</p>
-
-        <a href="create-profile.html" class="btn primary">
-          Créer mon profil
-        </a>
+        <a href="create-profile.html" class="btn primary">Créer mon profil</a>
       </div>
     `;
     return;
   }
 
   myProfileCard.innerHTML = `
-<img
-  src="${me.avatar_url && me.avatar_url.startsWith('http') ? me.avatar_url : 'default-avatar.png'}"
-  class="avatar-img"
-  onerror="this.src='default-avatar.png'"
->
+    <img
+      src="${getAvatarUrl(me.avatar_url)}"
+      class="avatar-img"
+      onerror="this.src='default-avatar.png'"
+    >
 
     <div class="profile-info">
       <h3>
@@ -186,96 +140,52 @@ export function renderMyProfile() {
   `;
 }
 
-/* =========================
-   RENDER PROFILS
-========================= */
-
 export function renderProfiles() {
   const profilesList = document.getElementById("profilesList");
-
   if (!profilesList) return;
 
-  const search = (
-    document.getElementById("searchInput")?.value || ""
-  ).toLowerCase();
+  const search = (document.getElementById("searchInput")?.value || "").toLowerCase();
+  const ageMin = parseInt(document.getElementById("ageMin")?.value || "0", 10);
+  const ageMax = parseInt(document.getElementById("ageMax")?.value || "200", 10);
+  const city = (document.getElementById("cityFilter")?.value || "").toLowerCase();
+  const gender = document.getElementById("genderFilter")?.value || "";
+  const favoritesOnly = document.getElementById("favoritesOnly")?.checked || false;
 
-  const ageMin = parseInt(
-    document.getElementById("ageMin")?.value || "0",
-    10
-  );
-
-  const ageMax = parseInt(
-    document.getElementById("ageMax")?.value || "200",
-    10
-  );
-
-  const city = (
-    document.getElementById("cityFilter")?.value || ""
-  ).toLowerCase();
-
-  const gender =
-    document.getElementById("genderFilter")?.value || "";
-
-  const favoritesOnly =
-    document.getElementById("favoritesOnly")?.checked || false;
-
-let filteredProfiles = [...state.allProfilesCache].filter((p) => {
-console.log("CACHE PROFILS:", state.allProfilesCache);
-console.log("PROFILS FILTRÉS:", filteredProfiles);
+  let filteredProfiles = [...state.allProfilesCache].filter((p) => {
     if (p.is_banned) return false;
-    if (!p.is_verified) return false;
-    if (favoritesOnly && !state.favoritesSet.has(p.id)) {
-      return false;
-    }
+
+    if (favoritesOnly && !state.favoritesSet.has(p.id)) return false;
 
     if (search) {
       const haystack = `${p.pseudo || ""} ${p.tagline || ""}`.toLowerCase();
-
       if (!haystack.includes(search)) return false;
     }
 
-    if (!isNaN(ageMin) && p.age && p.age < ageMin) {
-      return false;
-    }
+    if (!isNaN(ageMin) && p.age && p.age < ageMin) return false;
+    if (!isNaN(ageMax) && p.age && p.age > ageMax) return false;
 
-    if (!isNaN(ageMax) && p.age && p.age > ageMax) {
-      return false;
-    }
+    if (city && (!p.city || !p.city.toLowerCase().includes(city))) return false;
 
-    if (city && (!p.city || !p.city.toLowerCase().includes(city))) {
-      return false;
-    }
-
-    if (gender && normalizeGender(p.gender) !== gender) {
-      return false;
-    }
+    if (gender && normalizeGender(p.gender) !== gender) return false;
 
     return true;
   });
-
-  /* =========================
-     FORCE MON PROFIL DANS LA LISTE
-  ========================= */
 
   if (
     state.currentUserId &&
     !filteredProfiles.find((p) => p.id === state.currentUserId)
   ) {
-    const me = state.allProfilesCache.find(
-      (p) => p.id === state.currentUserId
-    );
-
-    if (me) {
-      filteredProfiles.unshift(me);
-    }
+    const me = state.allProfilesCache.find((p) => p.id === state.currentUserId);
+    if (me) filteredProfiles.unshift(me);
   }
+
+  console.log("CACHE PROFILS:", state.allProfilesCache);
+  console.log("PROFILS À AFFICHER:", filteredProfiles);
 
   profilesList.innerHTML = "";
 
   if (filteredProfiles.length === 0) {
-    profilesList.innerHTML = `
-      <p>Aucun profil trouvé.</p>
-    `;
+    profilesList.innerHTML = `<p>Aucun profil trouvé.</p>`;
     return;
   }
 
@@ -294,16 +204,15 @@ console.log("PROFILS FILTRÉS:", filteredProfiles);
         class="favorite-btn ${state.favoritesSet.has(p.id) ? "filled" : ""}"
         data-fav="${p.id}"
         type="button"
-        aria-label="Favori"
       >
         ${state.favoritesSet.has(p.id) ? "♥" : "♡"}
       </button>
 
-   <img
-  src="${p.avatar_url && p.avatar_url.startsWith('http') ? p.avatar_url : 'default-avatar.png'}"
-  class="avatar-img"
-  onerror="this.src='default-avatar.png'"
->
+      <img
+        src="${getAvatarUrl(p.avatar_url)}"
+        class="avatar-img"
+        onerror="this.src='default-avatar.png'"
+      >
 
       <div class="profile-info">
         <h3>
@@ -331,34 +240,18 @@ console.log("PROFILS FILTRÉS:", filteredProfiles);
         ${
           p.id !== state.currentUserId
             ? `
-              <button
-                class="btn primary"
-                type="button"
-                data-request-chat="${p.id}"
-              >
+              <button class="btn primary" type="button" data-request-chat="${p.id}">
                 Demander à discuter
               </button>
 
-              <button
-                class="btn success"
-                type="button"
-                data-pay-chat="${p.id}"
-              >
+              <button class="btn success" type="button" data-pay-chat="${p.id}">
                 Payer et contacter admin
               </button>
             `
-            : `
-              <span class="badge-self">
-                Mon profil
-              </span>
-            `
+            : `<span class="badge-self">Mon profil</span>`
         }
       </div>
     `;
-
-    /* =========================
-       OUVRIR PROFIL
-    ========================= */
 
     div.addEventListener("click", (e) => {
       if (
@@ -371,10 +264,6 @@ console.log("PROFILS FILTRÉS:", filteredProfiles);
 
       window.location.href = `profile.html?id=${p.id}`;
     });
-
-    /* =========================
-       FAVORIS
-    ========================= */
 
     const favBtn = div.querySelector(".favorite-btn");
 
@@ -390,10 +279,6 @@ console.log("PROFILS FILTRÉS:", filteredProfiles);
         await toggleFavorite(p.id);
       });
     }
-
-    /* =========================
-       DEMANDE DISCUSSION
-    ========================= */
 
     const requestChatBtn = div.querySelector("[data-request-chat]");
 
@@ -428,10 +313,6 @@ console.log("PROFILS FILTRÉS:", filteredProfiles);
       });
     }
 
-    /* =========================
-       PAYPAL + WHATSAPP
-    ========================= */
-
     const payChatBtn = div.querySelector("[data-pay-chat]");
 
     if (payChatBtn) {
@@ -457,10 +338,6 @@ console.log("PROFILS FILTRÉS:", filteredProfiles);
     profilesList.appendChild(div);
   });
 }
-
-/* =========================
-   INIT
-========================= */
 
 export function initProfilesList() {
   const filtersForm = document.getElementById("filtersForm");
