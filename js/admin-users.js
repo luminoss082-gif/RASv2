@@ -7,24 +7,6 @@ import { createNotification } from "./notifications.js";
 import { requireAdmin } from "./admin-guard.js";
 
 /* =========================
-   PREMIUM DAYS
-========================= */
-
-function getPremiumRemainingDays(dateString) {
-  if (!dateString) return "-";
-
-  const now = new Date();
-  const end = new Date(dateString);
-  const diff = end - now;
-
-  if (diff <= 0) return "Expiré";
-
-  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-
-  return `${days} jours`;
-}
-
-/* =========================
    INIT ADMIN USERS
 ========================= */
 
@@ -80,15 +62,6 @@ export async function initAdminUsers() {
 
         <td>${p.role || "user"}</td>
 
-        <td>${p.is_premium ? "Oui" : "Non"}</td>
-
-        <td>
-          ${p.is_premium
-            ? getPremiumRemainingDays(p.premium_expires_at)
-            : "-"
-          }
-        </td>
-
         <td>${p.is_verified ? "✔️" : ""}</td>
 
         <td>${p.is_banned ? "Oui" : "Non"}</td>
@@ -111,55 +84,7 @@ export async function initAdminUsers() {
       adminUsers.appendChild(tr);
     });
 
-    /* =========================
-       PREMIUM BUTTON
-    ========================= */
-
-    adminUsers.querySelectorAll("[data-premium]").forEach((btn) => {
-      btn.onclick = async () => {
-        const id = btn.getAttribute("data-premium");
-
-        const { data: user, error } = await supabaseClient
-          .from("profiles")
-          .select("is_premium")
-          .eq("id", id)
-          .single();
-
-        if (error) {
-          alert(error.message);
-          return;
-        }
-
-        const premiumEnabled = !user.is_premium;
-
-        const { error: updateError } = await supabaseClient
-          .from("profiles")
-          .update({
-            is_premium: premiumEnabled,
-            premium_expires_at: premiumEnabled
-              ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-              : null
-          })
-          .eq("id", id);
-
-        if (updateError) {
-          alert(updateError.message);
-          return;
-        }
-
-        await createNotification(
-          id,
-          "system",
-          premiumEnabled
-            ? "Vous êtes maintenant Premium pour 30 jours"
-            : "Votre Premium a été retiré",
-          "premium.html"
-        );
-
-        await loadAdminUsers();
-      };
-    });
-
+  
     /* =========================
        BAN BUTTON
     ========================= */
