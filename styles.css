@@ -961,3 +961,391 @@ footer {
 #myProfileCard p {
   margin: 4px 0;
 }
+/* =========================================================
+   CORRECTIONS GLOBALES — AJOUTÉ SANS SUPPRIMER L'EXISTANT
+   Ces règles corrigent les doublons et stabilisent l'affichage.
+========================================================= */
+
+/* Variables et base cohérente */
+html {
+  scroll-behavior: smooth;
+}
+
+body.theme-light,
+.theme-light {
+  background: var(--bg, #f7f7fb);
+  color: var(--text, #111827);
+}
+
+body.theme-dark,
+.theme-dark {
+  background: var(--bg, #121212);
+  color: var(--text, #ffffff);
+}
+
+/* Header uniforme */
+header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 8vw;
+  background: rgba(15, 23, 42, 0.92);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+nav a {
+  margin: 0 !important;
+  text-decoration: none;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  position: relative;
+}
+
+nav a.active,
+nav a:hover {
+  color: #ffffff;
+}
+
+.icon-btn {
+  color: #fff;
+  background: rgba(255,255,255,.08);
+  border-radius: 999px;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Layout principal */
+main,
+.section {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section {
+  padding: 28px 16px 50px;
+}
+
+/* Boutons */
+.btn,
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+}
+
+.btn:hover,
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+.btn.success {
+  background: #16a34a;
+  color: #fff;
+}
+
+.btn.small {
+  padding: 7px 12px;
+  font-size: .88rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Mon profil en haut — avatar réduit */
+#myProfileCard {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 14px !important;
+  margin-bottom: 24px !important;
+  border-radius: 18px !important;
+  background: var(--bg-alt, #fff) !important;
+  box-shadow: var(--shadow-soft, 0 8px 24px rgba(15,23,42,.08)) !important;
+  min-height: auto !important;
+}
+
+#myProfileCard .avatar-img {
+  width: 72px !important;
+  height: 72px !important;
+  min-width: 72px !important;
+  max-width: 72px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  flex-shrink: 0 !important;
+}
+
+#myProfileCard .profile-info {
+  flex: 1 !important;
+  min-width: 0;
+}
+
+#myProfileCard .profile-info h3 {
+  font-size: 1rem !important;
+  margin: 0 0 4px !important;
+}
+
+#myProfileCard .profile-info p {
+  font-size: .9rem !important;
+  margin: 2px 0 !important;
+}
+
+#myProfileCard .btn {
+  margin-top: 8px;
+  padding: 8px 13px;
+  font-size: .9rem;
+}
+
+/* Liste profils */
+.profiles-list {
+  display: grid !important;
+  gap: 16px !important;
+}
+
+.profile-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  padding: 16px !important;
+  border-radius: 18px !important;
+  background: var(--bg-alt, #fff) !important;
+  box-shadow: var(--shadow-soft, 0 8px 24px rgba(15,23,42,.08)) !important;
+  position: relative !important;
+}
+
+.profile-item .avatar-img {
+  width: 86px !important;
+  height: 86px !important;
+  min-width: 86px !important;
+  max-width: 86px !important;
+  border-radius: 18px !important;
+  object-fit: cover !important;
+}
+
+.profile-item .profile-info {
+  flex: 1;
+  min-width: 0;
+  padding-right: 34px;
+}
+
+.profile-item .profile-info h3 {
+  margin: 0 0 5px !important;
+  font-size: 1.08rem !important;
+}
+
+.profile-item .profile-info p {
+  margin: 3px 0 !important;
+  color: var(--muted, #6b7280) !important;
+}
+
+.profile-status {
+  margin: 4px 0 6px;
+  font-size: .88rem;
+}
+
+.online-badge,
+.offline-badge,
+.badge-self {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+.online-badge {
+  background: rgba(34,197,94,.12);
+  color: #16a34a;
+}
+
+.offline-badge {
+  background: rgba(148,163,184,.16);
+  color: var(--muted, #6b7280);
+}
+
+.badge-self {
+  margin-top: 8px;
+  background: var(--primary-soft, rgba(230,0,126,.08));
+  color: var(--primary, #e6007e);
+}
+
+.favorite-btn {
+  top: 10px !important;
+  right: 10px !important;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,.85) !important;
+  box-shadow: 0 4px 14px rgba(15,23,42,.12);
+}
+
+/* Filtres */
+.filters,
+.filters-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 18px 0 26px;
+}
+
+.checkbox-inline {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+}
+
+.checkbox-inline input {
+  width: auto !important;
+  margin: 0 !important;
+}
+
+/* Notifications */
+.notif-bell {
+  position: fixed !important;
+  right: 22px !important;
+  bottom: 22px !important;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-alt, #fff);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(15,23,42,.18);
+  z-index: 999;
+}
+
+#notifPanel {
+  z-index: 1000 !important;
+}
+
+/* Chat */
+.chat-user.active,
+.chat-user:hover {
+  background: var(--primary-soft, rgba(230,0,126,.08)) !important;
+}
+
+.chat-message,
+.msg {
+  word-break: break-word;
+}
+
+/* Dark mode */
+.theme-dark .profile-item,
+.theme-dark #myProfileCard,
+.theme-dark .chat-sidebar,
+.theme-dark .chat-panel,
+.theme-dark .chat-window,
+.theme-dark .chat-users,
+.theme-dark .card,
+.theme-dark .card-form,
+.theme-dark .ticket-item,
+.theme-dark .ticket-list,
+.theme-dark .ticket-chat,
+.theme-dark .ticket-new,
+.theme-dark #notifPanel,
+.theme-dark .notif-bell {
+  background: var(--bg-alt, #1e1e1e) !important;
+  color: var(--text, #fff) !important;
+}
+
+.theme-dark .favorite-btn {
+  background: rgba(30,30,30,.92) !important;
+  color: #fff;
+}
+
+.theme-dark .profile-info p,
+.theme-dark .subtitle,
+.theme-dark small {
+  color: var(--muted, #9ca3af) !important;
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+  header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 14px 18px;
+  }
+
+  nav {
+    width: 100%;
+    gap: 10px;
+  }
+
+  nav a {
+    font-size: .9rem;
+  }
+
+  .section,
+  main {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  #myProfileCard,
+  .profile-item {
+    align-items: flex-start !important;
+  }
+
+  #myProfileCard .avatar-img {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+  }
+
+  .profile-item .avatar-img {
+    width: 72px !important;
+    height: 72px !important;
+    min-width: 72px !important;
+    max-width: 72px !important;
+  }
+
+  .profile-item .profile-info {
+    padding-right: 28px;
+  }
+
+  .profile-item .btn {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
