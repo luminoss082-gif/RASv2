@@ -7,6 +7,10 @@ import { state, setCurrentUserId, setProfilesCache } from "./core.js";
 import { loadFavorites, toggleFavorite } from "./favorites.js";
 import { computeMatches } from "./matching.js";
 
+/* =========================
+   HELPERS
+========================= */
+
 function formatLastSeen(dateString) {
   if (!dateString) return "Hors ligne";
 
@@ -17,83 +21,158 @@ function formatLastSeen(dateString) {
   if (diff < 60) return `Vu il y a ${diff} min`;
 
   const hours = Math.floor(diff / 60);
+
   if (hours < 24) return `Vu il y a ${hours}h`;
 
   const days = Math.floor(hours / 24);
+
   return `Vu il y a ${days}j`;
 }
 
 function normalizeGender(value) {
   if (!value) return "";
+
   if (value === "Homme") return "H";
   if (value === "Femme") return "F";
+
   return value;
 }
 
+/* =========================
+   LOAD PROFILS
+========================= */
+
 export async function loadProfiles() {
-  if (!window.location.pathname.includes("liste.html")) return;
 
-  const profilesList = document.getElementById("profilesList");
+  if (!window.location.pathname.includes("liste.html")) {
+    return;
+  }
 
-  const { data: { user } } = await supabaseClient.auth.getUser();
+  const profilesList =
+    document.getElementById("profilesList");
+
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
   setCurrentUserId(user?.id || null);
 
-if (state.currentUserId) {
-  await loadFavorites();
-}
+  if (state.currentUserId) {
+    await loadFavorites();
+  }
 
-const { data: profiles, error } = await supabaseClient
-  .from("profiles")
-  .select("*")
-  .order("pseudo", { ascending: true });
+  const { data: profiles, error } =
+    await supabaseClient
+      .from("profiles")
+      .select("*")
+      .order("pseudo", { ascending: true });
 
+  console.log("PROFILES:", profiles);
+  console.log("ERROR PROFILES:", error);
 
   if (error) {
-    console.error("Erreur profils:", error);
+
+    console.error(error);
+
     if (profilesList) {
-      profilesList.innerHTML = `<p class="error-msg">${error.message}</p>`;
+      profilesList.innerHTML = `
+        <p class="error-msg">
+          ${error.message}
+        </p>
+      `;
     }
+
     return;
   }
 
   let blockedIds = new Set();
 
   if (state.currentUserId) {
-    const { data: blocks } = await supabaseClient
-      .from("blocks")
-      .select("blocked")
-      .eq("blocker", state.currentUserId);
 
-    blockedIds = new Set((blocks || []).map(b => b.blocked));
+    const { data: blocks } =
+      await supabaseClient
+        .from("blocks")
+        .select("blocked")
+        .eq("blocker", state.currentUserId);
+
+    blockedIds = new Set(
+      (blocks || []).map((b) => b.blocked)
+    );
   }
 
-const visibleProfiles = (profiles || []).filter(p => {
-  // Pour les tests : on affiche aussi mon propre profil
-    if (p.id !== state.currentUserId && blockedIds.has(p.id)) return false;
-  if (p.is_banned) return false;
-  return true;
-});
+  const visibleProfiles =
+    (profiles || []).filter((p) => {
+
+      if (
+        p.id !== state.currentUserId &&
+        blockedIds.has(p.id)
+      ) {
+        return false;
+      }
+
+      if (p.is_banned) {
+        return false;
+      }
+
+      return true;
+    });
 
   setProfilesCache(visibleProfiles);
 
   renderProfiles();
+
   renderMyProfile();
-  computeMatches();
+
+  try {
+    computeMatches();
+  } catch (err) {
+    console.warn(err);
+  }
+
 }
 
-export function renderMyProfile() {
-  const myProfileCard = document.getElementById("myProfileCard");
-  if (!myProfileCard || !state.currentUserId) return;
+/* =========================
+   MON PROFIL
+========================= */
 
-  const me = state.allProfilesCache.find(p => p.id === state.currentUserId);
+export function renderMyProfile() {
+
+  const myProfileCard =
+    document.getElementById("myProfileCard");
+
+  if (!myProfileCard) return;
+
+  if (!state.currentUserId) {
+
+    myProfileCard.innerHTML = `
+      <div class="card">
+        <p>Connectez-vous.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  const me =
+    state.allProfilesCache.find(
+      (p) => p.id === state.currentUserId
+    );
 
   if (!me) {
+
     myProfileCard.innerHTML = `
       <div class="card">
         <p>Vous n’avez pas encore de profil.</p>
-        <a href="create-profile.html" class="btn primary">Créer mon profil</a>
+
+        <a
+          href="create-profile.html"
+          class="btn primary"
+        >
+          Créer mon profil
+        </a>
       </div>
     `;
+
     return;
   }
 
@@ -105,6 +184,7 @@ export function renderMyProfile() {
     >
 
     <div class="profile-info">
+
       <h3>
         ${me.pseudo || "Mon profil"}
         ${me.age ? ", " + me.age : ""}
@@ -112,78 +192,166 @@ export function renderMyProfile() {
       </h3>
 
       <div class="profile-status">
-        ${me.is_online
-          ? `<span class="online-badge">🟢 En ligne</span>`
-          : `<span class="offline-badge">⏰ ${formatLastSeen(me.last_seen)}</span>`
+        ${
+          me.is_online
+            ? `<span class="online-badge">🟢 En ligne</span>`
+            : `<span class="offline-badge">⏰ ${formatLastSeen(me.last_seen)}</span>`
         }
       </div>
 
       <p>${me.city || ""}</p>
+
       <p>${me.tagline || ""}</p>
 
-      <button class="btn ghost" onclick="window.location.href='edit-profile.html'">
+      <button
+        class="btn ghost"
+        onclick="window.location.href='edit-profile.html'"
+      >
         Modifier mon profil
       </button>
+
     </div>
   `;
 }
 
+/* =========================
+   RENDER PROFILS
+========================= */
+
 export function renderProfiles() {
-  const profilesList = document.getElementById("profilesList");
+
+  const profilesList =
+    document.getElementById("profilesList");
+
   if (!profilesList) return;
 
-  const search = (document.getElementById("searchInput")?.value || "").toLowerCase();
-  const ageMin = parseInt(document.getElementById("ageMin")?.value || "0");
-  const ageMax = parseInt(document.getElementById("ageMax")?.value || "200");
-  const city = (document.getElementById("cityFilter")?.value || "").toLowerCase();
-  const gender = document.getElementById("genderFilter")?.value || "";
-  const favoritesOnly = document.getElementById("favoritesOnly")?.checked || false;
+  const search = (
+    document.getElementById("searchInput")?.value || ""
+  ).toLowerCase();
 
-  const filteredProfiles = state.allProfilesCache.filter(p => {
-    if (favoritesOnly && !state.favoritesSet.has(p.id)) return false;
+  const ageMin = parseInt(
+    document.getElementById("ageMin")?.value || "0"
+  );
 
-    if (search) {
-      const haystack = `${p.pseudo || ""} ${p.tagline || ""}`.toLowerCase();
-      if (!haystack.includes(search)) return false;
-    }
+  const ageMax = parseInt(
+    document.getElementById("ageMax")?.value || "200"
+  );
 
-    if (!isNaN(ageMin) && p.age && p.age < ageMin) return false;
-    if (!isNaN(ageMax) && p.age && p.age > ageMax) return false;
+  const city = (
+    document.getElementById("cityFilter")?.value || ""
+  ).toLowerCase();
 
-    if (city && (!p.city || !p.city.toLowerCase().includes(city))) return false;
+  const gender =
+    document.getElementById("genderFilter")?.value || "";
 
-    if (gender && normalizeGender(p.gender) !== gender) return false;
+  const favoritesOnly =
+    document.getElementById("favoritesOnly")?.checked || false;
 
-    return true;
-  });
+  const filteredProfiles =
+    state.allProfilesCache.filter((p) => {
+
+      if (
+        favoritesOnly &&
+        !state.favoritesSet.has(p.id)
+      ) {
+        return false;
+      }
+
+      if (search) {
+
+        const haystack =
+          `${p.pseudo || ""} ${p.tagline || ""}`
+            .toLowerCase();
+
+        if (!haystack.includes(search)) {
+          return false;
+        }
+      }
+
+      if (
+        !isNaN(ageMin) &&
+        p.age &&
+        p.age < ageMin
+      ) {
+        return false;
+      }
+
+      if (
+        !isNaN(ageMax) &&
+        p.age &&
+        p.age > ageMax
+      ) {
+        return false;
+      }
+
+      if (
+        city &&
+        (
+          !p.city ||
+          !p.city.toLowerCase().includes(city)
+        )
+      ) {
+        return false;
+      }
+
+      if (
+        gender &&
+        normalizeGender(p.gender) !== gender
+      ) {
+        return false;
+      }
+
+      return true;
+    });
 
   profilesList.innerHTML = "";
 
   if (filteredProfiles.length === 0) {
-    profilesList.innerHTML = `<p>Aucun profil trouvé.</p>`;
+
+    profilesList.innerHTML = `
+      <p>Aucun profil trouvé.</p>
+    `;
+
     return;
   }
 
   filteredProfiles.forEach((p) => {
-    const div = document.createElement("div");
+
+    const div =
+      document.createElement("div");
+
     div.className = "profile-item";
+
     div.setAttribute("data-id", p.id);
 
     div.innerHTML = `
+
       <button
-        class="favorite-btn ${state.favoritesSet.has(p.id) ? "filled" : ""}"
+        class="favorite-btn ${
+          state.favoritesSet.has(p.id)
+            ? "filled"
+            : ""
+        }"
         data-fav="${p.id}"
       >
-        ${state.favoritesSet.has(p.id) ? "♥" : "♡"}
+        ${
+          state.favoritesSet.has(p.id)
+            ? "♥"
+            : "♡"
+        }
       </button>
 
       <img
-        src="${p.avatar_url || "default-avatar.png"}"
+        src="${
+          p.avatar_url ||
+          "default-avatar.png"
+        }"
         class="avatar-img"
         onerror="this.src='default-avatar.png'"
       >
 
       <div class="profile-info">
+
         <h3>
           ${p.pseudo || "Profil"}
           ${p.age ? ", " + p.age : ""}
@@ -191,175 +359,220 @@ export function renderProfiles() {
         </h3>
 
         <div class="profile-status">
-          ${p.is_online
-            ? `<span class="online-badge">🟢 En ligne</span>`
-            : `<span class="offline-badge">⏰ ${formatLastSeen(p.last_seen)}</span>`
+
+          ${
+            p.is_online
+              ? `<span class="online-badge">🟢 En ligne</span>`
+              : `<span class="offline-badge">⏰ ${formatLastSeen(p.last_seen)}</span>`
           }
+
         </div>
 
         <p>${p.city || ""}</p>
+
         <p>${p.tagline || ""}</p>
+
+        ${
+          p.id !== state.currentUserId
+            ? `
+              <button
+                class="btn primary"
+                data-request-chat="${p.id}"
+              >
+                Demander à discuter
+              </button>
+
+              <button
+                class="btn success"
+                data-pay-chat="${p.id}"
+              >
+                Payer et contacter admin
+              </button>
+            `
+            : `
+              <span class="badge-self">
+                Mon profil
+              </span>
+            `
+        }
+
       </div>
     `;
 
+    /* =========================
+       OUVRIR PROFIL
+    ========================= */
+
     div.addEventListener("click", (e) => {
-      if (e.target.closest(".favorite-btn")) return;
-      window.location.href = `profile.html?id=${p.id}`;
-    });
-
-    div.querySelector(".favorite-btn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleFavorite(p.id);
-    });
-
-    profilesList.appendChild(div);
-  });
-}
-
-export function initProfilesList() {
-  const filtersForm = document.getElementById("filtersForm");
-
-  if (filtersForm) {
-    filtersForm.addEventListener("input", renderProfiles);
-  }
-
-  loadProfiles();
-}
-const buyChatBtn = div.querySelector("[data-buy-chat]");
-
-if (buyChatBtn) {
-  buyChatBtn.addEventListener("click", async (e) => {
-    e.stopPropagation();
-
-    const targetId = buyChatBtn.dataset.buyChat;
-
-    const { error } = await supabaseClient
-      .from("chat_access")
-      .insert({
-        buyer_id: state.currentUserId,
-        target_id: targetId
-      });
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    alert("Accès chat débloqué !");
-    window.location.href = "chat.html";
-  });
-}
-
-const requestChatBtn =
-  document.getElementById("requestChatBtn");
-
-const payChatBtn =
-  document.getElementById("payChatBtn");
-
-/* =========================
-   DEMANDE DISCUSSION
-========================= */
-
-if (requestChatBtn) {
-
-  requestChatBtn.onclick = async () => {
-
-    const { data: { user } } =
-      await supabaseClient.auth.getUser();
-
-    if (!user) {
-      alert("Connectez-vous.");
-      return;
-    }
-
-    const { error } = await supabaseClient
-      .from("chat_requests")
-      .insert({
-        requester_id: user.id,
-        target_id: profile.id,
-        status: "pending"
-      });
-
-    if (error) {
 
       if (
-        error.message.includes("duplicate")
+        e.target.closest(".favorite-btn") ||
+        e.target.closest("[data-request-chat]") ||
+        e.target.closest("[data-pay-chat]")
       ) {
-        alert(
-          "Demande déjà envoyée."
-        );
         return;
       }
 
-      alert(error.message);
-      return;
+      window.location.href =
+        `profile.html?id=${p.id}`;
+
+    });
+
+    /* =========================
+       FAVORIS
+    ========================= */
+
+    const favBtn =
+      div.querySelector(".favorite-btn");
+
+    if (favBtn) {
+
+      favBtn.addEventListener(
+        "click",
+        async (e) => {
+
+          e.stopPropagation();
+
+          if (!state.currentUserId) {
+            alert(
+              "Connectez-vous."
+            );
+            return;
+          }
+
+          await toggleFavorite(p.id);
+
+        }
+      );
+
     }
 
-    alert(
-      "Demande envoyée !"
-    );
+    /* =========================
+       DEMANDE DISCUSSION
+    ========================= */
 
-  };
+    const requestChatBtn =
+      div.querySelector(
+        "[data-request-chat]"
+      );
+
+    if (requestChatBtn) {
+
+      requestChatBtn.addEventListener(
+        "click",
+        async (e) => {
+
+          e.stopPropagation();
+
+          if (!state.currentUserId) {
+
+            alert(
+              "Connectez-vous."
+            );
+
+            return;
+          }
+
+          const { error } =
+            await supabaseClient
+              .from("chat_requests")
+              .insert({
+                requester_id:
+                  state.currentUserId,
+                target_id: p.id,
+                status: "pending"
+              });
+
+          if (error) {
+
+            if (
+              error.code === "23505"
+            ) {
+
+              alert(
+                "Demande déjà envoyée."
+              );
+
+              return;
+            }
+
+            alert(error.message);
+
+            return;
+          }
+
+          alert(
+            "Demande envoyée !"
+          );
+
+        }
+      );
+
+    }
+
+    /* =========================
+       PAYPAL + WHATSAPP
+    ========================= */
+
+    const payChatBtn =
+      div.querySelector(
+        "[data-pay-chat]"
+      );
+
+    if (payChatBtn) {
+
+      payChatBtn.addEventListener(
+        "click",
+        (e) => {
+
+          e.stopPropagation();
+
+          window.open(
+            "https://paypal.me/jeffreygqadal1/5.00",
+            "_blank"
+          );
+
+          const message =
+            encodeURIComponent(
+              `Bonjour, j'ai payé pour débloquer le chat avec ${p.pseudo || "ce profil"}. Mon pseudo est : ${state.currentUserId}. Merci !`
+            );
+
+          setTimeout(() => {
+
+            window.location.href =
+              `https://wa.me/33676615490?text=${message}`;
+
+          }, 1500);
+
+        }
+      );
+
+    }
+
+    profilesList.appendChild(div);
+
+  });
 
 }
 
 /* =========================
-   VERIF ACCEPTATION
+   INIT
 ========================= */
 
-async function checkAcceptedRequest() {
+export function initProfilesList() {
 
-  const { data: { user } } =
-    await supabaseClient.auth.getUser();
+  const filtersForm =
+    document.getElementById("filtersForm");
 
-  if (!user) return;
+  if (filtersForm) {
 
-  const { data } = await supabaseClient
-    .from("chat_requests")
-    .select("*")
-    .eq("requester_id", user.id)
-    .eq("target_id", profile.id)
-    .eq("status", "accepted")
-    .maybeSingle();
-
-  if (data) {
-
-    requestChatBtn.classList.add("hidden");
-
-    payChatBtn.classList.remove("hidden");
+    filtersForm.addEventListener(
+      "input",
+      renderProfiles
+    );
 
   }
 
-}
-
-checkAcceptedRequest();
-
-/* =========================
-   PAYPAL + WHATSAPP
-========================= */
-
-if (payChatBtn) {
-
-  payChatBtn.onclick = () => {
-
-    window.open(
-      "https://paypal.me/jeffreygadal1/5.00",
-      "_blank"
-    );
-
-    setTimeout(() => {
-
-      const message =
-        encodeURIComponent(
-          `Bonjour, j'ai payé pour débloquer le chat avec ${profile.pseudo}.`
-        );
-
-      window.location.href =
-        `https://wa.me/33676615490?text=${message}`;
-
-    }, 1500);
-
-  };
+  loadProfiles();
 
 }
-
