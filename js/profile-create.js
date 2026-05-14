@@ -3,7 +3,6 @@
 ========================= */
 
 import { supabaseClient } from "./config.js";
-import { getUserIP } from "./utils.js";
 import { uploadAvatar } from "./avatar-upload.js";
 
 export function initCreateProfile() {
@@ -14,6 +13,7 @@ export function initCreateProfile() {
     e.preventDefault();
 
     const form = new FormData(createProfileForm);
+
     const pseudo = form.get("pseudo");
     const age = form.get("age");
     const city = form.get("city");
@@ -25,50 +25,36 @@ export function initCreateProfile() {
 
     if (errorMsg) errorMsg.textContent = "";
 
-    const ip = await getUserIP();
-    if (!ip) {
-      if (errorMsg) errorMsg.textContent = "Impossible de récupérer votre IP.";
-      return;
-    }
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
 
-    const { data: existingProfile } = await supabaseClient
-      .from("profiles")
-      .select("id")
-      .eq("ip_address", ip)
-      .maybeSingle();
-
-    if (existingProfile) {
-      window.location.href = "edit-profile.html";
-      return;
-    }
-
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) {
+    if (userError || !user) {
       if (errorMsg) errorMsg.textContent = "Utilisateur non connecté.";
       return;
     }
-let avatar_url = null;
 
-try {
-  if (avatarFile && avatarFile.size > 0) {
-    avatar_url = await uploadAvatar(user.id, avatarFile);
-  }
-} catch (uploadError) {
-  console.warn("Avatar non envoyé :", uploadError.message);
-  avatar_url = null;
-}
+    let avatar_url = null;
 
-    const { error } = await supabaseClient.from("profiles").insert({
+    try {
+      if (avatarFile && avatarFile.size > 0) {
+        avatar_url = await uploadAvatar(user.id, avatarFile);
+      }
+    } catch (uploadError) {
+      console.warn("Avatar non envoyé :", uploadError.message);
+      avatar_url = null;
+    }
+
+    const { error } = await supabaseClient.from("profiles").upsert({
       id: user.id,
       pseudo,
-      age: age ? parseInt(age) : null,
+      age: age ? parseInt(age, 10) : null,
       city,
       gender,
       looking_for,
       tagline,
       avatar_url,
-      ip_address: ip || null,
-      is_premium: false,
       is_verified: false,
       is_banned: false
     });
