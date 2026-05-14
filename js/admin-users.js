@@ -77,6 +77,33 @@ export async function initAdminUsers() {
           </button>
         </td>
       `;
+      const unlockChatBtn = document.getElementById("unlockChatBtn");
+
+if (unlockChatBtn) {
+  unlockChatBtn.onclick = async () => {
+    const buyerId = document.getElementById("buyerId").value.trim();
+    const targetId = document.getElementById("targetId").value.trim();
+
+    if (!buyerId || !targetId) {
+      alert("Remplis les deux ID.");
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("chat_access")
+      .insert({
+        buyer_id: buyerId,
+        target_id: targetId
+      });
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert("Chat débloqué uniquement avec ce profil !");
+  };
+}
 
       adminUsers.appendChild(tr);
     });
@@ -172,4 +199,32 @@ export async function initAdminUsers() {
   }
 
   await loadAdminUsers();
+}
+
+const unlockChatBtn = document.getElementById("unlockChatBtn");
+
+if (unlockChatBtn) {
+  unlockChatBtn.onclick = async () => {
+    const buyerId = document.getElementById("buyerId").value.trim();
+    const targetId = document.getElementById("targetId").value.trim();
+
+    if (!buyerId || !targetId) {
+      alert("Remplis les deux ID.");
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("chat_access")
+      .insert({
+        buyer_id: buyerId,
+        target_id: targetId
+      });
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert("Chat débloqué !");
+  };
 }

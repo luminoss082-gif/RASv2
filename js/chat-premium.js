@@ -1,24 +1,12 @@
-/* =========================
-   CHAT SYSTEM
-========================= */
-
 import { supabaseClient } from "./config.js";
 import { state, setCurrentUserId } from "./core.js";
 
 let currentChatUserId = null;
 
-/* =========================
-   INIT CHAT
-========================= */
-
 export async function initChat() {
-  if (!window.location.pathname.includes("chat.html")) {
-    return;
-  }
+  if (!window.location.pathname.includes("chat.html")) return;
 
-  const {
-    data: { user }
-  } = await supabaseClient.auth.getUser();
+  const { data: { user } } = await supabaseClient.auth.getUser();
 
   if (!user) {
     window.location.href = "index.html";
@@ -28,18 +16,13 @@ export async function initChat() {
   setCurrentUserId(user.id);
 
   await loadChatUsers();
-
   initChatForm();
-
   subscribeRealtimeMessages();
 }
 
-/* =========================
-   LOAD USERS
-========================= */
-
 async function loadChatUsers() {
   const chatUsers = document.getElementById("chatUsers");
+
   if (!chatUsers) return;
 
   const { data: access, error } = await supabaseClient
@@ -62,7 +45,7 @@ async function loadChatUsers() {
       <div class="chat-empty">
         <div>
           <strong>Aucun chat débloqué</strong>
-          <span>Va sur la page Profils pour acheter un accès chat.</span>
+          <span>Vous devez payer un accès pour discuter avec un profil.</span>
         </div>
       </div>
     `;
@@ -71,6 +54,7 @@ async function loadChatUsers() {
 
   access.forEach((row) => {
     const profile = row.profiles;
+    if (!profile) return;
 
     const div = document.createElement("div");
     div.className = "chat-user";
@@ -91,10 +75,20 @@ async function loadChatUsers() {
     div.onclick = async () => {
       currentChatUserId = profile.id;
 
-      document.getElementById("chatHeader").innerHTML = `
-        <h2>${profile.pseudo || "Conversation"}</h2>
-        <p>Chat débloqué</p>
-      `;
+      document.querySelectorAll(".chat-user").forEach(u => {
+        u.classList.remove("active");
+      });
+
+      div.classList.add("active");
+
+      const chatHeader = document.getElementById("chatHeader");
+
+      if (chatHeader) {
+        chatHeader.innerHTML = `
+          <h2>${profile.pseudo || "Conversation"}</h2>
+          <p>Chat débloqué</p>
+        `;
+      }
 
       await loadMessages(profile.id);
     };
@@ -103,13 +97,8 @@ async function loadChatUsers() {
   });
 }
 
-/* =========================
-   LOAD MESSAGES
-========================= */
-
 async function loadMessages(otherUserId) {
   const chatMessages = document.getElementById("chatMessages");
-
   if (!chatMessages) return;
 
   const { data: messages, error } = await supabaseClient
@@ -121,7 +110,7 @@ async function loadMessages(otherUserId) {
     .order("created_at", { ascending: true });
 
   if (error) {
-    console.error(error);
+    chatMessages.innerHTML = `<p>${error.message}</p>`;
     return;
   }
 
@@ -134,27 +123,19 @@ async function loadMessages(otherUserId) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-/* =========================
-   APPEND MESSAGE
-========================= */
-
 function appendMessage(msg) {
   const chatMessages = document.getElementById("chatMessages");
-
   if (!chatMessages) return;
 
   const div = document.createElement("div");
 
   div.className =
     msg.sender_id === state.currentUserId
-      ? "msg me"
-      : "msg";
+      ? "chat-message me"
+      : "chat-message";
 
   div.innerHTML = `
-    <div class="msg-content">
-      ${msg.content}
-    </div>
-
+    <div>${msg.content}</div>
     <small>
       ${new Date(msg.created_at).toLocaleTimeString([], {
         hour: "2-digit",
@@ -164,13 +145,8 @@ function appendMessage(msg) {
   `;
 
   chatMessages.appendChild(div);
-
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
-
-/* =========================
-   SEND MESSAGE
-========================= */
 
 function initChatForm() {
   const chatForm = document.getElementById("chatForm");
@@ -186,12 +162,21 @@ function initChatForm() {
     }
 
     const input = document.getElementById("chatInput");
-
-    if (!input) return;
-
     const content = input.value.trim();
 
     if (!content) return;
+
+    const { data: allowed } = await supabaseClient
+      .from("chat_access")
+      .select("id")
+      .eq("buyer_id", state.currentUserId)
+      .eq("target_id", currentChatUserId)
+      .maybeSingle();
+
+    if (!allowed) {
+      alert("Vous devez débloquer ce chat avant d’envoyer un message.");
+      return;
+    }
 
     const { error } = await supabaseClient
       .from("messages")
@@ -202,7 +187,6 @@ function initChatForm() {
       });
 
     if (error) {
-      console.error(error);
       alert(error.message);
       return;
     }
@@ -210,10 +194,6 @@ function initChatForm() {
     input.value = "";
   });
 }
-
-/* =========================
-   REALTIME
-========================= */
 
 function subscribeRealtimeMessages() {
   supabaseClient
