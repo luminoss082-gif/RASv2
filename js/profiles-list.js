@@ -100,24 +100,16 @@ export async function loadProfiles() {
     );
   }
 
-  const visibleProfiles =
-    (profiles || []).filter((p) => {
+console.log("USER CONNECTÉ:", state.currentUserId);
+console.log("PROFILS SUPABASE:", profiles);
 
-      if (
-        p.id !== state.currentUserId &&
-        blockedIds.has(p.id)
-      ) {
-        return false;
-      }
+const visibleProfiles = (profiles || []).filter((p) => {
+  if (p.is_banned) return false;
+  return true;
+});
 
-      if (p.is_banned) {
-        return false;
-      }
-
-      
-      return true;
-    });
-
+  state.allProfilesCache = visibleProfiles;
+  
   setProfilesCache(visibleProfiles);
 
   renderProfiles();
