@@ -67,9 +67,6 @@ export async function initAdminUsers() {
         <td>${p.is_banned ? "Oui" : "Non"}</td>
 
         <td>
-          <button class="btn ghost" data-premium="${p.id}">
-            ${p.is_premium ? "Retirer Premium" : "Rendre Premium"}
-          </button>
 
           <button class="btn verify" data-verify="${p.id}">
             ${p.is_verified ? "Retirer Vérifié" : "Vérifier"}
