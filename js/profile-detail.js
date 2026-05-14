@@ -30,6 +30,20 @@ export function initProfileDetail() {
       <h2>${profile.pseudo}${profile.age ? ", " + profile.age : ""} ${profile.is_verified ? "✔️" : ""}</h2>
       <p>${profile.city || ""}</p>
       <p>${profile.tagline || ""}</p>
+      <div class="profile-actions">
+
+  <button class="btn primary" id="requestChatBtn">
+    Demander à discuter
+  </button>
+
+  <button
+    class="btn success hidden"
+    id="payChatBtn"
+  >
+    Payer pour débloquer le chat
+  </button>
+
+</div>
       <button id="favoriteBtn" class="btn ghost full">⭐ Favori</button>
       <button id="reportBtn" class="btn danger full">🚨 Signaler</button>
       <button id="blockBtn" class="btn danger ghost full">⛔ Bloquer</button>

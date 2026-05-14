@@ -199,13 +199,6 @@ export function renderProfiles() {
 
         <p>${p.city || ""}</p>
         <p>${p.tagline || ""}</p>
-           <a
-  href="https://paypal.me/jeffreygadal1/10.00"
-  target="_blank"
-  class="btn primary"
->
-  Payer pour parler avec cette personne : 10€
-</a>
       </div>
     `;
 
@@ -256,3 +249,117 @@ if (buyChatBtn) {
     window.location.href = "chat.html";
   });
 }
+
+const requestChatBtn =
+  document.getElementById("requestChatBtn");
+
+const payChatBtn =
+  document.getElementById("payChatBtn");
+
+/* =========================
+   DEMANDE DISCUSSION
+========================= */
+
+if (requestChatBtn) {
+
+  requestChatBtn.onclick = async () => {
+
+    const { data: { user } } =
+      await supabaseClient.auth.getUser();
+
+    if (!user) {
+      alert("Connectez-vous.");
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("chat_requests")
+      .insert({
+        requester_id: user.id,
+        target_id: profile.id,
+        status: "pending"
+      });
+
+    if (error) {
+
+      if (
+        error.message.includes("duplicate")
+      ) {
+        alert(
+          "Demande déjà envoyée."
+        );
+        return;
+      }
+
+      alert(error.message);
+      return;
+    }
+
+    alert(
+      "Demande envoyée !"
+    );
+
+  };
+
+}
+
+/* =========================
+   VERIF ACCEPTATION
+========================= */
+
+async function checkAcceptedRequest() {
+
+  const { data: { user } } =
+    await supabaseClient.auth.getUser();
+
+  if (!user) return;
+
+  const { data } = await supabaseClient
+    .from("chat_requests")
+    .select("*")
+    .eq("requester_id", user.id)
+    .eq("target_id", profile.id)
+    .eq("status", "accepted")
+    .maybeSingle();
+
+  if (data) {
+
+    requestChatBtn.classList.add("hidden");
+
+    payChatBtn.classList.remove("hidden");
+
+  }
+
+}
+
+checkAcceptedRequest();
+
+/* =========================
+   PAYPAL + WHATSAPP
+========================= */
+
+if (payChatBtn) {
+
+  payChatBtn.onclick = () => {
+
+    window.open(
+      "https://paypal.me/jeffreygadal1/5.00",
+      "_blank"
+    );
+
+    setTimeout(() => {
+
+      const message =
+        encodeURIComponent(
+          `Bonjour, j'ai payé pour débloquer le chat avec ${profile.pseudo}.`
+        );
+
+      window.location.href =
+        `https://wa.me/33676615490?text=${message}`;
+
+    }, 1500);
+
+  };
+
+}
+
