@@ -20,7 +20,6 @@ export function initChat() {
 
     const { data: me } = await supabaseClient
       .from("profiles")
-      .select("is_premium")
       .eq("id", user.id)
       .single();
 
