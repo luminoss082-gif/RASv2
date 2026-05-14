@@ -151,12 +151,11 @@ export function renderMyProfile() {
   }
 
   myProfileCard.innerHTML = `
-    <img
-      src="${me.avatar_url || "default-avatar.png"}"
-      class="avatar-img"
-      onerror="this.src='default-avatar.png'"
-      alt="Mon avatar"
-    >
+<img
+  src="${me.avatar_url && me.avatar_url.startsWith('http') ? me.avatar_url : 'default-avatar.png'}"
+  class="avatar-img"
+  onerror="this.src='default-avatar.png'"
+>
 
     <div class="profile-info">
       <h3>
@@ -220,7 +219,11 @@ export function renderProfiles() {
   const favoritesOnly =
     document.getElementById("favoritesOnly")?.checked || false;
 
-  const filteredProfiles = state.allProfilesCache.filter((p) => {
+let filteredProfiles = [...state.allProfilesCache].filter((p) => {
+console.log("CACHE PROFILS:", state.allProfilesCache);
+console.log("PROFILS FILTRÉS:", filteredProfiles);
+    if (p.is_banned) return false;
+    if (!p.is_verified) return false;
     if (favoritesOnly && !state.favoritesSet.has(p.id)) {
       return false;
     }
@@ -296,12 +299,11 @@ export function renderProfiles() {
         ${state.favoritesSet.has(p.id) ? "♥" : "♡"}
       </button>
 
-      <img
-        src="${p.avatar_url || "default-avatar.png"}"
-        class="avatar-img"
-        onerror="this.src='default-avatar.png'"
-        alt="Avatar"
-      >
+   <img
+  src="${p.avatar_url && p.avatar_url.startsWith('http') ? p.avatar_url : 'default-avatar.png'}"
+  class="avatar-img"
+  onerror="this.src='default-avatar.png'"
+>
 
       <div class="profile-info">
         <h3>
