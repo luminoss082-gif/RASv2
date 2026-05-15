@@ -307,3 +307,326 @@
   }
 
 }
+/* =========================
+   STYLE ROYAL GLOBAL
+========================= */
+
+:root {
+  --bg: #070b1a;
+  --bg-alt: #11152b;
+  --text: #fff8dc;
+  --muted: #c9b77d;
+  --primary: #d4af37;
+  --accent: #7c3aed;
+  --primary-soft: rgba(212, 175, 55, 0.12);
+  --shadow-soft: 0 12px 35px rgba(0,0,0,.35);
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(124,58,237,.22), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(212,175,55,.12), transparent 30%),
+    #070b1a;
+  color: var(--text);
+}
+
+header {
+  background: rgba(7, 11, 26, .92) !important;
+  border-bottom: 1px solid rgba(212,175,55,.25);
+}
+
+.logo {
+  background: linear-gradient(90deg, #f5d76e, #d4af37, #fff3b0);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.card,
+.profile-item,
+.profile-container,
+.card-form,
+.ticket-chat,
+.ticket-list,
+.ticket-new,
+.admin-table,
+.chat-sidebar,
+.chat-panel,
+.chat-window,
+.chat-users,
+.premium-card,
+.my-profile-card,
+#myProfileCard {
+  background:
+    linear-gradient(145deg, rgba(26,16,61,.96), rgba(7,11,26,.98)) !important;
+  border: 1px solid rgba(212,175,55,.24) !important;
+  box-shadow: 0 18px 45px rgba(0,0,0,.35) !important;
+  color: var(--text) !important;
+}
+
+h1, h2, h3 {
+  color: #fff3b0;
+}
+
+p,
+.subtitle,
+.profile-info p {
+  color: #d8c891;
+}
+
+input,
+select,
+textarea {
+  background: rgba(255,255,255,.08) !important;
+  color: #fff8dc !important;
+  border: 1px solid rgba(212,175,55,.28) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255,248,220,.55);
+}
+
+.btn.primary,
+.btn-primary {
+  background: linear-gradient(135deg, #d4af37, #fff3b0, #b8860b) !important;
+  color: #1a103d !important;
+  font-weight: 800;
+}
+
+.btn.ghost {
+  border: 1px solid rgba(212,175,55,.55) !important;
+  color: #f5d76e !important;
+  background: rgba(212,175,55,.08) !important;
+}
+
+.btn.danger {
+  background: linear-gradient(135deg, #7f1d1d, #dc2626) !important;
+  color: white !important;
+}
+
+a {
+  color: #f5d76e;
+}
+
+nav a {
+  color: #d8c891 !important;
+}
+
+nav a.active,
+nav a:hover {
+  color: #fff3b0 !important;
+}
+
+.avatar-img,
+.chat-avatar,
+.story-avatar {
+  border: 2px solid rgba(212,175,55,.45);
+}
+
+.notif-bell,
+#notifPanel {
+  background: rgba(26,16,61,.96);
+  color: #fff8dc;
+  border: 1px solid rgba(212,175,55,.25);
+}
+
+.admin-table th {
+  background: rgba(212,175,55,.12) !important;
+  color: #fff3b0;
+}
+
+.admin-table td {
+  color: #fff8dc;
+}
+
+.profile-item:hover,
+.card:hover {
+  border-color: rgba(245,215,110,.55) !important;
+  transform: translateY(-3px);
+}
+
+/* =========================
+   MOBILE ROYAL RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+  header {
+    padding: 12px 14px;
+  }
+
+  nav {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+
+  nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  nav a,
+  nav button {
+    white-space: nowrap;
+    font-size: 0.92rem;
+  }
+
+  .section,
+  main {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  /* =========================
+     PROFILS
+  ========================= */
+
+  .profiles-list {
+    grid-template-columns: 1fr !important;
+    gap: 18px;
+  }
+
+  .profile-item {
+    padding: 14px;
+    border-radius: 22px;
+  }
+
+  .profile-item .avatar-img {
+    width: 100%;
+    height: 260px;
+    border-radius: 18px;
+  }
+
+  .profile-info h3 {
+    font-size: 1.1rem;
+  }
+
+  .profile-info p {
+    font-size: 0.92rem;
+  }
+
+  /* =========================
+     MON PROFIL
+  ========================= */
+
+  #myProfileCard {
+    flex-direction: column;
+    text-align: center;
+    padding: 18px;
+  }
+
+  #myProfileCard .avatar-img {
+    width: 82px !important;
+    height: 82px !important;
+  }
+
+  /* =========================
+     FORMULAIRES
+  ========================= */
+
+  form,
+  .filters,
+  .card-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+  }
+
+  /* =========================
+     CHAT
+  ========================= */
+
+  .chat-shell {
+    grid-template-columns: 1fr !important;
+  }
+
+  .chat-sidebar {
+    order: 2;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .chat-panel {
+    order: 1;
+    min-height: 70vh;
+  }
+
+  .chat-users {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .chat-message {
+    max-width: 92%;
+  }
+
+  /* =========================
+     ADMIN
+  ========================= */
+
+  .admin-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* =========================
+     STORIES
+  ========================= */
+
+  .stories-bar {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .stories-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* =========================
+     TITRES
+  ========================= */
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+  }
+
+  p,
+  span,
+  a,
+  label {
+    font-size: 0.95rem;
+  }
+
+  /* =========================
+     BOUTONS
+  ========================= */
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+}
