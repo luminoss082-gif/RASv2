@@ -38,9 +38,6 @@ async function loadAdminUsers() {
   statOnline.textContent =
     users.filter(u => u.is_online).length;
 
-  statVerified.textContent =
-    users.filter(u => u.is_verified).length;
-
   statBanned.textContent =
     users.filter(u => u.is_banned).length;
 
