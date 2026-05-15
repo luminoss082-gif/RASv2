@@ -17,21 +17,29 @@
     <a href="liste.html">Profils</a>
     <a href="notifications.html">Notifications</a>
     <a href="support.html">Support</a>
-    <a href="support-admin.html">Support admin</a>
+    <a href="support-admin.html">Tickets</a>
     <a href="chat.html" id="chatLink">Chat</a>
     <a href="admin.html" id="adminLink" class="active">Admin</a>
     <button id="themeToggle" class="icon-btn" type="button" aria-label="Changer le thème">🌓</button>
   </nav>
 </header>
 
-<main class="admin-wrap">
+<main class="section admin-page">
+
   <section class="page-intro admin-hero">
-    <p class="subtitle">Espace sécurisé réservé aux administrateurs.</p>
-    <h1>Administration</h1>
-    <p>Gère les profils, les vérifications, les bannissements et les accès au chat.</p>
+    <div>
+      <p class="subtitle">Espace administrateur</p>
+      <h1>Tableau de bord</h1>
+      <p>Gère les utilisateurs, les accès chat, les vérifications et les bannissements.</p>
+    </div>
+
+    <div class="admin-quick-actions">
+      <a href="support-admin.html" class="btn ghost">Voir les tickets</a>
+      <a href="liste.html" class="btn ghost">Voir les profils</a>
+    </div>
   </section>
 
-  <section class="dashboard" aria-label="Statistiques administrateur">
+  <section class="dashboard admin-stats" aria-label="Statistiques admin">
     <article class="card stat-card">
       <span class="stat-icon">👥</span>
       <h2 id="statUsers">0</h2>
@@ -39,7 +47,7 @@
     </article>
 
     <article class="card stat-card">
-      <span class="stat-icon">⛔</span>
+      <span class="stat-icon">🚫</span>
       <h2 id="statBanned">0</h2>
       <p>Comptes bannis</p>
     </article>
@@ -66,38 +74,39 @@
   <section class="card admin-unlock-card" aria-labelledby="unlockChatTitle">
     <div class="section-heading">
       <div>
-        <p class="subtitle">Après paiement PayPal confirmé</p>
+        <p class="subtitle">Validation manuelle après paiement PayPal</p>
         <h2 id="unlockChatTitle">Débloquer un chat</h2>
       </div>
     </div>
 
     <div class="admin-form-grid">
-      <label for="buyerId">
+      <label>
         ID utilisateur qui a payé
-        <input type="text" id="buyerId" placeholder="buyer_id">
+        <input type="text" id="buyerId" placeholder="buyer_id / ID utilisateur">
       </label>
 
-      <label for="targetId">
-        ID profil demandé
-        <input type="text" id="targetId" placeholder="target_id">
+      <label>
+        ID du profil demandé
+        <input type="text" id="targetId" placeholder="target_id / ID profil">
       </label>
 
       <button id="unlockChatBtn" class="btn primary" type="button">
-        Débloquer le chat
+        Débloquer ce chat
       </button>
     </div>
 
-    <p class="helper-text">
-      L’accès sera créé uniquement entre l’utilisateur qui a payé et le profil demandé.
+    <p class="admin-help-text">
+      L’utilisateur ne pourra parler qu’au profil débloqué ici. Cela ne donne pas accès à tous les chats.
     </p>
   </section>
 
-  <section class="admin-users-section" aria-labelledby="usersTitle">
-    <div class="section-heading">
+  <section class="card admin-users-card" aria-labelledby="usersTitle">
+    <div class="section-heading admin-table-heading">
       <div>
-        <p class="subtitle">Modération et gestion des comptes</p>
+        <p class="subtitle">Modération</p>
         <h2 id="usersTitle">Gestion des utilisateurs</h2>
       </div>
+      <p class="admin-help-text">Vérifie, bannis ou débannis les profils depuis ce tableau.</p>
     </div>
 
     <div class="admin-table-wrap">
@@ -121,6 +130,7 @@
       </table>
     </div>
   </section>
+
 </main>
 
 <div id="notifBell" class="notif-bell" role="button" tabindex="0" aria-label="Notifications">🔔</div>
