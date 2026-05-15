@@ -31,7 +31,13 @@ function normalizeGender(value) {
 }
 
 function getAvatarUrl(url) {
-  return url && url.startsWith("http") ? url : "default-avatar.png";
+  if (!url) return "default-avatar.png";
+
+  if (url.startsWith("http")) {
+    return url;
+  }
+
+  return `https://TON-PROJET.supabase.co/storage/v1/object/public/avatars/${url}`;
 }
 
 export async function loadProfiles() {
