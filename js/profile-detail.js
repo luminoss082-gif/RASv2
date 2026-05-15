@@ -26,7 +26,11 @@ export function initProfileDetail() {
     }
 
     profileDetail.innerHTML = `
-      <img src="${profile.avatar_url}" class="avatar-img" style="width:140px;height:140px;border-radius:20px;">
+      <img
+  src="${getAvatarUrl(p.avatar_url)}"
+  class="avatar-img"
+  onerror="this.src='default-avatar.png'"
+>
       <h2>${profile.pseudo}${profile.age ? ", " + profile.age : ""} ${profile.is_verified ? "✔️" : ""}</h2>
       <p>${profile.city || ""}</p>
       <p>${profile.tagline || ""}</p>

@@ -228,7 +228,7 @@ export function renderProfiles() {
  <img
   src="${getAvatarUrl(p.avatar_url)}"
   class="avatar-img"
-  onerror="this.src='assets/default-avatar.png'"
+  onerror="this.src='default-avatar.png'"
 >
 
       <div class="profile-info">
