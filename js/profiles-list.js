@@ -115,7 +115,7 @@ export function renderMyProfile() {
       <h3>
         ${me.pseudo || "Mon profil"}
         ${me.age ? ", " + me.age : ""}
-        ${me.is_verified ? "✔️" : ""}
+        <span class="badge-self">Mon profil</span>
       </h3>
 
       <div class="profile-status">
@@ -218,7 +218,6 @@ export function renderProfiles() {
         <h3>
           ${p.pseudo || "Profil"}
           ${p.age ? ", " + p.age : ""}
-          ${p.is_verified ? "✔️" : ""}
           ${
             p.id === state.currentUserId
               ? `<span class="badge-self">Mon profil</span>`
