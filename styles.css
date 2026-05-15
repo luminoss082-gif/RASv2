@@ -1298,30 +1298,7 @@ textarea {
   color: var(--muted, #9ca3af) !important;
 }
 
-/* Responsive */
-@media (max-width: 760px) {
-  header {
-    align-items: flex-start;
-    flex-direction: column;
-    padding: 14px 18px;
-  }
-
-  nav {
-    width: 100%;
-    gap: 10px;
-  }
-
-  nav a {
-    font-size: .9rem;
-  }
-
-  .section,
-  main {
-    padding-left: 14px !important;
-    padding-right: 14px !important;
-  }
-
-  #myProfileCard,
+ #myProfileCard,
   .profile-item {
     align-items: flex-start !important;
   }
@@ -1363,3 +1340,33 @@ textarea {
   border-radius: 50% !important;
   object-fit: cover !important;
 }
+
+.chat-avatar{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#1e293b;
+}
+/* Responsive */
+@media (max-width: 760px) {
+  header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 14px 18px;
+  }
+
+  nav {
+    width: 100%;
+    gap: 10px;
+  }
+
+  nav a {
+    font-size: .9rem;
+  }
+
+  .section,
+  main {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }

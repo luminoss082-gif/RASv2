@@ -48,13 +48,17 @@ export async function initAdminUsers() {
       const tr = document.createElement("tr");
 
       tr.innerHTML = `
-        <td>
-          <img
-            src="${p.avatar_url || "default-avatar.png"}"
-            class="chat-avatar"
-            onerror="this.src='default-avatar.png'"
-          >
-        </td>
+<td>
+  <img
+    src="${
+      p.avatar_url && p.avatar_url.startsWith("http")
+        ? p.avatar_url
+        : "default-avatar.png"
+    }"
+    class="chat-avatar"
+    onerror="this.src='default-avatar.png'"
+  >
+</td>
 
         <td>${p.pseudo || "-"}</td>
 
