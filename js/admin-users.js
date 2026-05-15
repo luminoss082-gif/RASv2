@@ -1,234 +1,268 @@
-/* =========================
-   ADMIN
-========================= */
 
-import { supabaseClient } from "./config.js";
-import { createNotification } from "./notifications.js";
 import { requireAdmin } from "./admin-guard.js";
+import { supabaseClient } from "./config.js";
 
-/* =========================
-   INIT ADMIN USERS
-========================= */
+const isAdmin = await requireAdmin();
+if (!isAdmin) throw new Error("Accès refusé");
 
-export async function initAdminUsers() {
-  const adminUsers = document.getElementById("adminUsers");
-  if (!adminUsers) return;
+const adminUsers = document.getElementById("adminUsers");
+const statUsers = document.getElementById("statUsers");
+const statOnline = document.getElementById("statOnline");
+const statVerified = document.getElementById("statVerified");
+const statBanned = document.getElementById("statBanned");
+const statPayments = document.getElementById("statPayments");
+const statTickets = document.getElementById("statTickets");
 
-  const isAdmin = await requireAdmin();
-  if (!isAdmin) return;
+const adminSearch = document.getElementById("adminSearch");
 
-  async function loadAdminUsers() {
-    const { data: profiles, error } = await supabaseClient
+const unlockChatBtn =
+  document.getElementById("unlockChatBtn");
+
+const sendGlobalNotifBtn =
+  document.getElementById("sendGlobalNotifBtn");
+
+async function loadAdminUsers() {
+
+  const { data: users } =
+    await supabaseClient
       .from("profiles")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", {
+        ascending: false
+      });
 
-    if (error) {
-      console.error("Erreur chargement utilisateurs:", error);
-      adminUsers.innerHTML = `
-        <tr>
-          <td colspan="9">Erreur : ${error.message}</td>
-        </tr>
-      `;
-      return;
-    }
+  if (!users) return;
 
-    adminUsers.innerHTML = "";
+  statUsers.textContent = users.length;
 
-    if (!profiles || profiles.length === 0) {
-      adminUsers.innerHTML = `
-        <tr>
-          <td colspan="9">Aucun utilisateur trouvé.</td>
-        </tr>
-      `;
-      return;
-    }
+  statOnline.textContent =
+    users.filter(u => u.is_online).length;
 
-    profiles.forEach((p) => {
-      const tr = document.createElement("tr");
+  statVerified.textContent =
+    users.filter(u => u.is_verified).length;
 
-      tr.innerHTML = `
-<td>
-  <img
-    src="${
-      p.avatar_url && p.avatar_url.startsWith("http")
-        ? p.avatar_url
-        : "default-avatar.png"
-    }"
-    class="chat-avatar"
-    onerror="this.src='default-avatar.png'"
-  >
-</td>
+  statBanned.textContent =
+    users.filter(u => u.is_banned).length;
 
-        <td>${p.pseudo || "-"}</td>
+  renderUsers(users);
 
-        <td>${p.city || "-"}</td>
+}
 
-        <td>${p.role || "user"}</td>
+function renderUsers(users) {
 
-        <td>${p.is_verified ? "✔️" : ""}</td>
+  adminUsers.innerHTML = "";
 
-        <td>${p.is_banned ? "Oui" : "Non"}</td>
+  users.forEach((u) => {
 
-        <td>
+    const tr =
+      document.createElement("tr");
 
-          <button class="btn verify" data-verify="${p.id}">
-            ${p.is_verified ? "Retirer Vérifié" : "Vérifier"}
-          </button>
+    tr.innerHTML = `
+      <td>
+        <img
+          src="${
+            u.avatar_url ||
+            'assets/default-avatar.png'
+          }"
+          class="chat-avatar"
+          onerror="this.src='assets/default-avatar.png'"
+        >
+      </td>
 
-          <button class="btn danger" data-ban="${p.id}">
-            ${p.is_banned ? "Débannir" : "Bannir"}
-          </button>
-        </td>
-      `;
-      const unlockChatBtn = document.getElementById("unlockChatBtn");
+      <td>${u.pseudo || "Profil"}</td>
 
-if (unlockChatBtn) {
-  unlockChatBtn.onclick = async () => {
-    const buyerId = document.getElementById("buyerId").value.trim();
-    const targetId = document.getElementById("targetId").value.trim();
+      <td>${u.city || "-"}</td>
+
+      <td>
+        ${
+          u.is_online
+            ? "🟢"
+            : "⚫"
+        }
+      </td>
+
+      <td>
+
+        <button
+          class="btn ghost verify-btn"
+          data-id="${u.id}"
+        >
+          ${
+            u.is_verified
+              ? "Retirer vérif"
+              : "Vérifier"
+          }
+        </button>
+
+        <button
+          class="btn danger ban-btn"
+          data-id="${u.id}"
+        >
+          ${
+            u.is_banned
+              ? "Débannir"
+              : "Bannir"
+          }
+        </button>
+
+      </td>
+    `;
+
+    adminUsers.appendChild(tr);
+
+  });
+
+  bindActions(users);
+
+}
+
+function bindActions(users) {
+
+  document
+    .querySelectorAll(".verify-btn")
+    .forEach(btn => {
+
+      btn.onclick = async () => {
+
+        const user =
+          users.find(
+            u => u.id === btn.dataset.id
+          );
+
+        await supabaseClient
+          .from("profiles")
+          .update({
+            is_verified:
+              !user.is_verified
+          })
+          .eq("id", user.id);
+
+        loadAdminUsers();
+
+      };
+
+    });
+
+  document
+    .querySelectorAll(".ban-btn")
+    .forEach(btn => {
+
+      btn.onclick = async () => {
+
+        const user =
+          users.find(
+            u => u.id === btn.dataset.id
+          );
+
+        await supabaseClient
+          .from("profiles")
+          .update({
+            is_banned:
+              !user.is_banned
+          })
+          .eq("id", user.id);
+
+        loadAdminUsers();
+
+      };
+
+    });
+
+}
+
+unlockChatBtn?.addEventListener(
+  "click",
+  async () => {
+
+    const buyerId =
+      document.getElementById("buyerId").value;
+
+    const targetId =
+      document.getElementById("targetId").value;
 
     if (!buyerId || !targetId) {
-      alert("Remplis les deux ID.");
+      alert("Champs manquants");
       return;
     }
 
-    const { error } = await supabaseClient
+    await supabaseClient
       .from("chat_access")
       .insert({
         buyer_id: buyerId,
         target_id: targetId
       });
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
+    alert("Chat débloqué");
 
-    alert("Chat débloqué uniquement avec ce profil !");
-  };
-}
-
-      adminUsers.appendChild(tr);
-    });
-
-  
-    /* =========================
-       BAN BUTTON
-    ========================= */
-
-    adminUsers.querySelectorAll("[data-ban]").forEach((btn) => {
-      btn.onclick = async () => {
-        const id = btn.getAttribute("data-ban");
-
-        const { data: user, error } = await supabaseClient
-          .from("profiles")
-          .select("is_banned")
-          .eq("id", id)
-          .single();
-
-        if (error) {
-          alert(error.message);
-          return;
-        }
-
-        const banned = !user.is_banned;
-
-        const { error: updateError } = await supabaseClient
-          .from("profiles")
-          .update({ is_banned: banned })
-          .eq("id", id);
-
-        if (updateError) {
-          alert(updateError.message);
-          return;
-        }
-
-        await createNotification(
-          id,
-          "system",
-          banned
-            ? "Votre compte a été banni"
-            : "Votre bannissement a été levé",
-          "index.html"
-        );
-
-        await loadAdminUsers();
-      };
-    });
-
-    /* =========================
-       VERIFY BUTTON
-    ========================= */
-
-    adminUsers.querySelectorAll("[data-verify]").forEach((btn) => {
-      btn.onclick = async () => {
-        const id = btn.getAttribute("data-verify");
-
-        const { data: user, error } = await supabaseClient
-          .from("profiles")
-          .select("is_verified")
-          .eq("id", id)
-          .single();
-
-        if (error) {
-          alert(error.message);
-          return;
-        }
-
-        const verified = !user.is_verified;
-
-        const { error: updateError } = await supabaseClient
-          .from("profiles")
-          .update({ is_verified: verified })
-          .eq("id", id);
-
-        if (updateError) {
-          alert(updateError.message);
-          return;
-        }
-
-        await createNotification(
-          id,
-          "system",
-          verified
-            ? "Votre profil est maintenant vérifié"
-            : "Votre badge vérifié a été retiré",
-          "profile.html?id=" + id
-        );
-
-        await loadAdminUsers();
-      };
-    });
   }
+);
 
-  await loadAdminUsers();
-}
+sendGlobalNotifBtn?.addEventListener(
+  "click",
+  async () => {
 
-const unlockChatBtn = document.getElementById("unlockChatBtn");
+    const text =
+      document.getElementById(
+        "globalNotifText"
+      ).value;
 
-if (unlockChatBtn) {
-  unlockChatBtn.onclick = async () => {
-    const buyerId = document.getElementById("buyerId").value.trim();
-    const targetId = document.getElementById("targetId").value.trim();
+    if (!text) return;
 
-    if (!buyerId || !targetId) {
-      alert("Remplis les deux ID.");
-      return;
+    const { data: users } =
+      await supabaseClient
+        .from("profiles")
+        .select("id");
+
+    for (const user of users) {
+
+      await supabaseClient
+        .from("notifications")
+        .insert({
+          user_id: user.id,
+          type: "admin",
+          content: text
+        });
+
     }
 
-    const { error } = await supabaseClient
-      .from("chat_access")
-      .insert({
-        buyer_id: buyerId,
-        target_id: targetId
+    alert("Notification envoyée");
+
+  }
+);
+
+adminSearch?.addEventListener(
+  "input",
+  async (e) => {
+
+    const value =
+      e.target.value.toLowerCase();
+
+    const { data: users } =
+      await supabaseClient
+        .from("profiles")
+        .select("*");
+
+    const filtered =
+      users.filter((u) => {
+
+        return (
+          (u.pseudo || "")
+            .toLowerCase()
+            .includes(value)
+          ||
+          (u.city || "")
+            .toLowerCase()
+            .includes(value)
+          ||
+          (u.id || "")
+            .includes(value)
+        );
+
       });
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
+    renderUsers(filtered);
 
-    alert("Chat débloqué !");
-  };
-}
+  }
+);
+
+loadAdminUsers();

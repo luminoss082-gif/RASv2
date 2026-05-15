@@ -1,142 +1,218 @@
+<!-- admin.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Administration – LoveConnect</title>
-  <meta name="description" content="Tableau de bord administrateur LoveConnect.">
+  <title>Admin – LoveConnect</title>
+
   <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="theme-light page-admin">
-<header>
-  <div class="logo">LoveConnect</div>
+<body class="theme-light admin-page">
 
-  <nav aria-label="Navigation principale">
+<header>
+  <div class="logo">LoveConnect Admin</div>
+
+  <nav>
     <a href="index.html">Accueil</a>
     <a href="liste.html">Profils</a>
-    <a href="notifications.html">Notifications</a>
+    <a href="chat.html">Chat</a>
     <a href="support.html">Support</a>
-    <a href="support-admin.html">Tickets</a>
-    <a href="chat.html" id="chatLink">Chat</a>
-    <a href="admin.html" id="adminLink" class="active">Admin</a>
-    <button id="themeToggle" class="icon-btn" type="button" aria-label="Changer le thème">🌓</button>
+    <a href="admin.html" class="active">Admin</a>
+
+    <button id="themeToggle" class="icon-btn">
+      🌓
+    </button>
   </nav>
 </header>
 
-<main class="section admin-page">
+<main class="section admin-wrap">
 
-  <section class="page-intro admin-hero">
-    <div>
-      <p class="subtitle">Espace administrateur</p>
-      <h1>Tableau de bord</h1>
-      <p>Gère les utilisateurs, les accès chat, les vérifications et les bannissements.</p>
-    </div>
-
-    <div class="admin-quick-actions">
-      <a href="support-admin.html" class="btn ghost">Voir les tickets</a>
-      <a href="liste.html" class="btn ghost">Voir les profils</a>
-    </div>
-  </section>
-
-  <section class="dashboard admin-stats" aria-label="Statistiques admin">
-    <article class="card stat-card">
-      <span class="stat-icon">👥</span>
-      <h2 id="statUsers">0</h2>
-      <p>Utilisateurs inscrits</p>
-    </article>
-
-    <article class="card stat-card">
-      <span class="stat-icon">🚫</span>
-      <h2 id="statBanned">0</h2>
-      <p>Comptes bannis</p>
-    </article>
-
-    <article class="card stat-card">
-      <span class="stat-icon">🎫</span>
-      <h2 id="statTickets">0</h2>
-      <p>Tickets ouverts</p>
-    </article>
-
-    <article class="card stat-card">
-      <span class="stat-icon">💬</span>
-      <h2 id="statUnread">0</h2>
-      <p>Messages support</p>
-    </article>
-
-    <article class="card stat-card">
-      <span class="stat-icon">🚨</span>
-      <h2 id="statReports">0</h2>
-      <p>Signalements</p>
-    </article>
-  </section>
-
-  <section class="card admin-unlock-card" aria-labelledby="unlockChatTitle">
-    <div class="section-heading">
-      <div>
-        <p class="subtitle">Validation manuelle après paiement PayPal</p>
-        <h2 id="unlockChatTitle">Débloquer un chat</h2>
-      </div>
-    </div>
-
-    <div class="admin-form-grid">
-      <label>
-        ID utilisateur qui a payé
-        <input type="text" id="buyerId" placeholder="buyer_id / ID utilisateur">
-      </label>
-
-      <label>
-        ID du profil demandé
-        <input type="text" id="targetId" placeholder="target_id / ID profil">
-      </label>
-
-      <button id="unlockChatBtn" class="btn primary" type="button">
-        Débloquer ce chat
-      </button>
-    </div>
-
-    <p class="admin-help-text">
-      L’utilisateur ne pourra parler qu’au profil débloqué ici. Cela ne donne pas accès à tous les chats.
+  <section class="page-intro">
+    <h1>Dashboard Admin</h1>
+    <p class="subtitle">
+      Gestion complète de LoveConnect
     </p>
   </section>
 
-  <section class="card admin-users-card" aria-labelledby="usersTitle">
-    <div class="section-heading admin-table-heading">
-      <div>
-        <p class="subtitle">Modération</p>
-        <h2 id="usersTitle">Gestion des utilisateurs</h2>
-      </div>
-      <p class="admin-help-text">Vérifie, bannis ou débannis les profils depuis ce tableau.</p>
+  <!-- STATS -->
+  <section class="dashboard">
+
+    <div class="stat-card">
+      <span>Total utilisateurs</span>
+      <strong id="statUsers">0</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Utilisateurs connectés</span>
+      <strong id="statOnline">0</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Profils vérifiés</span>
+      <strong id="statVerified">0</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Comptes bannis</span>
+      <strong id="statBanned">0</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Paiements</span>
+      <strong id="statPayments">0</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Tickets support</span>
+      <strong id="statTickets">0</strong>
+    </div>
+
+  </section>
+
+  <!-- RECHERCHE -->
+  <section class="card admin-search-card">
+
+    <div class="section-heading">
+      <h2>Recherche utilisateur</h2>
+    </div>
+
+    <input
+      type="text"
+      id="adminSearch"
+      placeholder="Pseudo / Ville / ID"
+    >
+
+  </section>
+
+  <!-- NOTIFICATION GLOBALE -->
+  <section class="card">
+
+    <div class="section-heading">
+      <h2>Notification globale</h2>
+    </div>
+
+    <textarea
+      id="globalNotifText"
+      rows="4"
+      placeholder="Message à envoyer..."
+    ></textarea>
+
+    <button
+      id="sendGlobalNotifBtn"
+      class="btn primary"
+    >
+      Envoyer notification
+    </button>
+
+  </section>
+
+  <!-- DÉBLOQUER CHAT -->
+  <section class="card">
+
+    <div class="section-heading">
+      <h2>Débloquer un chat</h2>
+    </div>
+
+    <div class="admin-grid">
+
+      <input
+        type="text"
+        id="buyerId"
+        placeholder="ID acheteur"
+      >
+
+      <input
+        type="text"
+        id="targetId"
+        placeholder="ID cible"
+      >
+
+    </div>
+
+    <button
+      id="unlockChatBtn"
+      class="btn success"
+    >
+      Débloquer chat
+    </button>
+
+  </section>
+
+  <!-- HISTORIQUE PAIEMENTS -->
+  <section class="card">
+
+    <div class="section-heading">
+      <h2>Historique paiements</h2>
     </div>
 
     <div class="admin-table-wrap">
+
       <table class="admin-table">
+
+        <thead>
+          <tr>
+            <th>Acheteur</th>
+            <th>Cible</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+
+        <tbody id="paymentsTable"></tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+  <!-- SUPPORT -->
+  <section class="card">
+
+    <div class="section-heading">
+      <h2>Tickets support</h2>
+    </div>
+
+    <div id="supportTickets"></div>
+
+  </section>
+
+  <!-- UTILISATEURS -->
+  <section class="card">
+
+    <div class="section-heading">
+      <h2>Gestion utilisateurs</h2>
+    </div>
+
+    <div class="admin-table-wrap">
+
+      <table class="admin-table">
+
         <thead>
           <tr>
             <th>Avatar</th>
             <th>Pseudo</th>
             <th>Ville</th>
-            <th>Rôle</th>
-            <th>Banni</th>
+            <th>Online</th>
             <th>Actions</th>
           </tr>
         </thead>
 
-        <tbody id="adminUsers">
-          <tr>
-            <td colspan="7">Chargement des utilisateurs...</td>
-          </tr>
-        </tbody>
+        <tbody id="adminUsers"></tbody>
+
       </table>
+
     </div>
+
   </section>
 
 </main>
 
-<div id="notifBell" class="notif-bell" role="button" tabindex="0" aria-label="Notifications">🔔</div>
-<div id="notifPanel" class="notif-panel" aria-live="polite"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script type="module" src="js/app-init.js"></script>
+<script type="module" src="js/admin-users.js"></script>
+
 </body>
 </html>
