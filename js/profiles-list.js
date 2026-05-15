@@ -5,7 +5,6 @@
 import { supabaseClient } from "./config.js";
 import { state, setCurrentUserId, setProfilesCache } from "./core.js";
 import { loadFavorites, toggleFavorite } from "./favorites.js";
-import { computeMatches } from "./matching.js";
 
 function formatLastSeen(dateString) {
   if (!dateString) return "Hors ligne";
@@ -23,6 +22,13 @@ function formatLastSeen(dateString) {
   return `Vu il y a ${days}j`;
 }
 
+function getAvatarUrl(url) {
+  if (!url) return "default-avatar.png";
+  if (url.startsWith("http")) return url;
+
+  return `https://ulfkjmdhryaulesxlbxf.supabase.co/storage/v1/object/public/avatars/${url}`;
+}
+
 function normalizeGender(value) {
   if (!value) return "";
   if (value === "Homme") return "H";
@@ -30,22 +36,15 @@ function normalizeGender(value) {
   return value;
 }
 
-function getAvatarUrl(url) {
-  if (!url) return "default-avatar.png";
-
-  if (url.startsWith("http")) {
-    return url;
-  }
-
-  return `https://ulfkjmdhryaulesxlbxf.supabase.co/storage/v1/object/public/avatars/${url}`;
-}
-
 export async function loadProfiles() {
   if (!window.location.pathname.includes("liste.html")) return;
 
   const profilesList = document.getElementById("profilesList");
 
-  const { data: { user } } = await supabaseClient.auth.getUser();
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
   setCurrentUserId(user?.id || null);
 
   if (state.currentUserId) {
@@ -55,38 +54,31 @@ export async function loadProfiles() {
   const { data: profiles, error } = await supabaseClient
     .from("profiles")
     .select("*")
-    .order("pseudo", { ascending: true });
-
-  console.log("USER CONNECTÉ:", state.currentUserId);
-  console.log("PROFILS SUPABASE:", profiles);
-  console.log("ERROR PROFILES:", error);
+    .order("created_at", { ascending: false });
 
   if (error) {
+    console.error("Erreur profils:", error);
+
     if (profilesList) {
-      profilesList.innerHTML = `<p class="error-msg">${error.message}</p>`;
+      profilesList.innerHTML = `
+        <p class="error-msg">${error.message}</p>
+      `;
     }
+
     return;
   }
 
   const visibleProfiles = (profiles || []).filter((p) => {
-    if (p.is_banned) return false;
-    return true;
+    return !p.is_banned;
   });
 
-state.allProfilesCache = visibleProfiles;
-setProfilesCache(visibleProfiles);
+  state.allProfilesCache = visibleProfiles;
+  setProfilesCache(visibleProfiles);
 
-console.log("VISIBLE PROFILES:", visibleProfiles);
-console.log("STATE CACHE:", state.allProfilesCache);
+  console.log("✅ Profils chargés:", visibleProfiles);
 
-  renderProfiles();
   renderMyProfile();
-
-  try {
-    computeMatches();
-  } catch (err) {
-    console.warn("computeMatches ignoré:", err);
-  }
+  renderProfiles();
 }
 
 export function renderMyProfile() {
@@ -96,19 +88,23 @@ export function renderMyProfile() {
   if (!state.currentUserId) {
     myProfileCard.innerHTML = `
       <div class="card">
-        <p>Connectez-vous.</p>
+        <p>Connectez-vous pour voir votre profil.</p>
       </div>
     `;
     return;
   }
 
-  const me = state.allProfilesCache.find((p) => p.id === state.currentUserId);
+  const me = state.allProfilesCache.find(
+    (p) => p.id === state.currentUserId
+  );
 
   if (!me) {
     myProfileCard.innerHTML = `
       <div class="card">
-        <p>Vous n’avez pas encore de profil.</p>
-        <a href="create-profile.html" class="btn primary">Créer mon profil</a>
+        <p>Votre profil n’existe pas encore.</p>
+        <a href="create-profile.html" class="btn primary">
+          Créer mon profil
+        </a>
       </div>
     `;
     return;
@@ -119,13 +115,14 @@ export function renderMyProfile() {
       src="${getAvatarUrl(me.avatar_url)}"
       class="avatar-img"
       onerror="this.src='default-avatar.png'"
+      alt="Mon profil"
     >
 
     <div class="profile-info">
       <h3>
         ${me.pseudo || "Mon profil"}
         ${me.age ? ", " + me.age : ""}
-        <span class="badge-self">Mon profil</span>
+        ${me.is_verified ? "✔️" : ""}
       </h3>
 
       <div class="profile-status">
@@ -140,8 +137,8 @@ export function renderMyProfile() {
       <p>${me.tagline || ""}</p>
 
       <button
-        class="btn ghost"
         type="button"
+        class="btn ghost"
         onclick="window.location.href='edit-profile.html'"
       >
         Modifier mon profil
@@ -155,56 +152,62 @@ export function renderProfiles() {
   if (!profilesList) return;
 
   const search = (document.getElementById("searchInput")?.value || "").toLowerCase();
-  const ageMin = parseInt(document.getElementById("ageMin")?.value || "0", 10);
-  const ageMax = parseInt(document.getElementById("ageMax")?.value || "200", 10);
   const city = (document.getElementById("cityFilter")?.value || "").toLowerCase();
   const gender = document.getElementById("genderFilter")?.value || "";
   const favoritesOnly = document.getElementById("favoritesOnly")?.checked || false;
 
+  const ageMinRaw = document.getElementById("ageMin")?.value;
+  const ageMaxRaw = document.getElementById("ageMax")?.value;
+
+  const ageMin = ageMinRaw ? parseInt(ageMinRaw, 10) : null;
+  const ageMax = ageMaxRaw ? parseInt(ageMaxRaw, 10) : null;
+
   let filteredProfiles = [...state.allProfilesCache];
 
-console.log("PROFILS À AFFICHER:", filteredProfiles);
+  filteredProfiles = filteredProfiles.filter((p) => {
+    if (p.is_banned) return false;
 
-profilesList.innerHTML = "";
+    if (favoritesOnly && !state.favoritesSet.has(p.id)) return false;
 
-if (filteredProfiles.length === 0) {
-  profilesList.innerHTML = `<p>Aucun profil trouvé.</p>`;
-  return;
-}
+    if (search) {
+      const text = `${p.pseudo || ""} ${p.tagline || ""}`.toLowerCase();
+      if (!text.includes(search)) return false;
+    }
 
-  if (
-    state.currentUserId &&
-    !filteredProfiles.find((p) => p.id === state.currentUserId)
-  ) {
-    const me = state.allProfilesCache.find((p) => p.id === state.currentUserId);
-    if (me) filteredProfiles.unshift(me);
-  }
+    if (city && !(p.city || "").toLowerCase().includes(city)) return false;
 
-  console.log("CACHE PROFILS:", state.allProfilesCache);
-  console.log("PROFILS À AFFICHER:", filteredProfiles);
+    if (gender && normalizeGender(p.gender) !== gender) return false;
+
+    if (ageMin !== null && p.age && p.age < ageMin) return false;
+    if (ageMax !== null && p.age && p.age > ageMax) return false;
+
+    return true;
+  });
+
+  console.log("✅ Profils à afficher:", filteredProfiles);
 
   profilesList.innerHTML = "";
 
   if (filteredProfiles.length === 0) {
-    profilesList.innerHTML = `<p>Aucun profil trouvé.</p>`;
+    profilesList.innerHTML = `
+      <p>Aucun profil trouvé.</p>
+    `;
     return;
   }
 
   filteredProfiles.forEach((p) => {
+    const isMe = p.id === state.currentUserId;
+
     const div = document.createElement("div");
-
-    div.className =
-      p.id === state.currentUserId
-        ? "profile-item my-profile"
-        : "profile-item";
-
-    div.setAttribute("data-id", p.id);
+    div.className = isMe ? "profile-item my-profile" : "profile-item";
+    div.dataset.id = p.id;
 
     div.innerHTML = `
       <button
         class="favorite-btn ${state.favoritesSet.has(p.id) ? "filled" : ""}"
         data-fav="${p.id}"
         type="button"
+        aria-label="Favori"
       >
         ${state.favoritesSet.has(p.id) ? "♥" : "♡"}
       </button>
@@ -213,17 +216,15 @@ if (filteredProfiles.length === 0) {
         src="${getAvatarUrl(p.avatar_url)}"
         class="avatar-img"
         onerror="this.src='default-avatar.png'"
+        alt="Avatar"
       >
 
       <div class="profile-info">
         <h3>
           ${p.pseudo || "Profil"}
           ${p.age ? ", " + p.age : ""}
-          ${
-            p.id === state.currentUserId
-              ? `<span class="badge-self">Mon profil</span>`
-              : ""
-          }
+          ${p.is_verified ? "✔️" : ""}
+          ${isMe ? `<span class="badge-self">Mon profil</span>` : ""}
         </h3>
 
         <div class="profile-status">
@@ -238,17 +239,27 @@ if (filteredProfiles.length === 0) {
         <p>${p.tagline || ""}</p>
 
         ${
-          p.id !== state.currentUserId
+          !isMe
             ? `
-              <button class="btn primary" type="button" data-request-chat="${p.id}">
+              <button
+                class="btn primary"
+                type="button"
+                data-request-chat="${p.id}"
+              >
                 Demander à discuter
               </button>
 
-              <button class="btn success" type="button" data-pay-chat="${p.id}">
+              <button
+                class="btn success"
+                type="button"
+                data-pay-chat="${p.id}"
+              >
                 Payer et contacter admin
               </button>
             `
-            : `<span class="badge-self">Mon profil</span>`
+            : `
+              <span class="badge-self">Mon profil</span>
+            `
         }
       </div>
     `;
@@ -267,73 +278,68 @@ if (filteredProfiles.length === 0) {
 
     const favBtn = div.querySelector(".favorite-btn");
 
-    if (favBtn) {
-      favBtn.addEventListener("click", async (e) => {
-        e.stopPropagation();
+    favBtn?.addEventListener("click", async (e) => {
+      e.stopPropagation();
 
-        if (!state.currentUserId) {
-          alert("Connectez-vous.");
-          return;
-        }
+      if (!state.currentUserId) {
+        alert("Connectez-vous.");
+        return;
+      }
 
-        await toggleFavorite(p.id);
-      });
-    }
+      await toggleFavorite(p.id);
+      await loadProfiles();
+    });
 
     const requestChatBtn = div.querySelector("[data-request-chat]");
 
-    if (requestChatBtn) {
-      requestChatBtn.addEventListener("click", async (e) => {
-        e.stopPropagation();
+    requestChatBtn?.addEventListener("click", async (e) => {
+      e.stopPropagation();
 
-        if (!state.currentUserId) {
-          alert("Connectez-vous.");
+      if (!state.currentUserId) {
+        alert("Connectez-vous.");
+        return;
+      }
+
+      const { error } = await supabaseClient
+        .from("chat_requests")
+        .insert({
+          requester_id: state.currentUserId,
+          target_id: p.id,
+          status: "pending"
+        });
+
+      if (error) {
+        if (error.code === "23505") {
+          alert("Demande déjà envoyée.");
           return;
         }
 
-        const { error } = await supabaseClient
-          .from("chat_requests")
-          .insert({
-            requester_id: state.currentUserId,
-            target_id: p.id,
-            status: "pending"
-          });
+        alert(error.message);
+        return;
+      }
 
-        if (error) {
-          if (error.code === "23505") {
-            alert("Demande déjà envoyée.");
-            return;
-          }
-
-          alert(error.message);
-          return;
-        }
-
-        alert("Demande envoyée !");
-      });
-    }
+      alert("Demande envoyée !");
+    });
 
     const payChatBtn = div.querySelector("[data-pay-chat]");
 
-    if (payChatBtn) {
-      payChatBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
+    payChatBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
 
-        window.open(
-          "https://paypal.me/jeffreygqadal1/5.00",
-          "_blank"
-        );
+      window.open(
+        "https://paypal.me/jeffreygqadal1/5.00",
+        "_blank"
+      );
 
-        const message = encodeURIComponent(
-          `Bonjour, j'ai payé pour débloquer le chat avec ${p.pseudo || "ce profil"}. Mon ID utilisateur est : ${state.currentUserId}. Merci !`
-        );
+      const message = encodeURIComponent(
+        `Bonjour, j'ai payé pour débloquer le chat avec ${p.pseudo || "ce profil"}. Mon ID utilisateur est : ${state.currentUserId}. Merci !`
+      );
 
-        setTimeout(() => {
-          window.location.href =
-            `https://wa.me/33676615490?text=${message}`;
-        }, 1500);
-      });
-    }
+      setTimeout(() => {
+        window.location.href =
+          `https://wa.me/33676615490?text=${message}`;
+      }, 1500);
+    });
 
     profilesList.appendChild(div);
   });
