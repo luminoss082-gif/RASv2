@@ -209,21 +209,6 @@ export function renderProfiles() {
       >
         ${state.favoritesSet.has(p.id) ? "♥" : "♡"}
       </button>
-<button
-  class="btn primary"
-  type="button"
-  data-request-chat="${p.id}"
->
-  Demander à discuter
-</button>
-
-<button
-  class="btn success"
-  type="button"
-  data-pay-chat="${p.id}"
->
-  Payer et contacter admin
-</button>
 
  <img
   src="${getAvatarUrl(p.avatar_url)}"
