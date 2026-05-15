@@ -1,8 +1,6 @@
 
 import { requireAdmin } from "./admin-guard.js";
 import { supabaseClient } from "./config.js";
-import { loadPayments } from "./payments.js";
-import { loadSupportTickets } from "./support.js";
 
 
 export async function initAdminUsers() {
@@ -15,18 +13,6 @@ export async function initAdminUsers() {
   }
 
   await loadAdminUsers();
-
-  try {
-    await loadPayments?.();
-  } catch (err) {
-    console.warn(err);
-  }
-
-  try {
-    await loadSupportTickets?.();
-  } catch (err) {
-    console.warn(err);
-  }
 
 }
 
