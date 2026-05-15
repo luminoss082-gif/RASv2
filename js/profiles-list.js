@@ -37,7 +37,7 @@ function getAvatarUrl(url) {
     return url;
   }
 
-  return `https://TON-PROJET.supabase.co/storage/v1/object/public/avatars/${url}`;
+  return `https://ulfkjmdhryaulesxlbxf.supabase.co/storage/v1/object/public/avatars/${url}`;
 }
 
 export async function loadProfiles() {
