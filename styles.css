@@ -1,494 +1,987 @@
-/* =========================
-   CARDS PROFILS
-========================= */
-
-.profiles-list{
-  display:grid;
-  grid-template-columns:
-    repeat(auto-fill,minmax(320px,1fr));
-  gap:24px;
-  margin-top:24px;
-}
-
-.profile-item{
-  position:relative;
-
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-
-  padding:20px;
-
-  border-radius:24px;
-
-  background:
-    linear-gradient(
-      180deg,
-      #140a2e,
-      #070b1a
-    );
-
-  border:1px solid rgba(212,175,55,.22);
-
-  box-shadow:
-    0 10px 30px rgba(0,0,0,.25);
-
-  transition:
-    transform .2s ease,
-    box-shadow .2s ease,
-    border-color .2s ease;
-
-  overflow:hidden;
-
-  cursor:pointer;
-}
-
-.profile-item:hover{
-  transform:translateY(-4px);
-
-  border-color:
-    rgba(212,175,55,.45);
-
-  box-shadow:
-    0 18px 40px rgba(0,0,0,.35);
-}
-
-.profile-item::before{
-  content:"";
-
-  position:absolute;
-  inset:0;
-
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba(230,0,126,.12),
-      transparent 35%
-    );
-
-  pointer-events:none;
-}
+/* =========================================================
+   LOVE CONNECT — STYLE ROYAL CLEAN
+   Organisation :
+   1. Variables
+   2. Reset global
+   3. Header / Navigation
+   4. Layout global
+   5. Boutons
+   6. Formulaires
+   7. Profils / cartes
+   8. Mon profil
+   9. Stories
+   10. Chat
+   11. Support
+   12. Admin
+   13. Notifications
+   14. Utilitaires
+   15. Responsive mobile
+========================================================= */
 
 /* =========================
-   IMAGE PROFIL
-========================= */
-
-.profile-item .avatar-img{
-  width:100%;
-  height:320px;
-
-  object-fit:cover;
-
-  border-radius:18px;
-
-  background:#0f172a;
-}
-
-/* =========================
-   INFOS
-========================= */
-
-.profile-info{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.profile-info h3{
-  margin:0;
-
-  font-size:1.3rem;
-  font-weight:700;
-
-  color:#fff;
-}
-
-.profile-info p{
-  margin:0;
-
-  color:#cbd5e1;
-
-  line-height:1.5;
-}
-
-.profile-status{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.online-badge,
-.offline-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-
-  padding:6px 12px;
-
-  border-radius:999px;
-
-  font-size:.85rem;
-  font-weight:600;
-}
-
-.online-badge{
-  background:
-    rgba(34,197,94,.15);
-
-  color:#4ade80;
-}
-
-.offline-badge{
-  background:
-    rgba(148,163,184,.12);
-
-  color:#cbd5e1;
-}
-
-/* =========================
-   BOUTONS
-========================= */
-
-.profile-item .btn{
-  width:100%;
-  justify-content:center;
-}
-
-.profile-item .btn.primary{
-  margin-top:6px;
-}
-
-/* =========================
-   FAVORIS
-========================= */
-
-.favorite-btn{
-  position:absolute;
-  top:16px;
-  right:16px;
-
-  width:42px;
-  height:42px;
-
-  border:none;
-  border-radius:50%;
-
-  background:
-    rgba(15,23,42,.72);
-
-  color:#fff;
-
-  font-size:1.2rem;
-
-  cursor:pointer;
-
-  backdrop-filter:blur(8px);
-
-  transition:
-    transform .2s ease,
-    background .2s ease;
-}
-
-.favorite-btn:hover{
-  transform:scale(1.08);
-}
-
-.favorite-btn.filled{
-  background:linear-gradient(135deg,#d4af37,#f5d76e);
-}
-
-/* =========================
-   BADGE MON PROFIL
-========================= */
-
-.badge-self{
-  display:inline-flex;
-  align-items:center;
-
-  padding:4px 10px;
-
-  border-radius:999px;
-
-  font-size:.75rem;
-  font-weight:700;
-
-  background:rgba(212,175,55,.16);
-
-  color:#f5d76e;
-
-  margin-left:8px;
-}
-
-/* =========================
-   MON PROFIL EN HAUT
-========================= */
-
-#myProfileCard {
-  display:flex;
-  align-items:center;
-  gap:16px;
-
-  padding:18px;
-
-  border-radius:22px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #1a103d,
-      #070b1a
-    );
-
-  margin-bottom:24px;
-
-  box-shadow:
-    0 10px 28px rgba(0,0,0,.25);
-}
-
-#myProfileCard .avatar-img {
-  width:80px !important;
-  height:80px !important;
-
-  min-width:80px;
-
-  border-radius:50%;
-
-  object-fit:cover;
-
-  border:3px solid rgba(212,175,55,.35);
-}
-
-#myProfileCard .profile-info {
-  flex:1;
-}
-
-#myProfileCard h3 {
-  margin:0 0 6px;
-  color:#fff;
-}
-
-#myProfileCard p {
-  margin:4px 0;
-  color:#cbd5e1;
-}
-
-/* =========================
-   CHAT AVATAR
-========================= */
-
-.chat-avatar{
-  width:50px;
-  height:50px;
-
-  border-radius:50%;
-
-  object-fit:cover;
-
-  background:#1e293b;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media(max-width:768px){
-
-  .profiles-list{
-    grid-template-columns:1fr;
-  }
-
-  .profile-item .avatar-img{
-    height:260px;
-  }
-
-  #myProfileCard{
-    flex-direction:column;
-    text-align:center;
-  }
-
-}
-/* =========================
-   STYLE ROYAL GLOBAL
+   1. VARIABLES
 ========================= */
 
 :root {
   --bg: #070b1a;
   --bg-alt: #11152b;
+  --bg-card: linear-gradient(145deg, rgba(26, 16, 61, .96), rgba(7, 11, 26, .98));
   --text: #fff8dc;
-  --muted: #c9b77d;
+  --muted: #d8c891;
   --primary: #d4af37;
+  --primary-light: #fff3b0;
+  --primary-dark: #b8860b;
   --accent: #7c3aed;
-  --primary-soft: rgba(212, 175, 55, 0.12);
-  --shadow-soft: 0 12px 35px rgba(0,0,0,.35);
+  --danger: #dc2626;
+  --success: #22c55e;
+  --border-gold: rgba(212, 175, 55, .26);
+  --primary-soft: rgba(212, 175, 55, .12);
+  --shadow-soft: 0 18px 45px rgba(0, 0, 0, .35);
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+}
+
+/* =========================
+   2. RESET GLOBAL
+========================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.6;
   background:
-    radial-gradient(circle at top left, rgba(124,58,237,.22), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(212,175,55,.12), transparent 30%),
-    #070b1a;
+    radial-gradient(circle at top left, rgba(124, 58, 237, .22), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(212, 175, 55, .14), transparent 34%),
+    var(--bg);
   color: var(--text);
 }
 
-header {
-  background: rgba(7, 11, 26, .92) !important;
-  border-bottom: 1px solid rgba(212,175,55,.25);
+img {
+  max-width: 100%;
+  display: block;
 }
 
-.logo {
-  background: linear-gradient(90deg, #f5d76e, #d4af37, #fff3b0);
-  -webkit-background-clip: text;
-  color: transparent;
+a {
+  color: var(--primary-light);
+  text-decoration: none;
 }
 
-.card,
-.profile-item,
-.profile-container,
-.card-form,
-.ticket-chat,
-.ticket-list,
-.ticket-new,
-.admin-table,
-.chat-sidebar,
-.chat-panel,
-.chat-window,
-.chat-users,
-.premium-card,
-.my-profile-card,
-#myProfileCard {
-  background:
-    linear-gradient(145deg, rgba(26,16,61,.96), rgba(7,11,26,.98)) !important;
-  border: 1px solid rgba(212,175,55,.24) !important;
-  box-shadow: 0 18px 45px rgba(0,0,0,.35) !important;
-  color: var(--text) !important;
-}
-
-h1, h2, h3 {
-  color: #fff3b0;
+h1,
+h2,
+h3 {
+  color: var(--primary-light);
+  line-height: 1.2;
 }
 
 p,
 .subtitle,
-.profile-info p {
-  color: #d8c891;
+label,
+small {
+  color: var(--muted);
+}
+
+/* =========================
+   3. HEADER / NAVIGATION
+========================= */
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 6vw;
+  background: rgba(7, 11, 26, .92);
+  border-bottom: 1px solid var(--border-gold);
+  backdrop-filter: blur(12px);
+}
+
+.logo {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #f5d76e, #d4af37, #fff3b0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+nav a {
+  position: relative;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: .95rem;
+  padding: 6px 0;
+}
+
+nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  transition: width .25s ease;
+}
+
+nav a:hover,
+nav a.active {
+  color: var(--primary-light);
+}
+
+nav a:hover::after,
+nav a.active::after {
+  width: 100%;
+}
+
+.icon-btn,
+#themeToggle {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  min-height: 42px;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 175, 55, .35);
+  background: rgba(212, 175, 55, .12);
+  color: var(--primary-light);
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+/* =========================
+   4. LAYOUT GLOBAL
+========================= */
+
+main,
+.section {
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 34px 0 70px;
+}
+
+.hero {
+  min-height: calc(100vh - 92px);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 60px 16px;
+}
+
+.hero h1 {
+  max-width: 850px;
+  margin: 0 auto 18px;
+  font-size: clamp(2.1rem, 5vw, 4.8rem);
+  background: linear-gradient(90deg, #fff3b0, #d4af37, #f5d76e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero p {
+  max-width: 640px;
+  margin: 0 auto 28px;
+  font-size: 1.05rem;
+}
+
+.page-intro,
+.section-heading {
+  margin-bottom: 22px;
+}
+
+.card,
+.card-form,
+.profile-container,
+.filters-card,
+.profile-header-card,
+.profile-section,
+.profiles-section,
+.support-layout,
+.ticket-chat,
+.ticket-list,
+.ticket-new,
+.chat-sidebar,
+.chat-panel,
+.admin-wrap,
+#myProfileCard,
+.my-profile-card,
+.admin-table,
+.notif-panel,
+#notifPanel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  color: var(--text);
+}
+
+.card,
+.card-form,
+.profile-container,
+.filters-card,
+.profile-section,
+.profiles-section,
+.ticket-chat,
+.ticket-list,
+.ticket-new {
+  padding: 22px;
+}
+
+/* =========================
+   5. BOUTONS
+========================= */
+
+.btn,
+.btn-primary,
+button {
+  font: inherit;
+}
+
+.btn,
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  min-height: 44px;
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+
+.btn:hover,
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+.btn.primary,
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light), var(--primary-dark));
+  color: #1a103d;
+  box-shadow: 0 10px 25px rgba(212, 175, 55, .22);
+}
+
+.btn.ghost {
+  color: var(--primary-light);
+  background: rgba(212, 175, 55, .08);
+  border: 1px solid rgba(212, 175, 55, .55);
+}
+
+.btn.danger {
+  color: #fff;
+  background: linear-gradient(135deg, #7f1d1d, var(--danger));
+}
+
+.btn.success {
+  color: #072012;
+  background: linear-gradient(135deg, #22c55e, #bbf7d0);
+}
+
+.btn.full,
+.btn-primary.full {
+  width: 100%;
+}
+
+/* =========================
+   6. FORMULAIRES
+========================= */
+
+form,
+.card-form {
+  display: grid;
+  gap: 12px;
+}
+
+label {
+  font-size: .92rem;
+  font-weight: 600;
 }
 
 input,
 select,
 textarea {
-  background: rgba(255,255,255,.08) !important;
-  color: #fff8dc !important;
-  border: 1px solid rgba(212,175,55,.28) !important;
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 13px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(212, 175, 55, .28);
+  background: rgba(255, 255, 255, .08);
+  color: var(--text);
+  outline: none;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: rgba(255,248,220,.55);
+  color: rgba(255, 248, 220, .55);
 }
 
-.btn.primary,
-.btn-primary {
-  background: linear-gradient(135deg, #d4af37, #fff3b0, #b8860b) !important;
-  color: #1a103d !important;
-  font-weight: 800;
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(245, 215, 110, .65);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, .14);
 }
 
-.btn.ghost {
-  border: 1px solid rgba(212,175,55,.55) !important;
-  color: #f5d76e !important;
-  background: rgba(212,175,55,.08) !important;
+textarea {
+  min-height: 110px;
+  resize: vertical;
 }
 
-.btn.danger {
-  background: linear-gradient(135deg, #7f1d1d, #dc2626) !important;
-  color: white !important;
+.error-msg {
+  color: #fca5a5;
+  font-size: .92rem;
+  font-weight: 700;
 }
 
-a {
-  color: #f5d76e;
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 18px 0 28px;
 }
 
-nav a {
-  color: #d8c891 !important;
+.checkbox-inline {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-nav a.active,
-nav a:hover {
-  color: #fff3b0 !important;
-}
-
-.avatar-img,
-.chat-avatar,
-.story-avatar {
-  border: 2px solid rgba(212,175,55,.45);
-}
-
-.notif-bell,
-#notifPanel {
-  background: rgba(26,16,61,.96);
-  color: #fff8dc;
-  border: 1px solid rgba(212,175,55,.25);
-}
-
-.admin-table th {
-  background: rgba(212,175,55,.12) !important;
-  color: #fff3b0;
-}
-
-.admin-table td {
-  color: #fff8dc;
-}
-
-.profile-item:hover,
-.card:hover {
-  border-color: rgba(245,215,110,.55) !important;
-  transform: translateY(-3px);
+.checkbox-inline input {
+  width: auto;
+  min-height: auto;
 }
 
 /* =========================
-   MOBILE ROYAL RESPONSIVE
+   7. PROFILS / CARTES
+========================= */
+
+.profiles-list {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.profile-item {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #140a2e, #070b1a);
+  border: 1px solid rgba(212, 175, 55, .22);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.profile-item:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245, 215, 110, .55);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .35);
+}
+
+.profile-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(212, 175, 55, .12), transparent 35%);
+  pointer-events: none;
+}
+
+.profile-item .avatar-img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 320px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background: #0f172a;
+  border: 2px solid rgba(212, 175, 55, .45);
+}
+
+.profile-info {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-info h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff3b0;
+}
+
+.profile-info p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.profile-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.online-badge,
+.offline-badge,
+.badge-self,
+.ticket-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.online-badge {
+  background: rgba(34, 197, 94, .15);
+  color: #4ade80;
+}
+
+.offline-badge {
+  background: rgba(148, 163, 184, .12);
+  color: #cbd5e1;
+}
+
+.badge-self {
+  background: rgba(212, 175, 55, .16);
+  color: var(--primary-light);
+  margin-left: 8px;
+}
+
+.favorite-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 3;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, .72);
+  color: #fff;
+  font-size: 1.25rem;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: transform .2s ease, background .2s ease;
+}
+
+.favorite-btn:hover {
+  transform: scale(1.08);
+}
+
+.favorite-btn.filled {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #1a103d;
+}
+
+.profile-item .btn {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.my-profile {
+  border-color: rgba(245, 215, 110, .55);
+}
+
+/* =========================
+   8. MON PROFIL EN HAUT
+========================= */
+
+#myProfileCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  margin-bottom: 24px;
+}
+
+#myProfileCard .avatar-img,
+#myProfileCard img {
+  width: 80px !important;
+  height: 80px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
+  max-height: 80px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  border: 3px solid rgba(212, 175, 55, .35);
+}
+
+#myProfileCard .profile-info {
+  flex: 1;
+}
+
+#myProfileCard h3 {
+  margin: 0 0 6px;
+}
+
+#myProfileCard p {
+  margin: 4px 0;
+}
+
+/* =========================
+   9. STORIES
+========================= */
+
+.stories-bar {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 8px 0 6px;
+}
+
+.stories-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.story-item {
+  min-width: 70px;
+  max-width: 70px;
+  text-align: center;
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+.story-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 2px solid rgba(212, 175, 55, .45);
+}
+
+/* =========================
+   10. CHAT
+========================= */
+
+.chat-main,
+.chat-shell {
+  width: 100%;
+}
+
+.chat-shell {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+}
+
+.chat-sidebar,
+.chat-panel {
+  overflow: hidden;
+}
+
+.chat-sidebar-head,
+.chat-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border-gold);
+  background: rgba(212, 175, 55, .08);
+}
+
+.chat-users {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.chat-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .18s ease;
+}
+
+.chat-user:hover,
+.chat-user.active {
+  background: rgba(212, 175, 55, .12);
+}
+
+.chat-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #1e293b;
+  border: 2px solid rgba(212, 175, 55, .45);
+}
+
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 70vh;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.chat-message,
+.msg {
+  max-width: 78%;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .08);
+  color: var(--text);
+}
+
+.chat-message.me,
+.msg.me {
+  margin-left: auto;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #1a103d;
+}
+
+.msg.admin {
+  background: rgba(220, 38, 38, .16);
+}
+
+.chat-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid var(--border-gold);
+}
+
+.chat-form input {
+  margin-top: 0;
+  border-radius: 999px;
+}
+
+/* =========================
+   11. SUPPORT
+========================= */
+
+.support-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+}
+
+.ticket-item {
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, .05);
+  cursor: pointer;
+}
+
+.ticket-item.active,
+.ticket-item:hover {
+  background: rgba(212, 175, 55, .12);
+}
+
+.ticket-badge {
+  background: rgba(212, 175, 55, .16);
+  color: var(--primary-light);
+}
+
+.ticket-messages {
+  max-height: 360px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+/* =========================
+   12. ADMIN
+========================= */
+
+.admin-wrap {
+  width: min(1200px, calc(100% - 24px));
+  margin: 24px auto;
+  padding: 20px;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(212, 175, 55, .16);
+  text-align: left;
+}
+
+.admin-table th {
+  background: rgba(212, 175, 55, .12);
+  color: var(--primary-light);
+}
+
+.admin-table td {
+  color: var(--text);
+}
+
+/* =========================
+   13. NOTIFICATIONS
+========================= */
+
+.notif-bell {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1000;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(26, 16, 61, .96);
+  color: var(--primary-light);
+  border: 1px solid var(--border-gold);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+}
+
+.notif-bell::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background: #ef4444;
+  border-radius: 50%;
+  display: none;
+}
+
+.notif-bell.active::after {
+  display: block;
+}
+
+#notifPanel,
+.notif-panel {
+  position: fixed;
+  top: 76px;
+  right: 18px;
+  z-index: 999;
+  width: 320px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 16px;
+  display: none;
+}
+
+.notif-item {
+  padding: 10px;
+  border-bottom: 1px solid rgba(212, 175, 55, .16);
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+/* =========================
+   14. UTILITAIRES
+========================= */
+
+.hidden {
+  display: none !important;
+}
+
+.avatar-preview {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 10px auto 20px;
+  border: 3px solid rgba(212, 175, 55, .45);
+}
+
+.carousel {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  margin: 20px auto;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+.carousel-main img,
+.carousel-track img {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 175, 55, .35);
+  background: rgba(7, 11, 26, .75);
+  color: var(--primary-light);
+  cursor: pointer;
+}
+
+.carousel-btn.left { left: 10px; }
+.carousel-btn.right { right: 10px; }
+
+.photo-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.photo-gallery img {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+/* =========================
+   15. RESPONSIVE MOBILE
 ========================= */
 
 @media (max-width: 900px) {
-
-  body {
-    overflow-x: hidden;
+  header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px;
   }
 
-  header {
-    padding: 12px 14px;
+  .logo {
+    text-align: center;
+    font-size: 1.1rem;
   }
 
   nav {
+    width: 100%;
     display: flex;
-    gap: 10px;
+    flex-wrap: nowrap;
     overflow-x: auto;
-    padding-bottom: 6px;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 8px 2px 10px;
     scrollbar-width: none;
   }
 
-  nav::-webkit-scrollbar {
+  nav::-webkit-scrollbar,
+  .stories-bar::-webkit-scrollbar {
     display: none;
   }
 
-  nav a,
-  nav button {
-    white-space: nowrap;
-    font-size: 0.92rem;
+  nav a {
+    flex: 0 0 auto;
+    padding: 9px 13px;
+    border-radius: 999px;
+    background: rgba(212, 175, 55, .10);
+    border: 1px solid rgba(212, 175, 55, .18);
+    font-size: .88rem;
   }
 
-  .section,
-  main {
-    padding-left: 14px !important;
-    padding-right: 14px !important;
+  nav a::after {
+    display: none;
   }
 
-  /* =========================
-     PROFILS
-  ========================= */
+  nav a.active {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: #1a103d;
+    font-weight: 800;
+  }
+
+  main,
+  .section {
+    width: calc(100% - 24px);
+    padding: 22px 0 90px;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  .filters,
+  form,
+  .card-form {
+    grid-template-columns: 1fr;
+  }
+
+  input,
+  select,
+  textarea,
+  button,
+  .btn,
+  .btn-primary {
+    width: 100%;
+    min-height: 48px;
+  }
 
   .profiles-list {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
     gap: 18px;
   }
 
@@ -498,135 +991,66 @@ nav a:hover {
   }
 
   .profile-item .avatar-img {
-    width: 100%;
     height: 260px;
-    border-radius: 18px;
   }
-
-  .profile-info h3 {
-    font-size: 1.1rem;
-  }
-
-  .profile-info p {
-    font-size: 0.92rem;
-  }
-
-  /* =========================
-     MON PROFIL
-  ========================= */
 
   #myProfileCard {
     flex-direction: column;
     text-align: center;
-    padding: 18px;
+    padding: 16px;
   }
 
-  #myProfileCard .avatar-img {
+  #myProfileCard .avatar-img,
+  #myProfileCard img {
     width: 82px !important;
     height: 82px !important;
   }
 
-  /* =========================
-     FORMULAIRES
-  ========================= */
-
-  form,
-  .filters,
-  .card-form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  input,
-  select,
-  textarea,
-  button {
-    width: 100%;
-    min-height: 48px;
-    font-size: 1rem;
-  }
-
-  /* =========================
-     CHAT
-  ========================= */
-
   .chat-shell {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 
   .chat-sidebar {
-    order: 2;
     max-height: 220px;
-    overflow-y: auto;
-  }
-
-  .chat-panel {
-    order: 1;
-    min-height: 70vh;
   }
 
   .chat-users {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 
-  .chat-message {
+  .chat-user {
+    min-width: 120px;
+    flex: 0 0 auto;
+  }
+
+  .chat-panel {
+    min-height: 65vh;
+  }
+
+  .chat-message,
+  .msg {
     max-width: 92%;
   }
 
-  /* =========================
-     ADMIN
-  ========================= */
+  .support-layout {
+    grid-template-columns: 1fr;
+  }
 
   .admin-table {
     display: block;
+    width: 100%;
     overflow-x: auto;
     white-space: nowrap;
   }
 
-  /* =========================
-     STORIES
-  ========================= */
-
-  .stories-bar {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    padding-bottom: 4px;
+  #notifPanel,
+  .notif-panel {
+    width: calc(100% - 24px);
+    right: 12px;
+    top: auto;
+    bottom: 76px;
   }
-
-  .stories-bar::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* =========================
-     TITRES
-  ========================= */
-
-  h1 {
-    font-size: 1.8rem;
-  }
-
-  h2 {
-    font-size: 1.3rem;
-  }
-
-  p,
-  span,
-  a,
-  label {
-    font-size: 0.95rem;
-  }
-
-  /* =========================
-     BOUTONS
-  ========================= */
-
-  .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
 }
