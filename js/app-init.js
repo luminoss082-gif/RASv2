@@ -29,7 +29,7 @@ import {
   initSupportRealtime
 } from "./realtime.js";
 
-import { initAvatarPreview } from "./avatar-upload.js";
+import { initAvatarPreview } from "./avatar-upload.js?v=2";
 
 import { initCreateProfile } from "./profile-create.js";
 

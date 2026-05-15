@@ -44,9 +44,10 @@ export function initAvatarPreview() {
 
   const avatarInput =
     document.getElementById("avatar");
-
-  const preview =
-    document.getElementById("avatarPreview");
+    
+const preview =
+  document.getElementById("preview") ||
+  document.getElementById("avatarPreview");
 
   if (!avatarInput || !preview) return;
 
