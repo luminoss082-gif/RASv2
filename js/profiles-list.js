@@ -23,10 +23,8 @@ function formatLastSeen(dateString) {
 }
 
 function getAvatarUrl(url) {
-  if (!url) return "default-avatar.png";
-  if (url.startsWith("http")) return url;
-
-  return `https://ulfkjmdhryaulesxlbxf.supabase.co/storage/v1/object/public/avatars/${url}`;
+  if (!url) return "assets/default-avatar.png";
+  return url;
 }
 
 function normalizeGender(value) {
@@ -211,13 +209,27 @@ export function renderProfiles() {
       >
         ${state.favoritesSet.has(p.id) ? "♥" : "♡"}
       </button>
+<button
+  class="btn primary"
+  type="button"
+  data-request-chat="${p.id}"
+>
+  Demander à discuter
+</button>
 
-      <img
-        src="${getAvatarUrl(p.avatar_url)}"
-        class="avatar-img"
-        onerror="this.src='default-avatar.png'"
-        alt="Avatar"
-      >
+<button
+  class="btn success"
+  type="button"
+  data-pay-chat="${p.id}"
+>
+  Payer et contacter admin
+</button>
+
+ <img
+  src="${getAvatarUrl(p.avatar_url)}"
+  class="avatar-img"
+  onerror="this.src='assets/default-avatar.png'"
+>
 
       <div class="profile-info">
         <h3>

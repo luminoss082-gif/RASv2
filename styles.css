@@ -1054,3 +1054,55 @@ textarea {
     bottom: 76px;
   }
 }
+
+/* =========================
+   FIX BOUTONS PROFILS
+========================= */
+
+.profile-item .profile-info{
+  width:100%;
+}
+
+.profile-item .btn{
+  display:flex !important;
+  width:100% !important;
+  margin-top:10px;
+  min-height:48px;
+  z-index:5;
+  position:relative;
+}
+
+.profile-item .btn.primary{
+  background:
+    linear-gradient(
+      135deg,
+      #d4af37,
+      #fff3b0
+    ) !important;
+
+  color:#1a103d !important;
+
+  font-weight:700;
+}
+
+.profile-item .btn.success{
+  background:
+    linear-gradient(
+      135deg,
+      #7c3aed,
+      #a855f7
+    ) !important;
+
+  color:white !important;
+
+  font-weight:700;
+}
+
+.profile-item .profile-info{
+  display:flex;
+  flex-direction:column;
+}
+
+.profile-item .profile-info p:last-of-type{
+  margin-bottom:8px;
+}
