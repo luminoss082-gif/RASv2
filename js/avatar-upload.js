@@ -1,5 +1,6 @@
 import { supabaseClient } from "./config.js";
 
+
 /* =========================
    UPLOAD AVATAR
 ========================= */
