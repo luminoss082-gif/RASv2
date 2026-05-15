@@ -1,9 +1,18 @@
 
 import { requireAdmin } from "./admin-guard.js";
 import { supabaseClient } from "./config.js";
+import { loadPayments } from "./payments.js";
+import { loadSupportTickets } from "./support.js";
 
-const isAdmin = await requireAdmin();
-if (!isAdmin) throw new Error("Accès refusé");
+
+export async function initAdminUsers() {
+  const isAdmin = await requireAdmin();
+  if (!isAdmin) throw new Error("Accès refusé");
+
+  await loadAdminUsers();
+  await loadPayments?.();
+  await loadSupportTickets?.();
+}
 
 const adminUsers = document.getElementById("adminUsers");
 const statUsers = document.getElementById("statUsers");
