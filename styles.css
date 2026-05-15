@@ -1298,7 +1298,7 @@ textarea {
   color: var(--muted, #9ca3af) !important;
 }
 
- #myProfileCard,
+#myProfileCard,
   .profile-item {
     align-items: flex-start !important;
   }
@@ -1321,13 +1321,7 @@ textarea {
     padding-right: 28px;
   }
 
-  .profile-item .btn {
-    width: 100%;
-    margin-top: 8px;
-  }
-}
-
-#myProfileCard img,
+  #myProfileCard img,
 #myProfileCard .avatar-img,
 .my-profile-card img,
 .my-profile-card .avatar-img {
@@ -1348,6 +1342,9 @@ textarea {
   object-fit:cover;
   background:#1e293b;
 }
+
+
+
 /* Responsive */
 @media (max-width: 760px) {
   header {
@@ -1370,3 +1367,12 @@ textarea {
     padding-left: 14px !important;
     padding-right: 14px !important;
   }
+
+  
+
+  .profile-item .btn {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
+
