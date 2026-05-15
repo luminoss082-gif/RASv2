@@ -73,7 +73,11 @@ export async function loadProfiles() {
     return true;
   });
 
-  setProfilesCache(visibleProfiles);
+state.allProfilesCache = visibleProfiles;
+setProfilesCache(visibleProfiles);
+
+console.log("VISIBLE PROFILES:", visibleProfiles);
+console.log("STATE CACHE:", state.allProfilesCache);
 
   renderProfiles();
   renderMyProfile();
@@ -157,25 +161,16 @@ export function renderProfiles() {
   const gender = document.getElementById("genderFilter")?.value || "";
   const favoritesOnly = document.getElementById("favoritesOnly")?.checked || false;
 
-  let filteredProfiles = [...state.allProfilesCache].filter((p) => {
-    if (p.is_banned) return false;
+  let filteredProfiles = [...state.allProfilesCache];
 
-    if (favoritesOnly && !state.favoritesSet.has(p.id)) return false;
+console.log("PROFILS À AFFICHER:", filteredProfiles);
 
-    if (search) {
-      const haystack = `${p.pseudo || ""} ${p.tagline || ""}`.toLowerCase();
-      if (!haystack.includes(search)) return false;
-    }
+profilesList.innerHTML = "";
 
-    if (!isNaN(ageMin) && p.age && p.age < ageMin) return false;
-    if (!isNaN(ageMax) && p.age && p.age > ageMax) return false;
-
-    if (city && (!p.city || !p.city.toLowerCase().includes(city))) return false;
-
-    if (gender && normalizeGender(p.gender) !== gender) return false;
-
-    return true;
-  });
+if (filteredProfiles.length === 0) {
+  profilesList.innerHTML = `<p>Aucun profil trouvé.</p>`;
+  return;
+}
 
   if (
     state.currentUserId &&
