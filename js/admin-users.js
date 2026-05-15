@@ -1,228 +1,171 @@
-
 import { requireAdmin } from "./admin-guard.js";
 import { supabaseClient } from "./config.js";
 
-
 export async function initAdminUsers() {
+  const adminUsers = document.getElementById("adminUsers");
+  if (!adminUsers) return;
 
-  const isAdmin =
-    await requireAdmin();
+  const isAdmin = await requireAdmin();
+  if (!isAdmin) return;
 
-  if (!isAdmin) {
+  await loadAdminUsers();
+}
+
+async function loadAdminUsers() {
+  const adminUsers = document.getElementById("adminUsers");
+  if (!adminUsers) return;
+
+  const { data: users, error } = await supabaseClient
+    .from("profiles")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    adminUsers.innerHTML = `<tr><td colspan="5">${error.message}</td></tr>`;
     return;
   }
 
-  await loadAdminUsers();
-
+  updateStats(users || []);
+  renderUsers(users || []);
 }
 
-const adminUsers = document.getElementById("adminUsers");
-const statUsers = document.getElementById("statUsers");
-const statOnline = document.getElementById("statOnline");
-const statVerified = document.getElementById("statVerified");
-const statBanned = document.getElementById("statBanned");
-const statPayments = document.getElementById("statPayments");
-const statTickets = document.getElementById("statTickets");
+function updateStats(users) {
+  const statUsers = document.getElementById("statUsers");
+  const statOnline = document.getElementById("statOnline");
+  const statVerified = document.getElementById("statVerified");
+  const statBanned = document.getElementById("statBanned");
 
-const adminSearch = document.getElementById("adminSearch");
-
-const unlockChatBtn =
-  document.getElementById("unlockChatBtn");
-
-const sendGlobalNotifBtn =
-  document.getElementById("sendGlobalNotifBtn");
-
-async function loadAdminUsers() {
-
-  const { data: users } =
-    await supabaseClient
-      .from("profiles")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      });
-
-  if (!users) return;
-
-  statUsers.textContent = users.length;
-
-  statOnline.textContent =
-    users.filter(u => u.is_online).length;
-
-  statBanned.textContent =
-    users.filter(u => u.is_banned).length;
-
-  renderUsers(users);
-
+  if (statUsers) statUsers.textContent = users.length;
+  if (statOnline) statOnline.textContent = users.filter(u => u.is_online).length;
+  if (statVerified) statVerified.textContent = users.filter(u => u.is_verified).length;
+  if (statBanned) statBanned.textContent = users.filter(u => u.is_banned).length;
 }
 
 function renderUsers(users) {
+  const adminUsers = document.getElementById("adminUsers");
+  if (!adminUsers) return;
 
   adminUsers.innerHTML = "";
 
-  users.forEach((u) => {
+  if (users.length === 0) {
+    adminUsers.innerHTML = `<tr><td colspan="5">Aucun utilisateur.</td></tr>`;
+    return;
+  }
 
-    const tr =
-      document.createElement("tr");
+  users.forEach((u) => {
+    const tr = document.createElement("tr");
 
     tr.innerHTML = `
       <td>
         <img
-          src="${
-            u.avatar_url ||
-            'assets/default-avatar.png'
-          }"
+          src="${u.avatar_url || "assets/default-avatar.png"}"
           class="chat-avatar"
           onerror="this.src='assets/default-avatar.png'"
         >
       </td>
 
       <td>${u.pseudo || "Profil"}</td>
-
       <td>${u.city || "-"}</td>
+      <td>${u.is_online ? "🟢 En ligne" : "⚫ Hors ligne"}</td>
 
       <td>
-        ${
-          u.is_online
-            ? "🟢"
-            : "⚫"
-        }
-      </td>
-
-      <td>
-
-        <button
-          class="btn ghost verify-btn"
-          data-id="${u.id}"
-        >
-          ${
-            u.is_verified
-              ? "Retirer vérif"
-              : "Vérifier"
-          }
+        <button class="btn ghost verify-btn" data-id="${u.id}">
+          ${u.is_verified ? "Retirer vérif" : "Vérifier"}
         </button>
 
-        <button
-          class="btn danger ban-btn"
-          data-id="${u.id}"
-        >
-          ${
-            u.is_banned
-              ? "Débannir"
-              : "Bannir"
-          }
+        <button class="btn danger ban-btn" data-id="${u.id}">
+          ${u.is_banned ? "Débannir" : "Bannir"}
         </button>
-
       </td>
     `;
 
     adminUsers.appendChild(tr);
-
   });
 
   bindActions(users);
-
 }
 
 function bindActions(users) {
+  document.querySelectorAll(".verify-btn").forEach((btn) => {
+    btn.onclick = async () => {
+      const user = users.find(u => u.id === btn.dataset.id);
+      if (!user) return;
 
-  document
-    .querySelectorAll(".verify-btn")
-    .forEach(btn => {
+      await supabaseClient
+        .from("profiles")
+        .update({ is_verified: !user.is_verified })
+        .eq("id", user.id);
 
-      btn.onclick = async () => {
+      await loadAdminUsers();
+    };
+  });
 
-        const user =
-          users.find(
-            u => u.id === btn.dataset.id
-          );
+  document.querySelectorAll(".ban-btn").forEach((btn) => {
+    btn.onclick = async () => {
+      const user = users.find(u => u.id === btn.dataset.id);
+      if (!user) return;
 
-        await supabaseClient
-          .from("profiles")
-          .update({
-            is_verified:
-              !user.is_verified
-          })
-          .eq("id", user.id);
+      await supabaseClient
+        .from("profiles")
+        .update({ is_banned: !user.is_banned })
+        .eq("id", user.id);
 
-        loadAdminUsers();
-
-      };
-
-    });
-
-  document
-    .querySelectorAll(".ban-btn")
-    .forEach(btn => {
-
-      btn.onclick = async () => {
-
-        const user =
-          users.find(
-            u => u.id === btn.dataset.id
-          );
-
-        await supabaseClient
-          .from("profiles")
-          .update({
-            is_banned:
-              !user.is_banned
-          })
-          .eq("id", user.id);
-
-        loadAdminUsers();
-
-      };
-
-    });
-
+      await loadAdminUsers();
+    };
+  });
 }
 
-unlockChatBtn?.addEventListener(
-  "click",
-  async () => {
+/* Débloquer chat */
+const unlockChatBtn = document.getElementById("unlockChatBtn");
 
-    const buyerId =
-      document.getElementById("buyerId").value;
-
-    const targetId =
-      document.getElementById("targetId").value;
+if (unlockChatBtn) {
+  unlockChatBtn.onclick = async () => {
+    const buyerId = document.getElementById("buyerId")?.value.trim();
+    const targetId = document.getElementById("targetId")?.value.trim();
 
     if (!buyerId || !targetId) {
-      alert("Champs manquants");
+      alert("Remplis les deux ID.");
       return;
     }
 
-    await supabaseClient
+    const { error } = await supabaseClient
       .from("chat_access")
       .insert({
         buyer_id: buyerId,
         target_id: targetId
       });
 
-    alert("Chat débloqué");
+    if (error) {
+      alert(error.message);
+      return;
+    }
 
-  }
-);
+    alert("Chat débloqué !");
+  };
+}
 
-sendGlobalNotifBtn?.addEventListener(
-  "click",
-  async () => {
+/* Notification globale */
+const sendGlobalNotifBtn = document.getElementById("sendGlobalNotifBtn");
 
-    const text =
-      document.getElementById(
-        "globalNotifText"
-      ).value;
+if (sendGlobalNotifBtn) {
+  sendGlobalNotifBtn.onclick = async () => {
+    const text = document.getElementById("globalNotifText")?.value.trim();
 
-    if (!text) return;
+    if (!text) {
+      alert("Message vide.");
+      return;
+    }
 
-    const { data: users } =
-      await supabaseClient
-        .from("profiles")
-        .select("id");
+    const { data: users, error } = await supabaseClient
+      .from("profiles")
+      .select("id");
 
-    for (const user of users) {
+    if (error) {
+      alert(error.message);
+      return;
+    }
 
+    for (const user of users || []) {
       await supabaseClient
         .from("notifications")
         .insert({
@@ -230,45 +173,31 @@ sendGlobalNotifBtn?.addEventListener(
           type: "admin",
           content: text
         });
-
     }
 
-    alert("Notification envoyée");
+    alert("Notification envoyée !");
+  };
+}
 
-  }
-);
+/* Recherche admin */
+const adminSearch = document.getElementById("adminSearch");
 
-adminSearch?.addEventListener(
-  "input",
-  async (e) => {
+if (adminSearch) {
+  adminSearch.addEventListener("input", async (e) => {
+    const value = e.target.value.toLowerCase();
 
-    const value =
-      e.target.value.toLowerCase();
+    const { data: users } = await supabaseClient
+      .from("profiles")
+      .select("*");
 
-    const { data: users } =
-      await supabaseClient
-        .from("profiles")
-        .select("*");
-
-    const filtered =
-      users.filter((u) => {
-
-        return (
-          (u.pseudo || "")
-            .toLowerCase()
-            .includes(value)
-          ||
-          (u.city || "")
-            .toLowerCase()
-            .includes(value)
-          ||
-          (u.id || "")
-            .includes(value)
-        );
-
-      });
+    const filtered = (users || []).filter((u) => {
+      return (
+        (u.pseudo || "").toLowerCase().includes(value) ||
+        (u.city || "").toLowerCase().includes(value) ||
+        (u.id || "").includes(value)
+      );
+    });
 
     renderUsers(filtered);
-
-  }
-);
+  });
+}
