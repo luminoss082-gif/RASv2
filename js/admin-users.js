@@ -6,12 +6,28 @@ import { loadSupportTickets } from "./support.js";
 
 
 export async function initAdminUsers() {
-  const isAdmin = await requireAdmin();
-  if (!isAdmin) throw new Error("Accès refusé");
+
+  const isAdmin =
+    await requireAdmin();
+
+  if (!isAdmin) {
+    return;
+  }
 
   await loadAdminUsers();
-  await loadPayments?.();
-  await loadSupportTickets?.();
+
+  try {
+    await loadPayments?.();
+  } catch (err) {
+    console.warn(err);
+  }
+
+  try {
+    await loadSupportTickets?.();
+  } catch (err) {
+    console.warn(err);
+  }
+
 }
 
 const adminUsers = document.getElementById("adminUsers");
@@ -270,5 +286,3 @@ adminSearch?.addEventListener(
 
   }
 );
-
-loadAdminUsers();
