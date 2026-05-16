@@ -1106,3 +1106,75 @@ textarea {
 .profile-item .profile-info p:last-of-type{
   margin-bottom:8px;
 }
+/* =========================
+   PROFILS ULTRA COMPACTS
+========================= */
+
+.profiles-list {
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)) !important;
+  gap: 7px !important;
+}
+
+.profile-item {
+  padding: 10px !important;
+  border-radius: 16px !important;
+  gap: 8px !important;
+}
+
+.profile-item .avatar-img {
+  height: 145px !important;
+  border-radius: 12px !important;
+}
+
+.profile-info {
+  gap: 4px !important;
+}
+
+.profile-info h3 {
+  font-size: 0.88rem !important;
+  line-height: 1.2 !important;
+}
+
+.profile-info p {
+  font-size: 0.74rem !important;
+  line-height: 1.2 !important;
+}
+
+.profile-status {
+  gap: 4px !important;
+}
+
+.online-badge,
+.offline-badge,
+.badge-self {
+  font-size: 0.68rem !important;
+  padding: 3px 7px !important;
+}
+
+.profile-item .btn {
+  min-height: 32px !important;
+  font-size: 0.72rem !important;
+  padding: 6px 8px !important;
+  margin-top: 4px !important;
+}
+
+.favorite-btn {
+  width: 28px !important;
+  height: 28px !important;
+  font-size: 0.85rem !important;
+  top: 8px !important;
+  right: 8px !important;
+}
+
+@media (max-width: 900px) {
+
+  .profiles-list {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .profile-item .avatar-img {
+    height: 130px !important;
+  }
+
+}

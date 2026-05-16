@@ -23,6 +23,7 @@ function formatLastSeen(dateString) {
 
 function getAvatarUrl(url) {
   if (!url) return "assets/default-avatar.png";
+
   if (url.startsWith("http")) return url;
 
   return `https://ulfkjmdhryaulesxlbxf.supabase.co/storage/v1/object/public/avatars/${url}`;
