@@ -1178,3 +1178,102 @@ textarea {
   }
 
 }
+
+/* =========================
+   MODAL PROFIL
+========================= */
+
+.profile-modal{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:20px;
+
+  background:rgba(0,0,0,.72);
+
+  backdrop-filter:blur(6px);
+}
+
+.profile-modal.hidden{
+  display:none;
+}
+
+.profile-modal-content{
+  position:relative;
+
+  width:min(520px,100%);
+  max-height:90vh;
+
+  overflow-y:auto;
+
+  padding:20px;
+
+  border-radius:24px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20,10,46,.98),
+      rgba(7,11,26,.98)
+    );
+
+  border:
+    1px solid rgba(212,175,55,.22);
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.45);
+}
+
+.close-modal{
+  position:absolute;
+  top:12px;
+  right:12px;
+
+  width:40px;
+  height:40px;
+
+  border:none;
+  border-radius:50%;
+
+  background:rgba(255,255,255,.08);
+
+  color:white;
+
+  cursor:pointer;
+
+  font-size:1rem;
+}
+
+.modal-profile-img{
+  width:100%;
+  height:320px;
+
+  object-fit:cover;
+
+  border-radius:18px;
+
+  margin-bottom:18px;
+}
+
+.modal-profile-info{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.modal-profile-info h2{
+  color:#fff3b0;
+}
+
+@media(max-width:768px){
+
+  .modal-profile-img{
+    height:240px;
+  }
+
+}
