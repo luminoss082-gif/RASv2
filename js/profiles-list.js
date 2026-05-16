@@ -554,7 +554,11 @@ export function renderProfiles() {
       </div>
 
     `;
+      });
 
+    profilesList.appendChild(div);
+
+  }
     /* =========================
        CLICK PROFIL
     ========================= */
