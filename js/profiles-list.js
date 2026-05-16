@@ -684,7 +684,7 @@ export function renderProfiles() {
         e.stopPropagation();
 
         window.open(
-          "https://paypal.me/jeffreygqadal1/5.00",
+          "https://paypal.me/jeffreygadal1/5.00",
           "_blank"
         );
 
