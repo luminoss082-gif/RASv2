@@ -533,8 +533,16 @@ export function renderProfiles() {
                 type="button"
                 data-pay-chat="${p.id}"
               >
-                Payer et contacter admin
+                Payer 
               </button>
+
+              <button
+  class="btn ghost"
+  type="button"
+  data-whatsapp-pay="${p.id}"
+>
+  J’ai payé — contacter admin
+</button>
             `
             : `
               <span class="badge-self">
@@ -671,46 +679,42 @@ export function renderProfiles() {
     /* =========================
        PAIEMENT CHAT
     ========================= */
+payChatBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
 
-    const payChatBtn =
-      div.querySelector(
-        "[data-pay-chat]"
-      );
+  const paypalUrl =
+    "https://paypal.me/jeffreygadal1/5.00";
 
-    payChatBtn?.addEventListener(
-      "click",
-      (e) => {
+  window.open(paypalUrl, "_blank");
 
-        e.stopPropagation();
+  alert(
+    "Après le paiement PayPal, revenez ici puis cliquez sur le bouton WhatsApp."
+  );
+});
 
-        window.open(
-          "https://paypal.me/jeffreygadal1/5.00",
-          "_blank"
-        );
 
-        const message =
-          encodeURIComponent(
+// Bouton WhatsApp pour contacter l'admin après paiement
 
-            `Bonjour, j'ai payé pour débloquer le chat avec ${p.pseudo || "ce profil"}.
-Mon ID utilisateur est : ${state.currentUserId}.`
+const whatsappPayBtn = div.querySelector("[data-whatsapp-pay]");
 
-          );
+whatsappPayBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
 
-        setTimeout(() => {
+  const confirmPaid = confirm(
+    "Confirmez-vous avoir payé sur PayPal ?"
+  );
 
-          window.location.href =
-            `https://wa.me/33676615490?text=${message}`;
+  if (!confirmPaid) return;
 
-        }, 1500);
+  const message = encodeURIComponent(
+    `Bonjour, j'ai payé pour débloquer le chat avec ${p.pseudo || "ce profil"}.
+Mon ID utilisateur est : ${state.currentUserId}.
+Merci !`
+  );
 
-      }
-    );
-
-    profilesList.appendChild(div);
-
-  });
-
-}
+  window.location.href =
+    `https://wa.me/33676615490?text=${message}`;
+});
 
 /* =========================
    INIT
