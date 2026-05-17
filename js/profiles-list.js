@@ -554,12 +554,7 @@ export function renderProfiles() {
       </div>
 
     `;
-      });
-
-    profilesList.appendChild(div);
-
-  }
-    /* =========================
+        /* =========================
        CLICK PROFIL
     ========================= */
 
@@ -579,6 +574,12 @@ export function renderProfiles() {
 
       }
     );
+
+      });
+
+    profilesList.appendChild(div);
+
+  }
 
     /* =========================
        FAVORIS
