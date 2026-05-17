@@ -55,6 +55,11 @@ function openProfileModal(profile) {
       <p>📍 ${profile.city || "Ville inconnue"}</p>
       <p>${profile.tagline || ""}</p>
       <p>${profile.bio || ""}</p>
+      <p>🎯 Recherche : ${profile.relationship_goal || "Non précisé"}</p>
+      <p>✨ Passions : ${profile.passions || "Non précisées"}</p>
+    </div>
+
+    <div class="profile-status">
 
       ${
         profile.is_online
@@ -94,7 +99,22 @@ export async function loadProfiles() {
     return;
   }
 
-  const visibleProfiles = (profiles || []).filter((p) => !p.is_banned);
+let blockedIds = new Set();
+
+if (state.currentUserId) {
+  const { data: blocks } = await supabaseClient
+    .from("blocks")
+    .select("blocked")
+    .eq("blocker", state.currentUserId);
+
+  blockedIds = new Set((blocks || []).map(b => b.blocked));
+}
+
+const visibleProfiles = (profiles || []).filter((p) => {
+  if (p.is_banned) return false;
+  if (blockedIds.has(p.id)) return false;
+  return true;
+});
 
   state.allProfilesCache = visibleProfiles;
   setProfilesCache(visibleProfiles);
@@ -249,6 +269,14 @@ export function renderProfiles() {
 >
   J’ai payé — contacter admin
 </button>
+
+<button class="btn ghost" type="button" data-block-user="${p.id}">
+  Bloquer
+</button>
+
+<button class="btn danger" type="button" data-report-user="${p.id}">
+  Signaler
+</button>
             `
             : `<span class="badge-self">Mon profil</span>`
         }
@@ -374,6 +402,69 @@ Merci !`
 );
       window.location.href = `https://wa.me/33676615490?text=${message}`;
     });
+    const blockBtn = div.querySelector("[data-block-user]");
+
+blockBtn?.addEventListener("click", async (e) => {
+  e.stopPropagation();
+
+  if (!state.currentUserId) {
+    alert("Connectez-vous.");
+    return;
+  }
+
+  const confirmBlock = confirm(
+    `Bloquer ${p.pseudo || "ce profil"} ?`
+  );
+
+  if (!confirmBlock) return;
+
+  const { error } = await supabaseClient
+    .from("blocks")
+    .insert({
+      blocker: state.currentUserId,
+      blocked: p.id
+    });
+
+  if (error && error.code !== "23505") {
+    alert(error.message);
+    return;
+  }
+
+  alert("Profil bloqué.");
+  await loadProfiles();
+});
+
+const reportBtn = div.querySelector("[data-report-user]");
+
+reportBtn?.addEventListener("click", async (e) => {
+  e.stopPropagation();
+
+  if (!state.currentUserId) {
+    alert("Connectez-vous.");
+    return;
+  }
+
+  const reason = prompt(
+    "Pourquoi voulez-vous signaler ce profil ?"
+  );
+
+  if (!reason) return;
+
+  const { error } = await supabaseClient
+    .from("reports")
+    .insert({
+      reporter_id: state.currentUserId,
+      reported_id: p.id,
+      reason
+    });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Signalement envoyé à l’admin.");
+});
 
     profilesList.appendChild(div);
   });

@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Créer mon profil – LoveConnect</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d4af37">
 </head>
 
 <body class="theme-light page-profile-create">
@@ -16,6 +18,7 @@
     <a href="notifications.html">Notifications</a>
     <a href="support.html">Support</a>
     <a href="chat.html" id="chatLink">Chat</a>
+    <a href="settings.html">Paramètres</a>
     <a href="admin.html" id="adminLink">Admin</a>
     <button id="themeToggle" class="icon-btn" type="button" aria-label="Changer le thème">🌓</button>
   </nav>
@@ -66,6 +69,46 @@
       <button type="submit" class="btn primary full btn-primary">Créer mon profil</button>
     </form>
   </section>
+  <!-- NAVIGATION MOBILE -->
+
+<nav class="mobile-nav">
+
+  <a href="index.html">
+    <span>🏠</span>
+    <small>Accueil</small>
+  </a>
+
+  <a href="liste.html">
+    <span>❤️</span>
+    <small>Profils</small>
+  </a>
+
+  <a href="chat.html">
+    <span>💬</span>
+    <small>Chat</small>
+  </a>
+
+  <a href="notifications.html">
+    <span>🔔</span>
+    <small>Notif</small>
+  </a>
+
+  <a href="settings.html">
+    <span>⚙️</span>
+    <small>Compte</small>
+  </a>
+
+</nav>
+
+<!-- BOUTON RETOUR -->
+
+<button
+  id="scrollTopBtn"
+  class="scroll-top-btn"
+  type="button"
+>
+  ↑
+</button>
 </main>
 
 <div id="notifBell" class="notif-bell">🔔</div>

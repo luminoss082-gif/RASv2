@@ -7,6 +7,8 @@
   <title>Admin – LoveConnect</title>
 
   <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d4af37">
 </head>
 
 <body class="theme-light admin-page">
@@ -20,7 +22,7 @@
     <a href="chat.html">Chat</a>
     <a href="support.html">Support</a>
     <a href="admin.html" class="active">Admin</a>
-
+    <a href="settings.html">Paramètres</a>
     <button id="themeToggle" class="icon-btn">
       🌓
     </button>
@@ -108,57 +110,7 @@
 
   </section>
 
-  <!-- DÉBLOQUER CHAT -->
-<section class="card">
-  <div class="section-heading">
-    <h2>Demandes de chat</h2>
-    <p class="subtitle">Accepter, refuser ou débloquer les demandes.</p>
-  </div>
-
-  <div id="adminChatRequests"></div>
-</section>
-
-  </section>
-
-  <!-- HISTORIQUE PAIEMENTS -->
-  <section class="card">
-
-    <div class="section-heading">
-      <h2>Historique paiements</h2>
-    </div>
-
-    <div class="admin-table-wrap">
-
-      <table class="admin-table">
-
-        <thead>
-          <tr>
-            <th>Acheteur</th>
-            <th>Cible</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-
-        <tbody id="paymentsTable"></tbody>
-
-      </table>
-
-    </div>
-
-  </section>
-
-  <!-- SUPPORT -->
-  <section class="card">
-
-    <div class="section-heading">
-      <h2>Tickets support</h2>
-    </div>
-
-    <div id="supportTickets"></div>
-
-  </section>
-
-  <!-- UTILISATEURS -->
+ <!-- UTILISATEURS -->
   <section class="card">
 
     <div class="section-heading">
@@ -186,6 +138,103 @@
     </div>
 
   </section>
+
+  <!-- DÉBLOQUER CHAT -->
+<section class="card">
+  <div class="section-heading">
+    <h2>Demandes de chat</h2>
+    <p class="subtitle">Accepter, refuser ou débloquer les demandes.</p>
+  </div>
+
+  <div id="adminChatRequests"></div>
+</section>
+
+  </section>
+
+  <!-- HISTORIQUE PAIEMENTS -->
+<section class="card">
+  <div class="section-heading">
+    <h2>Historique paiements PayPal</h2>
+  </div>
+
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Utilisateur</th>
+          <th>Profil demandé</th>
+          <th>Montant</th>
+          <th>Méthode</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+
+      <tbody id="manualPaymentsTable"></tbody>
+    </table>
+  </div>
+</section>
+
+  <!-- SUPPORT -->
+  <section class="card">
+
+    <div class="section-heading">
+      <h2>Tickets support</h2>
+    </div>
+
+    <div id="supportTickets"></div>
+
+  </section>
+
+  <!-- SIGNALER -->
+<section class="card">
+  <div class="section-heading">
+    <h2>Signalements</h2>
+    <p class="subtitle">Profils signalés par les utilisateurs.</p>
+  </div>
+
+  <div id="adminReports"></div>
+</section>
+ 
+<!-- NAVIGATION MOBILE -->
+
+<nav class="mobile-nav">
+
+  <a href="index.html">
+    <span>🏠</span>
+    <small>Accueil</small>
+  </a>
+
+  <a href="liste.html">
+    <span>❤️</span>
+    <small>Profils</small>
+  </a>
+
+  <a href="chat.html">
+    <span>💬</span>
+    <small>Chat</small>
+  </a>
+
+  <a href="notifications.html">
+    <span>🔔</span>
+    <small>Notif</small>
+  </a>
+
+  <a href="settings.html">
+    <span>⚙️</span>
+    <small>Compte</small>
+  </a>
+
+</nav>
+
+<!-- BOUTON RETOUR -->
+
+<button
+  id="scrollTopBtn"
+  class="scroll-top-btn"
+  type="button"
+>
+  ↑
+</button>
 
 </main>
 

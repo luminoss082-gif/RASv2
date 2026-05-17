@@ -9,7 +9,10 @@ export async function initAdminUsers() {
   if (!isAdmin) return;
 
   await loadAdminUsers();
+  await loadReports();
   await loadChatRequests();
+  await loadManualPayments();
+  
 }
 
 async function loadAdminUsers() {
@@ -313,6 +316,326 @@ async function loadChatRequests() {
 
       alert("Chat débloqué !");
       await loadChatRequests();
+    };
+  });
+}
+async function createAdminNotification(userId, content, link = "notifications.html") {
+  await supabaseClient
+    .from("notifications")
+    .insert({
+      user_id: userId,
+      type: "admin",
+      content,
+      link,
+      is_read: false
+    });
+}
+
+async function loadChatRequests() {
+  const box = document.getElementById("adminChatRequests");
+  if (!box) return;
+
+  const { data, error } = await supabaseClient
+    .from("chat_requests")
+    .select(`
+      id,
+      status,
+      payment_note,
+      created_at,
+      requester:requester_id (
+        id,
+        pseudo,
+        avatar_url
+      ),
+      target:target_id (
+        id,
+        pseudo,
+        avatar_url
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    box.innerHTML = `<p class="error-msg">${error.message}</p>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    box.innerHTML = `<p>Aucune demande de chat.</p>`;
+    return;
+  }
+
+  box.innerHTML = data.map((r) => `
+    <div class="admin-request-card">
+      <div>
+        <strong>${r.requester?.pseudo || "Utilisateur"}</strong>
+        veut parler à
+        <strong>${r.target?.pseudo || "Profil"}</strong>
+      </div>
+
+      <small>Statut : <strong>${r.status}</strong></small>
+
+      <div class="admin-actions">
+        <button class="btn ghost" data-accept-request="${r.id}">
+          Accepter
+        </button>
+
+        <button class="btn danger" data-refuse-request="${r.id}">
+          Refuser
+        </button>
+
+        <button
+          class="btn success"
+          data-paid-request="${r.id}"
+          data-buyer="${r.requester?.id}"
+          data-target="${r.target?.id}"
+        >
+          Marquer payé
+        </button>
+
+        <button
+          class="btn primary"
+          data-unlock-request="${r.id}"
+          data-buyer="${r.requester?.id}"
+          data-target="${r.target?.id}"
+        >
+          Débloquer chat
+        </button>
+      </div>
+    </div>
+  `).join("");
+
+  box.querySelectorAll("[data-accept-request]").forEach((btn) => {
+    btn.onclick = async () => {
+      const requestId = btn.dataset.acceptRequest;
+
+      const request = data.find(r => r.id === requestId);
+
+      await supabaseClient
+        .from("chat_requests")
+        .update({ status: "accepted" })
+        .eq("id", requestId);
+
+      await createAdminNotification(
+        request.requester.id,
+        `Votre demande de chat avec ${request.target?.pseudo || "ce profil"} a été acceptée. Vous pouvez payer puis contacter l’admin WhatsApp.`,
+        "liste.html"
+      );
+
+      await loadChatRequests();
+    };
+  });
+
+  box.querySelectorAll("[data-refuse-request]").forEach((btn) => {
+    btn.onclick = async () => {
+      const requestId = btn.dataset.refuseRequest;
+
+      const request = data.find(r => r.id === requestId);
+
+      await supabaseClient
+        .from("chat_requests")
+        .update({ status: "refused" })
+        .eq("id", requestId);
+
+      await createAdminNotification(
+        request.requester.id,
+        `Votre demande de chat avec ${request.target?.pseudo || "ce profil"} a été refusée.`,
+        "notifications.html"
+      );
+
+      await loadChatRequests();
+    };
+  });
+
+  box.querySelectorAll("[data-paid-request]").forEach((btn) => {
+    btn.onclick = async () => {
+      const requestId = btn.dataset.paidRequest;
+      const buyerId = btn.dataset.buyer;
+      const targetId = btn.dataset.target;
+
+      await supabaseClient
+        .from("chat_requests")
+        .update({
+          status: "paid",
+          payment_note: "PayPal manuel confirmé"
+        })
+        .eq("id", requestId);
+
+      await supabaseClient
+        .from("manual_payments")
+        .insert({
+          user_id: buyerId,
+          target_id: targetId,
+          amount: 5.00,
+          method: "paypal",
+          status: "paid"
+        });
+
+      alert("Paiement marqué comme payé.");
+      await loadChatRequests();
+      await loadManualPayments();
+    };
+  });
+
+  box.querySelectorAll("[data-unlock-request]").forEach((btn) => {
+    btn.onclick = async () => {
+      const requestId = btn.dataset.unlockRequest;
+      const buyerId = btn.dataset.buyer;
+      const targetId = btn.dataset.target;
+
+      const { error } = await supabaseClient
+        .from("chat_access")
+        .insert({
+          buyer_id: buyerId,
+          target_id: targetId
+        });
+
+      if (error && error.code !== "23505") {
+        alert(error.message);
+        return;
+      }
+
+      await supabaseClient
+        .from("chat_requests")
+        .update({ status: "unlocked" })
+        .eq("id", requestId);
+
+      await createAdminNotification(
+        buyerId,
+        "Votre chat a été débloqué. Vous pouvez maintenant discuter.",
+        "chat.html"
+      );
+
+      alert("Chat débloqué !");
+      await loadChatRequests();
+    };
+  });
+}
+
+async function loadManualPayments() {
+  const table = document.getElementById("manualPaymentsTable");
+  if (!table) return;
+
+  const { data, error } = await supabaseClient
+    .from("manual_payments")
+    .select(`
+      amount,
+      method,
+      status,
+      created_at,
+      user:user_id (
+        pseudo
+      ),
+      target:target_id (
+        pseudo
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    table.innerHTML = `
+      <tr>
+        <td colspan="5">${error.message}</td>
+      </tr>
+    `;
+    return;
+  }
+
+  table.innerHTML = (data || []).map((p) => `
+    <tr>
+      <td>${p.user?.pseudo || "-"}</td>
+      <td>${p.target?.pseudo || "-"}</td>
+      <td>${p.amount || 0} €</td>
+      <td>${p.method || "paypal"}</td>
+      <td>${new Date(p.created_at).toLocaleString()}</td>
+    </tr>
+  `).join("");
+}
+
+async function loadReports() {
+  const box = document.getElementById("adminReports");
+  if (!box) return;
+
+  const { data, error } = await supabaseClient
+    .from("reports")
+    .select(`
+      id,
+      reason,
+      status,
+      created_at,
+      reporter:reporter_id (
+        id,
+        pseudo
+      ),
+      reported:reported_id (
+        id,
+        pseudo
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    box.innerHTML = `<p class="error-msg">${error.message}</p>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    box.innerHTML = `<p>Aucun signalement.</p>`;
+    return;
+  }
+
+  box.innerHTML = data.map((r) => `
+    <div class="admin-request-card">
+      <p>
+        <strong>${r.reporter?.pseudo || "Utilisateur"}</strong>
+        a signalé
+        <strong>${r.reported?.pseudo || "Profil"}</strong>
+      </p>
+
+      <p>${r.reason || "Aucune raison donnée"}</p>
+      <small>Statut : ${r.status}</small>
+
+      <div class="admin-actions">
+        <button
+          class="btn danger"
+          data-ban-reported="${r.reported?.id}"
+        >
+          Bannir profil
+        </button>
+
+        <button
+          class="btn ghost"
+          data-close-report="${r.id}"
+        >
+          Marquer traité
+        </button>
+      </div>
+    </div>
+  `).join("");
+
+  box.querySelectorAll("[data-ban-reported]").forEach((btn) => {
+    btn.onclick = async () => {
+      const confirmBan = confirm("Confirmer le bannissement ?");
+      if (!confirmBan) return;
+
+      await supabaseClient
+        .from("profiles")
+        .update({ is_banned: true })
+        .eq("id", btn.dataset.banReported);
+
+      await loadReports();
+      await loadAdminUsers();
+    };
+  });
+
+  box.querySelectorAll("[data-close-report]").forEach((btn) => {
+    btn.onclick = async () => {
+      await supabaseClient
+        .from("reports")
+        .update({ status: "closed" })
+        .eq("id", btn.dataset.closeReport);
+
+      await loadReports();
     };
   });
 }

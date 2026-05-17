@@ -1285,9 +1285,115 @@ textarea {
   border: 1px solid rgba(212,175,55,.22);
 }
 
+.admin-request-card strong {
+  color: #fff3b0;
+}
+
 .admin-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 10px;
+}
+
+/* =========================
+   MOBILE NAV
+========================= */
+
+.mobile-nav{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:9999;
+
+  display:none;
+  align-items:center;
+  justify-content:space-around;
+
+  padding:10px;
+
+  background:
+    rgba(7,11,26,.96);
+
+  backdrop-filter:blur(14px);
+
+  border-top:
+    1px solid rgba(212,175,55,.18);
+}
+
+.mobile-nav a{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+
+  color:#fff3b0;
+
+  font-size:.72rem;
+}
+
+.mobile-nav span{
+  font-size:1.2rem;
+}
+
+/* =========================
+   SCROLL TOP
+========================= */
+
+.scroll-top-btn{
+  position:fixed;
+  right:16px;
+  bottom:90px;
+  z-index:9999;
+
+  width:50px;
+  height:50px;
+
+  border:none;
+  border-radius:50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #d4af37,
+      #fff3b0
+    );
+
+  color:#140a2e;
+
+  font-size:1.2rem;
+
+  cursor:pointer;
+
+  display:none;
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,.35);
+}
+
+.scroll-top-btn.show{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:900px){
+
+  body{
+    padding-bottom:90px;
+  }
+
+  header nav{
+    display:none;
+  }
+
+  .mobile-nav{
+    display:flex;
+  }
+
 }

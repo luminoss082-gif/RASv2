@@ -55,6 +55,16 @@ import { initProfilePage } from "./profile-carousel.js";
 
 import { initSupport } from "./support.js";
 
+import { initSettings } from "./settings.js";
+
+import { initMobileUI } from "./mobile-ui.js";
+
+initMobileUI();
+
+initSettings();
+
+registerServiceWorker();
+
 /* =========================
    ONLINE STATUS
 ========================= */

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paramètres – LoveConnect</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d4af37">
+</head>
+
+<body class="theme-light">
+
+<header>
+  <div class="logo">LoveConnect</div>
+  <nav>
+    <a href="index.html">Accueil</a>
+    <a href="liste.html">Profils</a>
+    <a href="chat.html">Chat</a>
+    <a href="settings.html" class="active">Paramètres</a>
+    <button id="themeToggle" class="icon-btn" type="button">🌓</button>
+  </nav>
+</header>
+
+<main class="section">
+  <section class="card">
+    <h1>Paramètres du profil</h1>
+    <p class="subtitle">Complète tes informations pour rendre ton profil plus attractif.</p>
+
+    <form id="settingsForm" class="card-form">
+      <label>Bio</label>
+      <textarea id="bio" placeholder="Parle un peu de toi..."></textarea>
+
+      <label>Passions</label>
+      <input id="passions" type="text" placeholder="Voyage, sport, musique...">
+
+      <label>Relation recherchée</label>
+      <select id="relationship_goal">
+        <option value="">Sélectionner</option>
+        <option value="Sérieux">Sérieux</option>
+        <option value="Amitié">Amitié</option>
+        <option value="Discussion">Discussion</option>
+        <option value="À voir">À voir</option>
+      </select>
+
+      <button class="btn primary full" type="submit">
+        Enregistrer
+      </button>
+
+      <p id="settingsMsg"></p>
+    </form>
+  </section>
+  <!-- NAVIGATION MOBILE -->
+
+<nav class="mobile-nav">
+
+  <a href="index.html">
+    <span>🏠</span>
+    <small>Accueil</small>
+  </a>
+
+  <a href="liste.html">
+    <span>❤️</span>
+    <small>Profils</small>
+  </a>
+
+  <a href="chat.html">
+    <span>💬</span>
+    <small>Chat</small>
+  </a>
+
+  <a href="notifications.html">
+    <span>🔔</span>
+    <small>Notif</small>
+  </a>
+
+  <a href="settings.html">
+    <span>⚙️</span>
+    <small>Compte</small>
+  </a>
+
+</nav>
+
+<!-- BOUTON RETOUR -->
+
+<button
+  id="scrollTopBtn"
+  class="scroll-top-btn"
+  type="button"
+>
+  ↑
+</button>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module" src="js/app-init.js"></script>
+</body>
+</html>

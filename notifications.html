@@ -6,6 +6,8 @@
   <title>Notifications – LoveConnect</title>
 
   <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d4af37">
 </head>
 
 <body class="theme-light">
@@ -20,6 +22,7 @@
       <a href="support.html">Support</a>
       <a href="chat.html" id="chatLink">Chat</a>
       <a href="admin.html" id="adminLink">Admin</a>
+      <a href="settings.html">Paramètres</a>
       <button id="themeToggle" class="icon-btn" type="button">🌓</button>
     </nav>
   </header>
@@ -56,7 +59,46 @@
       </div>
     </section>
   </main>
+<!-- NAVIGATION MOBILE -->
 
+<nav class="mobile-nav">
+
+  <a href="index.html">
+    <span>🏠</span>
+    <small>Accueil</small>
+  </a>
+
+  <a href="liste.html">
+    <span>❤️</span>
+    <small>Profils</small>
+  </a>
+
+  <a href="chat.html">
+    <span>💬</span>
+    <small>Chat</small>
+  </a>
+
+  <a href="notifications.html">
+    <span>🔔</span>
+    <small>Notif</small>
+  </a>
+
+  <a href="settings.html">
+    <span>⚙️</span>
+    <small>Compte</small>
+  </a>
+
+</nav>
+
+<!-- BOUTON RETOUR -->
+
+<button
+  id="scrollTopBtn"
+  class="scroll-top-btn"
+  type="button"
+>
+  ↑
+</button>
   <div id="notifBell" class="notif-bell">🔔</div>
   <div id="notifPanel" class="notif-panel"></div>
 
