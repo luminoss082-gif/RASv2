@@ -26,62 +26,49 @@
 <main class="section profiles-page">
 
   <section class="page-intro">
-    <p class="subtitle">Découvre les profils disponibles sur LoveConnect.</p>
-    <h1>Profils</h1>
+    <p class="subtitle">Découvre les profils disponibles</p>
+    <h1>Profils LoveConnect</h1>
+    <p>
+      Clique sur une carte pour voir les détails du profil.
+    </p>
   </section>
 
-  <!-- Mon profil en haut -->
   <section id="myProfileCard" class="my-profile-card">
     <div class="card">
       Chargement de votre profil...
     </div>
   </section>
 
-  <!-- Matching -->
   <section id="matchBox" class="match-box hidden"></section>
 
-  <!-- Stories -->
-  <section class="stories-section">
+  <section class="stories-section card">
     <div class="section-heading">
-      <h2>Stories</h2>
+      <div>
+        <p class="subtitle">Moments récents</p>
+        <h2>Stories</h2>
+      </div>
+
       <button id="addStoryBtn" class="btn ghost small" type="button">
-        Ajouter une story
+        + Ajouter
       </button>
     </div>
 
     <div id="storiesBar" class="stories-bar"></div>
   </section>
 
-  <!-- Filtres -->
   <section class="filters-card">
-    <h2>Rechercher</h2>
+    <div class="section-heading">
+      <div>
+        <p class="subtitle">Trouver un profil</p>
+        <h2>Recherche</h2>
+      </div>
+    </div>
 
     <form id="filtersForm" class="filters">
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="Rechercher un pseudo ou une phrase..."
-      >
-
-      <input
-        type="number"
-        id="ageMin"
-        placeholder="Âge min"
-        min="18"
-      >
-
-      <input
-        type="number"
-        id="ageMax"
-        placeholder="Âge max"
-        min="18"
-      >
-
-      <input
-        type="text"
-        id="cityFilter"
-        placeholder="Ville"
-      >
+      <input type="text" id="searchInput" placeholder="Pseudo ou phrase...">
+      <input type="number" id="ageMin" placeholder="Âge min" min="18">
+      <input type="number" id="ageMax" placeholder="Âge max" min="18">
+      <input type="text" id="cityFilter" placeholder="Ville">
 
       <select id="genderFilter">
         <option value="">Genre</option>
@@ -97,38 +84,31 @@
     </form>
   </section>
 
-  <!-- Liste profils -->
   <section class="profiles-section">
     <div class="section-heading">
-      <h2>Tous les profils</h2>
-      <p class="subtitle">Clique sur un profil pour voir plus de détails.</p>
+      <div>
+        <p class="subtitle">Tous les membres</p>
+        <h2>Profils disponibles</h2>
+      </div>
     </div>
+
     <div id="profilesList" class="profiles-list">
+      <p>Chargement des profils...</p>
     </div>
   </section>
 
 </main>
-<!-- MODAL PROFIL -->
 
 <div id="profileModal" class="profile-modal hidden">
-
   <div class="profile-modal-content">
-
-    <button
-      id="closeProfileModal"
-      class="close-modal"
-      type="button"
-    >
+    <button id="closeProfileModal" class="close-modal" type="button">
       ✕
     </button>
 
     <div id="profileModalBody"></div>
-
   </div>
-
 </div>
 
-<!-- Notifications -->
 <div id="notifBell" class="notif-bell">🔔</div>
 <div id="notifPanel" class="notif-panel"></div>
 
