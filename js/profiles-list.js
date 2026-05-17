@@ -241,9 +241,14 @@ export function renderProfiles() {
                 Payer
               </button>
 
-              <button class="btn ghost" type="button" data-whatsapp-pay="${p.id}">
-                J’ai payé — contacter admin
-              </button>
+       <button
+  class="btn ghost hidden-whatsapp-btn"
+  type="button"
+  data-whatsapp-pay="${p.id}"
+  style="display:none;"
+>
+  J’ai payé — contacter admin
+</button>
             `
             : `<span class="badge-self">Mon profil</span>`
         }
@@ -308,18 +313,33 @@ export function renderProfiles() {
       alert("Demande envoyée !");
     });
 
-    const payChatBtn = div.querySelector("[data-pay-chat]");
+const payChatBtn =
+  div.querySelector("[data-pay-chat]");
 
-    payChatBtn?.addEventListener("click", (e) => {
-      e.stopPropagation();
+const whatsappPayBtn =
+  div.querySelector("[data-whatsapp-pay]");
 
-      window.open("https://paypal.me/jeffreygadal1/5.00", "_blank");
+  payChatBtn?.addEventListener(
+  "click",
+  (e) => {
 
-      alert(
-        "Après le paiement PayPal, revenez ici puis cliquez sur le bouton WhatsApp."
-      );
-    });
+    e.stopPropagation();
 
+    window.open(
+      "https://paypal.me/jeffreygadal1/5.00",
+      "_blank"
+    );
+
+    alert(
+      "Après le paiement PayPal, cliquez sur le bouton WhatsApp."
+    );
+
+    if (whatsappPayBtn) {
+      whatsappPayBtn.style.display = "flex";
+    }
+
+  }
+);
     const whatsappPayBtn = div.querySelector("[data-whatsapp-pay]");
 
     whatsappPayBtn?.addEventListener("click", (e) => {
