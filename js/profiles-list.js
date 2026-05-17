@@ -6,6 +6,10 @@ import { supabaseClient } from "./config.js";
 import { state, setCurrentUserId, setProfilesCache } from "./core.js";
 import { loadFavorites, toggleFavorite } from "./favorites.js";
 
+/* =========================
+   HELPERS
+========================= */
+
 function formatLastSeen(dateString) {
   if (!dateString) return "Hors ligne";
 
@@ -38,6 +42,19 @@ function normalizeGender(value) {
   return value;
 }
 
+function isNewProfile(createdAt) {
+  if (!createdAt) return false;
+
+  const created = new Date(createdAt);
+  const diffDays = (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24);
+
+  return diffDays <= 7;
+}
+
+/* =========================
+   MODAL PROFIL
+========================= */
+
 function openProfileModal(profile) {
   const profileModal = document.getElementById("profileModal");
   const profileModalBody = document.getElementById("profileModalBody");
@@ -48,36 +65,48 @@ function openProfileModal(profile) {
     <img
       src="${getAvatarUrl(profile.avatar_url)}"
       class="modal-profile-img"
+      alt="Photo de ${profile.pseudo || "profil"}"
     >
 
     <div class="modal-profile-info">
-      <h2>${profile.pseudo || "Profil"}${profile.age ? ", " + profile.age : ""}</h2>
+      <h2>
+        ${profile.pseudo || "Profil"}
+        ${profile.age ? ", " + profile.age : ""}
+        ${profile.is_verified ? " ✔️" : ""}
+      </h2>
+
       <p>📍 ${profile.city || "Ville inconnue"}</p>
       <p>${profile.tagline || ""}</p>
       <p>${profile.bio || ""}</p>
       <p>🎯 Recherche : ${profile.relationship_goal || "Non précisé"}</p>
       <p>✨ Passions : ${profile.passions || "Non précisées"}</p>
-    </div>
 
-    <div class="profile-status">
-
-      ${
-        profile.is_online
-          ? `<span class="online-badge">🟢 En ligne</span>`
-          : `<span class="offline-badge">⏰ ${formatLastSeen(profile.last_seen)}</span>`
-      }
+      <div class="profile-status">
+        ${
+          profile.is_online
+            ? `<span class="online-badge">🟢 En ligne</span>`
+            : `<span class="offline-badge">⏰ ${formatLastSeen(profile.last_seen)}</span>`
+        }
+      </div>
     </div>
   `;
 
   profileModal.classList.remove("hidden");
 }
 
+/* =========================
+   LOAD PROFILS
+========================= */
+
 export async function loadProfiles() {
   if (!window.location.pathname.includes("liste.html")) return;
 
   const profilesList = document.getElementById("profilesList");
 
-  const { data: { user } } = await supabaseClient.auth.getUser();
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
   setCurrentUserId(user?.id || null);
 
   if (state.currentUserId) {
@@ -90,31 +119,35 @@ export async function loadProfiles() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
+    console.error("Erreur profils:", error);
 
     if (profilesList) {
-      profilesList.innerHTML = `<p class="error-msg">${error.message}</p>`;
+      profilesList.innerHTML = `
+        <p class="error-msg">${error.message}</p>
+      `;
     }
 
     return;
   }
 
-let blockedIds = new Set();
+  let blockedIds = new Set();
 
-if (state.currentUserId) {
-  const { data: blocks } = await supabaseClient
-    .from("blocks")
-    .select("blocked")
-    .eq("blocker", state.currentUserId);
+  if (state.currentUserId) {
+    const { data: blocks, error: blocksError } = await supabaseClient
+      .from("blocks")
+      .select("blocked")
+      .eq("blocker", state.currentUserId);
 
-  blockedIds = new Set((blocks || []).map(b => b.blocked));
-}
+    if (!blocksError) {
+      blockedIds = new Set((blocks || []).map((b) => b.blocked));
+    }
+  }
 
-const visibleProfiles = (profiles || []).filter((p) => {
-  if (p.is_banned) return false;
-  if (blockedIds.has(p.id)) return false;
-  return true;
-});
+  const visibleProfiles = (profiles || []).filter((p) => {
+    if (p.is_banned) return false;
+    if (blockedIds.has(p.id)) return false;
+    return true;
+  });
 
   state.allProfilesCache = visibleProfiles;
   setProfilesCache(visibleProfiles);
@@ -122,6 +155,10 @@ const visibleProfiles = (profiles || []).filter((p) => {
   renderMyProfile();
   renderProfiles();
 }
+
+/* =========================
+   MON PROFIL
+========================= */
 
 export function renderMyProfile() {
   const myProfileCard = document.getElementById("myProfileCard");
@@ -142,14 +179,36 @@ export function renderMyProfile() {
     myProfileCard.innerHTML = `
       <div class="card">
         <p>Votre profil n’existe pas encore.</p>
-        <a href="create-profile.html" class="btn primary">Créer mon profil</a>
+        <a href="create-profile.html" class="btn primary">
+          Créer mon profil
+        </a>
       </div>
     `;
     return;
   }
 
+  const fields = [
+    me.pseudo,
+    me.age,
+    me.city,
+    me.gender,
+    me.looking_for,
+    me.tagline,
+    me.bio,
+    me.passions,
+    me.relationship_goal,
+    me.avatar_url
+  ];
+
+  const completed = fields.filter(Boolean).length;
+  const percent = Math.round((completed / fields.length) * 100);
+
   myProfileCard.innerHTML = `
-    <img src="${getAvatarUrl(me.avatar_url)}" class="avatar-img">
+    <img
+      src="${getAvatarUrl(me.avatar_url)}"
+      class="avatar-img"
+      alt="Mon profil"
+    >
 
     <div class="profile-info">
       <h3>
@@ -157,6 +216,17 @@ export function renderMyProfile() {
         ${me.age ? ", " + me.age : ""}
         ${me.is_verified ? "✔️" : ""}
       </h3>
+
+      <div class="profile-progress">
+        <div class="profile-progress-top">
+          <span>Profil complété</span>
+          <strong>${percent}%</strong>
+        </div>
+
+        <div class="profile-progress-bar">
+          <div style="width:${percent}%"></div>
+        </div>
+      </div>
 
       <div class="profile-status">
         ${
@@ -180,45 +250,64 @@ export function renderMyProfile() {
   `;
 }
 
+/* =========================
+   RENDER PROFILS
+========================= */
+
 export function renderProfiles() {
   const profilesList = document.getElementById("profilesList");
   if (!profilesList) return;
 
-  const search = (document.getElementById("searchInput")?.value || "").toLowerCase();
-  const city = (document.getElementById("cityFilter")?.value || "").toLowerCase();
+  const search = (
+    document.getElementById("searchInput")?.value || ""
+  ).toLowerCase();
+
+  const city = (
+    document.getElementById("cityFilter")?.value || ""
+  ).toLowerCase();
+
   const gender = document.getElementById("genderFilter")?.value || "";
-  const favoritesOnly = document.getElementById("favoritesOnly")?.checked || false;
-const profilesCount =
-  document.getElementById("profilesCount");
-
-if (profilesCount) {
-
-  profilesCount.textContent =
-    `${filteredProfiles.length} profil${filteredProfiles.length > 1 ? "s" : ""}`;
-
-}
+  const favoritesOnly =
+    document.getElementById("favoritesOnly")?.checked || false;
 
   let filteredProfiles = [...state.allProfilesCache];
 
   filteredProfiles = filteredProfiles.filter((p) => {
     if (p.is_banned) return false;
-    if (favoritesOnly && !state.favoritesSet.has(p.id)) return false;
+
+    if (favoritesOnly && !state.favoritesSet.has(p.id)) {
+      return false;
+    }
 
     if (search) {
       const text = `${p.pseudo || ""} ${p.tagline || ""}`.toLowerCase();
       if (!text.includes(search)) return false;
     }
 
-    if (city && !(p.city || "").toLowerCase().includes(city)) return false;
-    if (gender && normalizeGender(p.gender) !== gender) return false;
+    if (city && !(p.city || "").toLowerCase().includes(city)) {
+      return false;
+    }
+
+    if (gender && normalizeGender(p.gender) !== gender) {
+      return false;
+    }
 
     return true;
   });
 
   profilesList.innerHTML = "";
 
+  const profilesCount = document.getElementById("profilesCount");
+
+  if (profilesCount) {
+    profilesCount.textContent =
+      `${filteredProfiles.length} profil${filteredProfiles.length > 1 ? "s" : ""}`;
+  }
+
   if (filteredProfiles.length === 0) {
-    profilesList.innerHTML = `<p>Aucun profil trouvé.</p>`;
+    profilesList.innerHTML = `
+      <p>Aucun profil trouvé.</p>
+    `;
     return;
   }
 
@@ -234,17 +323,23 @@ if (profilesCount) {
         class="favorite-btn ${state.favoritesSet.has(p.id) ? "filled" : ""}"
         data-fav="${p.id}"
         type="button"
+        aria-label="Favori"
       >
         ${state.favoritesSet.has(p.id) ? "♥" : "♡"}
       </button>
 
-      <img src="${getAvatarUrl(p.avatar_url)}" class="avatar-img">
+      <img
+        src="${getAvatarUrl(p.avatar_url)}"
+        class="avatar-img"
+        alt="Photo de ${p.pseudo || "profil"}"
+      >
 
       <div class="profile-info">
         <h3>
           ${p.pseudo || "Profil"}
           ${p.age ? ", " + p.age : ""}
           ${p.is_verified ? "✔️" : ""}
+          ${isNewProfile(p.created_at) ? `<span class="badge-new">Nouveau</span>` : ""}
           ${isMe ? `<span class="badge-self">Mon profil</span>` : ""}
         </h3>
 
@@ -262,30 +357,46 @@ if (profilesCount) {
         ${
           !isMe
             ? `
-              <button class="btn primary" type="button" data-request-chat="${p.id}">
+              <button
+                class="btn primary"
+                type="button"
+                data-request-chat="${p.id}"
+              >
                 Demander à discuter
               </button>
 
-              <button class="btn success" type="button" data-pay-chat="${p.id}">
+              <button
+                class="btn success"
+                type="button"
+                data-pay-chat="${p.id}"
+              >
                 Payer
               </button>
 
-       <button
-  class="btn ghost hidden-whatsapp-btn"
-  type="button"
-  data-whatsapp-pay="${p.id}"
-  style="display:none;"
->
-  J’ai payé — contacter admin
-</button>
+              <button
+                class="btn ghost hidden-whatsapp-btn"
+                type="button"
+                data-whatsapp-pay="${p.id}"
+                style="display:none;"
+              >
+                J’ai payé — contacter admin
+              </button>
 
-<button class="btn ghost" type="button" data-block-user="${p.id}">
-  Bloquer
-</button>
+              <button
+                class="btn ghost"
+                type="button"
+                data-block-user="${p.id}"
+              >
+                Bloquer
+              </button>
 
-<button class="btn danger" type="button" data-report-user="${p.id}">
-  Signaler
-</button>
+              <button
+                class="btn danger"
+                type="button"
+                data-report-user="${p.id}"
+              >
+                Signaler
+              </button>
             `
             : `<span class="badge-self">Mon profil</span>`
         }
@@ -297,7 +408,9 @@ if (profilesCount) {
         e.target.closest(".favorite-btn") ||
         e.target.closest("[data-request-chat]") ||
         e.target.closest("[data-pay-chat]") ||
-        e.target.closest("[data-whatsapp-pay]")
+        e.target.closest("[data-whatsapp-pay]") ||
+        e.target.closest("[data-block-user]") ||
+        e.target.closest("[data-report-user]")
       ) {
         return;
       }
@@ -350,33 +463,22 @@ if (profilesCount) {
       alert("Demande envoyée !");
     });
 
-const payChatBtn =
-  div.querySelector("[data-pay-chat]");
+    const payChatBtn = div.querySelector("[data-pay-chat]");
+    const whatsappPayBtn = div.querySelector("[data-whatsapp-pay]");
 
-const whatsappPayBtn =
-  div.querySelector("[data-whatsapp-pay]");
+    payChatBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
 
-  payChatBtn?.addEventListener(
-  "click",
-  (e) => {
+      window.open("https://paypal.me/jeffreygadal1/5.00", "_blank");
 
-    e.stopPropagation();
+      alert(
+        "Après le paiement PayPal, cliquez sur le bouton WhatsApp."
+      );
 
-    window.open(
-      "https://paypal.me/jeffreygadal1/5.00",
-      "_blank"
-    );
-
-    alert(
-      "Après le paiement PayPal, cliquez sur le bouton WhatsApp."
-    );
-
-    if (whatsappPayBtn) {
-      whatsappPayBtn.style.display = "flex";
-    }
-
-  }
-);
+      if (whatsappPayBtn) {
+        whatsappPayBtn.style.display = "flex";
+      }
+    });
 
     whatsappPayBtn?.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -387,16 +489,14 @@ const whatsappPayBtn =
 
       if (!confirmPaid) return;
 
-const currentUser =
-  state.allProfilesCache.find(
-    u => u.id === state.currentUserId
-  );
+      const currentUser = state.allProfilesCache.find(
+        (u) => u.id === state.currentUserId
+      );
 
-const requesterName =
-  currentUser?.pseudo || "Utilisateur";
+      const requesterName = currentUser?.pseudo || "Utilisateur";
 
-const message = encodeURIComponent(
-  `Bonjour,
+      const message = encodeURIComponent(
+        `Bonjour,
 
 J'ai payé pour débloquer le chat avec :
 ${p.pseudo || "ce profil"}
@@ -408,123 +508,112 @@ ID utilisateur :
 ${state.currentUserId}
 
 Merci !`
-);
+      );
+
       window.location.href = `https://wa.me/33676615490?text=${message}`;
     });
+
     const blockBtn = div.querySelector("[data-block-user]");
 
-blockBtn?.addEventListener("click", async (e) => {
-  e.stopPropagation();
+    blockBtn?.addEventListener("click", async (e) => {
+      e.stopPropagation();
 
-  if (!state.currentUserId) {
-    alert("Connectez-vous.");
-    return;
-  }
+      if (!state.currentUserId) {
+        alert("Connectez-vous.");
+        return;
+      }
 
-  const confirmBlock = confirm(
-    `Bloquer ${p.pseudo || "ce profil"} ?`
-  );
+      const confirmBlock = confirm(
+        `Bloquer ${p.pseudo || "ce profil"} ?`
+      );
 
-  if (!confirmBlock) return;
+      if (!confirmBlock) return;
 
-  const { error } = await supabaseClient
-    .from("blocks")
-    .insert({
-      blocker: state.currentUserId,
-      blocked: p.id
+      const { error } = await supabaseClient
+        .from("blocks")
+        .insert({
+          blocker: state.currentUserId,
+          blocked: p.id
+        });
+
+      if (error && error.code !== "23505") {
+        alert(error.message);
+        return;
+      }
+
+      alert("Profil bloqué.");
+      await loadProfiles();
     });
 
-  if (error && error.code !== "23505") {
-    alert(error.message);
-    return;
-  }
+    const reportBtn = div.querySelector("[data-report-user]");
 
-  alert("Profil bloqué.");
-  await loadProfiles();
-});
+    reportBtn?.addEventListener("click", async (e) => {
+      e.stopPropagation();
 
-const reportBtn = div.querySelector("[data-report-user]");
+      if (!state.currentUserId) {
+        alert("Connectez-vous.");
+        return;
+      }
 
-reportBtn?.addEventListener("click", async (e) => {
-  e.stopPropagation();
+      const reason = prompt(
+        "Pourquoi voulez-vous signaler ce profil ?"
+      );
 
-  if (!state.currentUserId) {
-    alert("Connectez-vous.");
-    return;
-  }
+      if (!reason) return;
 
-  const reason = prompt(
-    "Pourquoi voulez-vous signaler ce profil ?"
-  );
+      const { error } = await supabaseClient
+        .from("reports")
+        .insert({
+          reporter_id: state.currentUserId,
+          reported_id: p.id,
+          reason
+        });
 
-  if (!reason) return;
+      if (error) {
+        alert(error.message);
+        return;
+      }
 
-  const { error } = await supabaseClient
-    .from("reports")
-    .insert({
-      reporter_id: state.currentUserId,
-      reported_id: p.id,
-      reason
+      alert("Signalement envoyé à l’admin.");
     });
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
-
-  alert("Signalement envoyé à l’admin.");
-});
 
     profilesList.appendChild(div);
   });
 }
 
-export function initProfilesList() {
+/* =========================
+   INIT
+========================= */
 
-  const filtersForm =
-    document.getElementById("filtersForm");
+export function initProfilesList() {
+  const filtersForm = document.getElementById("filtersForm");
 
   if (filtersForm) {
-
-    filtersForm.addEventListener(
-      "input",
-      renderProfiles
-    );
-
+    filtersForm.addEventListener("input", renderProfiles);
   }
 
-  const clearFiltersBtn =
-    document.getElementById("clearFiltersBtn");
+  const clearFiltersBtn = document.getElementById("clearFiltersBtn");
 
-  clearFiltersBtn?.addEventListener(
-    "click",
-    () => {
+  clearFiltersBtn?.addEventListener("click", () => {
+    const searchInput = document.getElementById("searchInput");
+    const cityFilter = document.getElementById("cityFilter");
+    const genderFilter = document.getElementById("genderFilter");
+    const favoritesOnly = document.getElementById("favoritesOnly");
 
-      const searchInput =
-        document.getElementById("searchInput");
+    if (searchInput) searchInput.value = "";
+    if (cityFilter) cityFilter.value = "";
+    if (genderFilter) genderFilter.value = "";
+    if (favoritesOnly) favoritesOnly.checked = false;
 
-      const cityFilter =
-        document.getElementById("cityFilter");
-
-      const genderFilter =
-        document.getElementById("genderFilter");
-
-      const favoritesOnly =
-        document.getElementById("favoritesOnly");
-
-      if (searchInput) searchInput.value = "";
-      if (cityFilter) cityFilter.value = "";
-      if (genderFilter) genderFilter.value = "";
-      if (favoritesOnly) favoritesOnly.checked = false;
-
-      renderProfiles();
-
-    }
-  );
+    renderProfiles();
+  });
 
   loadProfiles();
-
 }
+
+/* =========================
+   CLOSE MODAL
+========================= */
 
 document.getElementById("closeProfileModal")?.addEventListener("click", () => {
   document.getElementById("profileModal")?.classList.add("hidden");
