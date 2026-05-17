@@ -1054,6 +1054,18 @@ textarea {
     bottom: 76px;
   }
 }
+.notif-panel.show,
+#notifPanel.show {
+  display: block !important;
+}
+
+.notif-item.unread {
+  background: rgba(212,175,55,.10);
+}
+
+.notif-item p {
+  margin: 4px 0;
+}
 
 /* =========================
    FIX BOUTONS PROFILS
@@ -1296,6 +1308,23 @@ textarea {
   margin-top: 10px;
 }
 
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0 18px;
+}
+.online-dot{
+  width:10px;
+  height:10px;
+
+  border-radius:50%;
+
+  background:#22c55e;
+
+  box-shadow:
+    0 0 10px #22c55e;
+}
 /* =========================
    MOBILE NAV
 ========================= */
@@ -1397,3 +1426,4 @@ textarea {
   }
 
 }
+

@@ -15,6 +15,8 @@ export async function initAdminUsers() {
   
 }
 
+let adminUsersCache = [];
+
 async function loadAdminUsers() {
   const adminUsers = document.getElementById("adminUsers");
   if (!adminUsers) return;
@@ -31,6 +33,34 @@ async function loadAdminUsers() {
 
   updateStats(users || []);
   renderUsers(users || []);
+  adminUsersCache = users || [];
+renderUsers(adminUsersCache);
+
+document.querySelectorAll("[data-admin-filter]").forEach((btn) => {
+  btn.onclick = () => {
+    const filter = btn.dataset.adminFilter;
+
+    let filtered = [...adminUsersCache];
+
+    if (filter === "online") {
+      filtered = filtered.filter(u => u.is_online);
+    }
+
+    if (filter === "verified") {
+      filtered = filtered.filter(u => u.is_verified);
+    }
+
+    if (filter === "banned") {
+      filtered = filtered.filter(u => u.is_banned);
+    }
+
+    if (filter === "no-avatar") {
+      filtered = filtered.filter(u => !u.avatar_url);
+    }
+
+    renderUsers(filtered);
+  };
+});
 }
 
 function updateStats(users) {
@@ -70,7 +100,18 @@ function renderUsers(users) {
 
       <td>${u.pseudo || "Profil"}</td>
       <td>${u.city || "-"}</td>
-      <td>${u.is_online ? "🟢 En ligne" : "⚫ Hors ligne"}</td>
+     <td>
+  ${
+    u.is_online
+      ? `
+        <span class="online-dot"></span>
+        En ligne
+      `
+      : `
+        ⚫ Hors ligne
+      `
+  }
+</td>
 
       <td>
         <button class="btn ghost verify-btn" data-id="${u.id}">
@@ -104,20 +145,41 @@ function bindActions(users) {
     };
   });
 
-  document.querySelectorAll(".ban-btn").forEach((btn) => {
-    btn.onclick = async () => {
-      const user = users.find(u => u.id === btn.dataset.id);
-      if (!user) return;
+document.querySelectorAll(".ban-btn").forEach((btn) => {
+  btn.onclick = async () => {
+    const user = users.find(u => u.id === btn.dataset.id);
+    if (!user) return;
 
-      await supabaseClient
-        .from("profiles")
-        .update({ is_banned: !user.is_banned })
-        .eq("id", user.id);
+    const action = user.is_banned ? "débannir" : "bannir";
 
-      await loadAdminUsers();
-    };
-  });
+    const confirmAction = confirm(
+      `Confirmer : ${action} ${user.pseudo || "cet utilisateur"} ?`
+    );
+
+    if (!confirmAction) return;
+
+    const { error } = await supabaseClient
+      .from("profiles")
+      .update({ is_banned: !user.is_banned })
+      .eq("id", user.id);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert(
+      user.is_banned
+        ? "Utilisateur débanni."
+        : "Utilisateur banni."
+    );
+
+    await loadAdminUsers();
+  };
+});
 }
+
+/* Ban profil */
 
 /* Débloquer chat */
 const unlockChatBtn = document.getElementById("unlockChatBtn");
@@ -639,3 +701,48 @@ async function loadReports() {
     };
   });
 }
+
+const exportUsersCsvBtn = document.getElementById("exportUsersCsvBtn");
+
+exportUsersCsvBtn?.addEventListener("click", async () => {
+  const { data: users, error } = await supabaseClient
+    .from("profiles")
+    .select("id,pseudo,city,gender,looking_for,is_verified,is_banned,is_online,created_at");
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  const rows = [
+    ["ID", "Pseudo", "Ville", "Genre", "Recherche", "Vérifié", "Banni", "En ligne", "Créé le"],
+    ...(users || []).map((u) => [
+      u.id,
+      u.pseudo || "",
+      u.city || "",
+      u.gender || "",
+      u.looking_for || "",
+      u.is_verified ? "Oui" : "Non",
+      u.is_banned ? "Oui" : "Non",
+      u.is_online ? "Oui" : "Non",
+      u.created_at || ""
+    ])
+  ];
+
+  const csv = rows
+    .map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(","))
+    .join("\n");
+
+  const blob = new Blob([csv], {
+    type: "text/csv;charset=utf-8;"
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "loveconnect-utilisateurs.csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
+});

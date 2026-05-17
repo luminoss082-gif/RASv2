@@ -188,6 +188,15 @@ export function renderProfiles() {
   const city = (document.getElementById("cityFilter")?.value || "").toLowerCase();
   const gender = document.getElementById("genderFilter")?.value || "";
   const favoritesOnly = document.getElementById("favoritesOnly")?.checked || false;
+const profilesCount =
+  document.getElementById("profilesCount");
+
+if (profilesCount) {
+
+  profilesCount.textContent =
+    `${filteredProfiles.length} profil${filteredProfiles.length > 1 ? "s" : ""}`;
+
+}
 
   let filteredProfiles = [...state.allProfilesCache];
 
@@ -471,13 +480,50 @@ reportBtn?.addEventListener("click", async (e) => {
 }
 
 export function initProfilesList() {
-  const filtersForm = document.getElementById("filtersForm");
+
+  const filtersForm =
+    document.getElementById("filtersForm");
 
   if (filtersForm) {
-    filtersForm.addEventListener("input", renderProfiles);
+
+    filtersForm.addEventListener(
+      "input",
+      renderProfiles
+    );
+
   }
 
+  const clearFiltersBtn =
+    document.getElementById("clearFiltersBtn");
+
+  clearFiltersBtn?.addEventListener(
+    "click",
+    () => {
+
+      const searchInput =
+        document.getElementById("searchInput");
+
+      const cityFilter =
+        document.getElementById("cityFilter");
+
+      const genderFilter =
+        document.getElementById("genderFilter");
+
+      const favoritesOnly =
+        document.getElementById("favoritesOnly");
+
+      if (searchInput) searchInput.value = "";
+      if (cityFilter) cityFilter.value = "";
+      if (genderFilter) genderFilter.value = "";
+      if (favoritesOnly) favoritesOnly.checked = false;
+
+      renderProfiles();
+
+    }
+  );
+
   loadProfiles();
+
 }
 
 document.getElementById("closeProfileModal")?.addEventListener("click", () => {

@@ -115,6 +115,7 @@
 
     <div class="section-heading">
       <h2>Gestion utilisateurs</h2>
+      
     </div>
 
     <div class="admin-table-wrap">
@@ -136,6 +137,14 @@
       </table>
 
     </div>
+    
+    <div class="admin-filters">
+  <button class="btn ghost" data-admin-filter="all">Tous</button>
+  <button class="btn ghost" data-admin-filter="online">En ligne</button>
+  <button class="btn ghost" data-admin-filter="verified">Vérifiés</button>
+  <button class="btn ghost" data-admin-filter="banned">Bannis</button>
+  <button class="btn ghost" data-admin-filter="no-avatar">Sans photo</button>
+</div>
 
   </section>
 
@@ -195,6 +204,11 @@
   <div id="adminReports"></div>
 </section>
  
+<!-- EXPORT UTILISATEURS -->
+<button id="exportUsersCsvBtn" class="btn ghost" type="button">
+  Exporter utilisateurs CSV
+</button>
+
 <!-- NAVIGATION MOBILE -->
 
 <nav class="mobile-nav">
@@ -221,7 +235,13 @@
 
   <a href="settings.html">
     <span>⚙️</span>
-    <small>Compte</small>
+    <small>Config</small>
+  </a>
+
+  
+  <a href="admin.html" class="active">
+    <span>A</span>
+    <small>Admin</small>
   </a>
 
 </nav>
