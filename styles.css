@@ -1277,3 +1277,17 @@ textarea {
   }
 
 }
+.admin-request-card {
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(212,175,55,.22);
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}

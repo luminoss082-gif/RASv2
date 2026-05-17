@@ -340,7 +340,6 @@ const whatsappPayBtn =
 
   }
 );
-    const whatsappPayBtn = div.querySelector("[data-whatsapp-pay]");
 
     whatsappPayBtn?.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -351,12 +350,28 @@ const whatsappPayBtn =
 
       if (!confirmPaid) return;
 
-      const message = encodeURIComponent(
-        `Bonjour, j'ai payé pour débloquer le chat avec ${p.pseudo || "ce profil"}.
-Mon ID utilisateur est : ${state.currentUserId}.
-Merci !`
-      );
+const currentUser =
+  state.allProfilesCache.find(
+    u => u.id === state.currentUserId
+  );
 
+const requesterName =
+  currentUser?.pseudo || "Utilisateur";
+
+const message = encodeURIComponent(
+  `Bonjour,
+
+J'ai payé pour débloquer le chat avec :
+${p.pseudo || "ce profil"}
+
+Nom utilisateur :
+${requesterName}
+
+ID utilisateur :
+${state.currentUserId}
+
+Merci !`
+);
       window.location.href = `https://wa.me/33676615490?text=${message}`;
     });
 
