@@ -1622,3 +1622,201 @@ textarea {
 
 }
 
+/* =========================================================
+   FIX FINAL — SCROLL CHAT PC + MOBILE
+   À garder tout en bas du fichier
+========================================================= */
+
+html,
+body {
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+.chat-page {
+  min-height: calc(100vh - 90px) !important;
+  padding-bottom: 90px !important;
+}
+
+.chat-shell {
+  height: calc(100vh - 150px) !important;
+  min-height: 560px !important;
+  max-height: calc(100vh - 150px) !important;
+  overflow: hidden !important;
+}
+
+.chat-sidebar,
+.chat-panel {
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+.chat-panel {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.chat-header {
+  flex-shrink: 0 !important;
+}
+
+#chatMessages,
+.chat-messages {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+}
+
+#chatUsers,
+.chat-users {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+#chatForm,
+.chat-form {
+  flex-shrink: 0 !important;
+  position: relative !important;
+  bottom: auto !important;
+}
+
+/* Scrollbar propre sur ordinateur */
+#chatMessages::-webkit-scrollbar,
+.chat-messages::-webkit-scrollbar,
+#chatUsers::-webkit-scrollbar,
+.chat-users::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+#chatMessages::-webkit-scrollbar-thumb,
+.chat-messages::-webkit-scrollbar-thumb,
+#chatUsers::-webkit-scrollbar-thumb,
+.chat-users::-webkit-scrollbar-thumb {
+  background: rgba(212,175,55,.35);
+  border-radius: 999px;
+}
+
+#chatMessages::-webkit-scrollbar-track,
+.chat-messages::-webkit-scrollbar-track,
+#chatUsers::-webkit-scrollbar-track,
+.chat-users::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.05);
+}
+
+/* =========================================================
+   FIX CHAT MOBILE
+========================================================= */
+
+@media (max-width: 800px) {
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  .chat-page {
+    height: calc(100vh - 70px) !important;
+    min-height: 0 !important;
+    padding: 10px 10px 90px !important;
+    overflow: hidden !important;
+  }
+
+  .chat-shell {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    height: calc(100vh - 165px) !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 165px) !important;
+    gap: 10px !important;
+    overflow: hidden !important;
+  }
+
+  .chat-sidebar {
+    order: 1 !important;
+    height: 135px !important;
+    min-height: 135px !important;
+    max-height: 135px !important;
+    overflow: hidden !important;
+  }
+
+  #chatUsers,
+  .chat-users {
+    height: calc(135px - 58px) !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .chat-user {
+    min-width: 118px !important;
+    max-width: 118px !important;
+    flex: 0 0 auto !important;
+  }
+
+  .chat-panel {
+    order: 2 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .chat-header {
+    flex-shrink: 0 !important;
+    padding: 10px 12px !important;
+  }
+
+  #chatMessages,
+  .chat-messages {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 12px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  #chatForm,
+  .chat-form {
+    flex-shrink: 0 !important;
+    position: relative !important;
+    bottom: auto !important;
+    padding: 10px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+  }
+
+  #chatInput {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  .chat-send-btn {
+    width: auto !important;
+    min-width: 84px !important;
+    flex: 0 0 auto !important;
+  }
+
+  .mobile-nav {
+    z-index: 10000 !important;
+  }
+
+}
