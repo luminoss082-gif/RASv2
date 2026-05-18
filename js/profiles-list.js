@@ -143,14 +143,16 @@ export async function loadProfiles() {
     }
   }
 
-  const visibleProfiles = (profiles || []).filter((p) => {
-    if (p.is_banned) return false;
-    if (blockedIds.has(p.id)) return false;
-    return true;
-  });
+const visibleProfiles = profiles || [];
 
   state.allProfilesCache = visibleProfiles;
   setProfilesCache(visibleProfiles);
+
+console.log("PROFILS SUPABASE:", profiles);
+console.log("PROFILS VISIBLES:", visibleProfiles);
+console.log("CURRENT USER:", state.currentUserId);
+console.log("FAVORITES:", state.favoritesSet);
+console.log("BLOCKS:", blockedIds);
 
   renderMyProfile();
   renderProfiles();
