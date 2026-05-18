@@ -123,9 +123,14 @@ async function loadMessages(otherUserId) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+const renderedMessages = new Set();
+
 function appendMessage(msg) {
   const chatMessages = document.getElementById("chatMessages");
   if (!chatMessages) return;
+
+  if (msg.id && renderedMessages.has(msg.id)) return;
+  if (msg.id) renderedMessages.add(msg.id);
 
   const div = document.createElement("div");
 
@@ -137,7 +142,7 @@ function appendMessage(msg) {
   div.innerHTML = `
     <div>${msg.content}</div>
     <small>
-      ${new Date(msg.created_at).toLocaleTimeString([], {
+      ${new Date(msg.created_at || Date.now()).toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit"
       })}
@@ -178,20 +183,25 @@ function initChatForm() {
       return;
     }
 
-    const { error } = await supabaseClient
-      .from("messages")
-      .insert({
-        sender_id: state.currentUserId,
-        receiver_id: currentChatUserId,
-        content
-      });
+const { data: newMessage, error } = await supabaseClient
+  .from("messages")
+  .insert({
+    sender_id: state.currentUserId,
+    receiver_id: currentChatUserId,
+    content
+  })
+  .select()
+  .single();
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
+if (error) {
+  alert(error.message);
+  return;
+}
 
-    input.value = "";
+input.value = "";
+
+/* Affiche directement le message sans attendre l’actualisation */
+appendMessage(newMessage);
   });
 }
 
