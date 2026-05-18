@@ -60,11 +60,15 @@ async function loadChatUsers() {
     div.className = "chat-user";
 
     div.innerHTML = `
-      <img
-        src="${profile.avatar_url || "default-avatar.png"}"
-        class="chat-avatar"
-        onerror="this.src='default-avatar.png'"
-      >
+    src="${
+  profile.avatar_url
+    ? profile.avatar_url.startsWith("http")
+      ? profile.avatar_url
+      : supabaseClient.storage
+          .from("avatars")
+          .getPublicUrl(profile.avatar_url).data.publicUrl
+    : "default-avatar.png"
+}"
 
       <div class="chat-user-info">
         <strong>${profile.pseudo || "Utilisateur"}</strong>
