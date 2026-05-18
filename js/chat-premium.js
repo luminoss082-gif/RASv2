@@ -2,6 +2,7 @@ import { supabaseClient } from "./config.js";
 import { state, setCurrentUserId } from "./core.js";
 
 let currentChatUserId = null;
+let notificationSound = new Audio("notification.mp3");
 
 export async function initChat() {
   if (!window.location.pathname.includes("chat.html")) return;
@@ -12,6 +13,9 @@ export async function initChat() {
     window.location.href = "index.html";
     return;
   }
+  if ("Notification" in window) {
+  Notification.requestPermission();
+}
 
   setCurrentUserId(user.id);
 
@@ -210,6 +214,7 @@ appendMessage(newMessage);
 }
 
 function subscribeRealtimeMessages() {
+
   supabaseClient
     .channel("messages-realtime")
     .on(
@@ -220,17 +225,48 @@ function subscribeRealtimeMessages() {
         table: "messages"
       },
       (payload) => {
+
         const msg = payload.new;
 
         const isCurrentConversation =
           (msg.sender_id === state.currentUserId &&
             msg.receiver_id === currentChatUserId) ||
+
           (msg.receiver_id === state.currentUserId &&
             msg.sender_id === currentChatUserId);
 
-        if (!isCurrentConversation) return;
+        /* message reçu */
+        const isIncoming =
+          msg.receiver_id === state.currentUserId;
 
-        appendMessage(msg);
+        /* affiche message */
+        if (isCurrentConversation) {
+          appendMessage(msg);
+        }
+
+        /* notification */
+        if (isIncoming) {
+
+          /* son */
+          notificationSound.play().catch(() => {});
+
+          /* notif navigateur */
+          if (
+            "Notification" in window &&
+            Notification.permission === "granted"
+          ) {
+
+            new Notification("Nouveau message 💌", {
+              body: msg.content,
+              icon: "/logo.png"
+            });
+
+          }
+
+          /* badge titre */
+          document.title = "💌 Nouveau message";
+        }
+
       }
     )
     .subscribe();
