@@ -143,7 +143,11 @@ export async function loadProfiles() {
     }
   }
 
-const visibleProfiles = profiles || [];
+  const visibleProfiles = (profiles || []).filter((p) => {
+    if (p.is_banned) return false;
+    if (blockedIds.has(p.id)) return false;
+    return true;
+  });
 
   state.allProfilesCache = visibleProfiles;
   setProfilesCache(visibleProfiles);
