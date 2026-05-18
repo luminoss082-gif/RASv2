@@ -1821,213 +1821,127 @@ body {
 
 }
 /* =========================================================
-   FIX FINAL CHAT MOBILE
+   FIX MOBILE — PAGE ENTIÈRE SCROLLABLE + PROFILS VISIBLES
 ========================================================= */
 
-@media (max-width: 800px){
+@media (max-width: 900px){
 
   html,
   body{
-    height:100%;
-    overflow:hidden;
+    height:auto !important;
+    min-height:100% !important;
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
   }
 
+  body{
+    padding-bottom:90px !important;
+  }
+
+  main,
+  .section,
   .chat-page{
-    height:100dvh !important;
-    padding:10px 10px 95px !important;
-    overflow:hidden !important;
+    height:auto !important;
+    min-height:auto !important;
+    max-height:none !important;
+    overflow:visible !important;
+    padding-bottom:110px !important;
   }
 
   .chat-shell{
+    height:auto !important;
+    min-height:auto !important;
+    max-height:none !important;
+    overflow:visible !important;
     display:flex !important;
     flex-direction:column !important;
-
-    height:100% !important;
-    max-height:100% !important;
-    min-height:0 !important;
-
-    gap:10px !important;
-
-    overflow:hidden !important;
   }
 
-  /* ======================
-     LISTE USERS
-  ====================== */
-
-  .chat-sidebar{
-
-    flex:0 0 130px !important;
-
-    min-height:130px !important;
-    max-height:130px !important;
-
-    overflow:hidden !important;
+  .chat-sidebar,
+  .chat-panel{
+    height:auto !important;
+    min-height:auto !important;
+    max-height:none !important;
+    overflow:visible !important;
   }
 
   .chat-users{
-
-    display:flex !important;
-    flex-direction:row !important;
-
+    max-height:none !important;
     overflow-x:auto !important;
     overflow-y:hidden !important;
+  }
 
-    gap:10px !important;
-
-    padding:10px !important;
-
+  .chat-messages,
+  #chatMessages{
     height:auto !important;
-
-    -webkit-overflow-scrolling:touch;
+    min-height:360px !important;
+    max-height:none !important;
+    overflow:visible !important;
   }
 
-  .chat-user{
-
-    flex:0 0 110px !important;
-
-    min-width:110px !important;
-    max-width:110px !important;
-
-    padding:10px !important;
-
-    border-radius:16px !important;
-  }
-
-  /* ======================
-     PANEL CHAT
-  ====================== */
-
-  .chat-panel{
-
-    flex:1 1 auto !important;
-
-    min-height:0 !important;
-
-    display:flex !important;
-    flex-direction:column !important;
-
-    overflow:hidden !important;
-  }
-
-  .chat-header{
-
-    flex-shrink:0 !important;
-
-    padding:14px !important;
-  }
-
-  /* ======================
-     MESSAGES
-  ====================== */
-
-  #chatMessages,
-  .chat-messages{
-
-    flex:1 1 auto !important;
-
-    min-height:0 !important;
-
-    overflow-y:auto !important;
-    overflow-x:hidden !important;
-
-    padding:14px !important;
-
-    display:flex !important;
-    flex-direction:column !important;
-
-    gap:12px !important;
-
-    -webkit-overflow-scrolling:touch;
-
-    scroll-behavior:smooth;
-  }
-
-  .chat-message,
-  .msg{
-
-    max-width:88% !important;
-
-    font-size:.95rem !important;
-
-    padding:12px 14px !important;
-
-    border-radius:18px !important;
-
-    word-break:break-word;
-  }
-
-  .chat-message.me,
-  .msg.me{
-
-    margin-left:auto !important;
-  }
-
-  /* ======================
-     INPUT
-  ====================== */
-
-  #chatForm,
-  .chat-form{
-
-    flex-shrink:0 !important;
-
-    display:flex !important;
-    align-items:center !important;
-
-    gap:8px !important;
-
-    padding:10px !important;
-
-    background:#0b1022 !important;
-
-    border-top:
-      1px solid rgba(212,175,55,.18);
-
+  .chat-form,
+  #chatForm{
     position:relative !important;
+    bottom:auto !important;
   }
 
-  #chatInput,
-  .chat-form input{
-
-    flex:1 1 auto !important;
-
-    min-width:0 !important;
-
-    height:50px !important;
-
-    border-radius:999px !important;
-
-    padding:0 14px !important;
-
-    font-size:16px !important;
+  .profiles-list{
+    grid-template-columns:repeat(2, 1fr) !important;
+    gap:10px !important;
   }
 
-  .chat-send-btn{
-
-    flex:0 0 auto !important;
-
-    min-width:100px !important;
-
-    height:50px !important;
-
-    border-radius:999px !important;
-
-    font-size:16px !important;
+  .profile-item{
+    height:auto !important;
+    overflow:visible !important;
   }
 
-  /* ======================
-     NAV MOBILE
-  ====================== */
+  .profile-item .avatar-img{
+    height:150px !important;
+    object-fit:cover !important;
+  }
+
+  .profile-info{
+    height:auto !important;
+    overflow:visible !important;
+  }
+
+  .profile-info h3,
+  .profile-info p{
+    white-space:normal !important;
+    overflow:visible !important;
+    text-overflow:unset !important;
+  }
 
   .mobile-nav{
+    position:fixed !important;
+    bottom:0 !important;
+  }
+}
 
-    height:75px !important;
+@media (max-width: 420px){
 
-    padding-bottom:
-      calc(env(safe-area-inset-bottom) + 8px);
-
-    z-index:99999 !important;
+  .profiles-list{
+    grid-template-columns:1fr 1fr !important;
   }
 
+  .profile-item{
+    padding:8px !important;
+  }
+
+  .profile-item .avatar-img{
+    height:135px !important;
+  }
+
+  .profile-info h3{
+    font-size:.85rem !important;
+  }
+
+  .profile-info p{
+    font-size:.72rem !important;
+  }
+
+  .profile-item .btn{
+    font-size:.7rem !important;
+    min-height:34px !important;
+  }
 }
