@@ -1945,3 +1945,69 @@ body {
     min-height:34px !important;
   }
 }
+
+/* =========================================================
+   FIX MOBILE — PROFILS CHAT PLUS VISIBLES
+========================================================= */
+
+@media (max-width: 900px){
+
+  .chat-sidebar{
+    max-height:none !important;
+    height:auto !important;
+    overflow:visible !important;
+  }
+
+  .chat-users{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:10px !important;
+    overflow:visible !important;
+    height:auto !important;
+    max-height:none !important;
+  }
+
+  .chat-user{
+    width:100% !important;
+    min-width:100% !important;
+    max-width:100% !important;
+
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+
+    gap:12px !important;
+    padding:12px !important;
+
+    background:rgba(255,255,255,.07) !important;
+    border:1px solid rgba(212,175,55,.18) !important;
+  }
+
+  .chat-avatar{
+    width:62px !important;
+    height:62px !important;
+    min-width:62px !important;
+
+    border-radius:50% !important;
+    object-fit:cover !important;
+  }
+
+  .chat-user h3,
+  .chat-user strong,
+  .chat-user .name{
+    font-size:1rem !important;
+    color:#fff3b0 !important;
+  }
+
+  .chat-user p,
+  .chat-user small,
+  .chat-user span{
+    font-size:.82rem !important;
+    white-space:normal !important;
+  }
+
+  .chat-user.active{
+    background:rgba(212,175,55,.16) !important;
+    border-color:rgba(212,175,55,.45) !important;
+  }
+}
