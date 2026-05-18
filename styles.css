@@ -1820,194 +1820,326 @@ body {
   }
 
 }
+
 /* =========================================================
-   FIX MOBILE — PAGE ENTIÈRE SCROLLABLE + PROFILS VISIBLES
+   FORCE FIX MOBILE — CHAT + PROFILS VISIBLES
+   À garder TOUT EN BAS DU FICHIER
 ========================================================= */
 
-@media (max-width: 900px){
+@media screen and (max-width: 900px) {
 
+  /* La page entière doit scroller sur téléphone */
   html,
-  body{
-    height:auto !important;
-    min-height:100% !important;
-    overflow-x:hidden !important;
-    overflow-y:auto !important;
+  body {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
   }
 
-  body{
-    padding-bottom:90px !important;
+  body {
+    padding-bottom: 95px !important;
   }
 
   main,
   .section,
-  .chat-page{
-    height:auto !important;
-    min-height:auto !important;
-    max-height:none !important;
-    overflow:visible !important;
-    padding-bottom:110px !important;
+  .chat-main,
+  .chat-page {
+    width: calc(100% - 20px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 auto !important;
+    padding: 12px 0 110px !important;
+    overflow: visible !important;
   }
 
-  .chat-shell{
-    height:auto !important;
-    min-height:auto !important;
-    max-height:none !important;
-    overflow:visible !important;
-    display:flex !important;
-    flex-direction:column !important;
+  /* On annule toutes les hauteurs bloquantes du chat */
+  .chat-shell {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+    grid-template-rows: none !important;
+    gap: 14px !important;
+    overflow: visible !important;
   }
 
   .chat-sidebar,
-  .chat-panel{
-    height:auto !important;
-    min-height:auto !important;
-    max-height:none !important;
-    overflow:visible !important;
+  .chat-panel {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border-radius: 20px !important;
   }
 
-  .chat-users{
-    max-height:none !important;
-    overflow-x:auto !important;
-    overflow-y:hidden !important;
+  .chat-sidebar {
+    order: 1 !important;
   }
 
-  .chat-messages,
-  #chatMessages{
-    height:auto !important;
-    min-height:360px !important;
-    max-height:none !important;
-    overflow:visible !important;
+  .chat-panel {
+    order: 2 !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
-  .chat-form,
-  #chatForm{
-    position:relative !important;
-    bottom:auto !important;
+  .chat-sidebar-head,
+  .chat-header {
+    padding: 12px 14px !important;
+    flex-shrink: 0 !important;
   }
 
-  .profiles-list{
-    grid-template-columns:repeat(2, 1fr) !important;
-    gap:10px !important;
+  .chat-sidebar-head h1,
+  .chat-sidebar-head h2,
+  .chat-sidebar-head h3,
+  .chat-header h1,
+  .chat-header h2,
+  .chat-header h3 {
+    font-size: 1rem !important;
+    line-height: 1.25 !important;
   }
 
-  .profile-item{
-    height:auto !important;
-    overflow:visible !important;
+  /* Profils du chat bien visibles */
+  #chatUsers,
+  .chat-users {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding: 12px !important;
+    overflow: visible !important;
   }
 
-  .profile-item .avatar-img{
-    height:150px !important;
-    object-fit:cover !important;
+  #chatUsers > *,
+  .chat-user {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 76px !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    text-align: left !important;
+    border-radius: 16px !important;
+    background: rgba(255,255,255,.075) !important;
+    border: 1px solid rgba(212,175,55,.28) !important;
+    color: var(--text) !important;
+    overflow: visible !important;
   }
 
-  .profile-info{
-    height:auto !important;
-    overflow:visible !important;
+  #chatUsers > *.active,
+  .chat-user.active {
+    background: rgba(212,175,55,.18) !important;
+    border-color: rgba(212,175,55,.65) !important;
+  }
+
+  #chatUsers img,
+  .chat-avatar,
+  .chat-user img {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+    min-height: 64px !important;
+    max-height: 64px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    display: block !important;
+    border: 2px solid rgba(212,175,55,.55) !important;
+  }
+
+  #chatUsers h3,
+  #chatUsers strong,
+  #chatUsers .name,
+  #chatUsers .user-name,
+  .chat-user h3,
+  .chat-user strong,
+  .chat-user .name,
+  .chat-user .user-name {
+    display: block !important;
+    font-size: 1rem !important;
+    line-height: 1.2 !important;
+    color: #fff3b0 !important;
+    font-weight: 800 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+  }
+
+  #chatUsers p,
+  #chatUsers small,
+  #chatUsers span,
+  .chat-user p,
+  .chat-user small,
+  .chat-user span {
+    font-size: .82rem !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+  }
+
+  /* Messages : pas de blocage, la page scrolle */
+  #chatMessages,
+  .chat-messages {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 360px !important;
+    max-height: none !important;
+    flex: none !important;
+    overflow: visible !important;
+    padding: 14px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .chat-message,
+  .msg {
+    max-width: 88% !important;
+    width: fit-content !important;
+    margin-bottom: 0 !important;
+    padding: 11px 14px !important;
+    font-size: .95rem !important;
+    line-height: 1.4 !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .chat-message.me,
+  .msg.me {
+    margin-left: auto !important;
+  }
+
+  /* Zone écrire : input visible + bouton correct */
+  #chatForm,
+  .chat-form {
+    width: 100% !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 10px !important;
+    background: rgba(7,11,26,.98) !important;
+    border-top: 1px solid rgba(212,175,55,.18) !important;
+  }
+
+  #chatInput,
+  .chat-form input,
+  input#chatInput {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    padding: 0 14px !important;
+    border-radius: 999px !important;
+    font-size: 16px !important;
+  }
+
+  .chat-send-btn,
+  #chatForm button,
+  .chat-form button {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 96px !important;
+    max-width: 120px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    padding: 0 14px !important;
+    border-radius: 999px !important;
+    font-size: 15px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Profils hors chat : visibles et lisibles */
+  .profiles-list {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .profile-item {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 10px !important;
+  }
+
+  .profile-item .avatar-img {
+    width: 100% !important;
+    height: 150px !important;
+    object-fit: cover !important;
+  }
+
+  .profile-info,
+  .profile-item .profile-info {
+    height: auto !important;
+    overflow: visible !important;
   }
 
   .profile-info h3,
-  .profile-info p{
-    white-space:normal !important;
-    overflow:visible !important;
-    text-overflow:unset !important;
+  .profile-info p {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
   }
 
-  .mobile-nav{
-    position:fixed !important;
-    bottom:0 !important;
-  }
-}
-
-@media (max-width: 420px){
-
-  .profiles-list{
-    grid-template-columns:1fr 1fr !important;
-  }
-
-  .profile-item{
-    padding:8px !important;
-  }
-
-  .profile-item .avatar-img{
-    height:135px !important;
-  }
-
-  .profile-info h3{
-    font-size:.85rem !important;
-  }
-
-  .profile-info p{
-    font-size:.72rem !important;
-  }
-
-  .profile-item .btn{
-    font-size:.7rem !important;
-    min-height:34px !important;
+  /* Barre mobile toujours en bas */
+  .mobile-nav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    height: 82px !important;
+    z-index: 99999 !important;
   }
 }
 
-/* =========================================================
-   FIX MOBILE — PROFILS CHAT PLUS VISIBLES
-========================================================= */
-
-@media (max-width: 900px){
-
-  .chat-sidebar{
-    max-height:none !important;
-    height:auto !important;
-    overflow:visible !important;
+@media screen and (max-width: 420px) {
+  .chat-send-btn,
+  #chatForm button,
+  .chat-form button {
+    min-width: 82px !important;
+    max-width: 96px !important;
+    font-size: 14px !important;
+    padding: 0 10px !important;
   }
 
-  .chat-users{
-    display:flex !important;
-    flex-direction:column !important;
-    gap:10px !important;
-    overflow:visible !important;
-    height:auto !important;
-    max-height:none !important;
+  #chatUsers img,
+  .chat-avatar,
+  .chat-user img {
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+    max-width: 58px !important;
   }
 
-  .chat-user{
-    width:100% !important;
-    min-width:100% !important;
-    max-width:100% !important;
-
-    display:flex !important;
-    flex-direction:row !important;
-    align-items:center !important;
-
-    gap:12px !important;
-    padding:12px !important;
-
-    background:rgba(255,255,255,.07) !important;
-    border:1px solid rgba(212,175,55,.18) !important;
-  }
-
-  .chat-avatar{
-    width:62px !important;
-    height:62px !important;
-    min-width:62px !important;
-
-    border-radius:50% !important;
-    object-fit:cover !important;
-  }
-
-  .chat-user h3,
-  .chat-user strong,
-  .chat-user .name{
-    font-size:1rem !important;
-    color:#fff3b0 !important;
-  }
-
-  .chat-user p,
-  .chat-user small,
-  .chat-user span{
-    font-size:.82rem !important;
-    white-space:normal !important;
-  }
-
-  .chat-user.active{
-    background:rgba(212,175,55,.16) !important;
-    border-color:rgba(212,175,55,.45) !important;
+  .profile-item .avatar-img {
+    height: 135px !important;
   }
 }
