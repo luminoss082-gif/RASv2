@@ -63,22 +63,26 @@ async function loadChatUsers() {
     const div = document.createElement("div");
     div.className = "chat-user";
 
-    div.innerHTML = `
+div.innerHTML = `
+  <img
     src="${
-  profile.avatar_url
-    ? profile.avatar_url.startsWith("http")
-      ? profile.avatar_url
-      : supabaseClient.storage
-          .from("avatars")
-          .getPublicUrl(profile.avatar_url).data.publicUrl
-    : "default-avatar.png"
-}"
+      profile.avatar_url
+        ? profile.avatar_url.startsWith("http")
+          ? profile.avatar_url
+          : supabaseClient.storage
+              .from("avatars")
+              .getPublicUrl(profile.avatar_url).data.publicUrl
+        : "default-avatar.png"
+    }"
+    class="chat-avatar"
+    onerror="this.src='default-avatar.png'"
+  >
 
-      <div class="chat-user-info">
-        <strong>${profile.pseudo || "Utilisateur"}</strong>
-        <small>${profile.city || ""}</small>
-      </div>
-    `;
+  <div class="chat-user-info">
+    <strong>${profile.pseudo || "Utilisateur"}</strong>
+    <small>${profile.city || ""}</small>
+  </div>
+`;
 
     div.onclick = async () => {
       currentChatUserId = profile.id;
