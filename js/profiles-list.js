@@ -5,6 +5,7 @@
 import { supabaseClient } from "./config.js";
 import { state, setCurrentUserId, setProfilesCache } from "./core.js";
 import { loadFavorites, toggleFavorite } from "./favorites.js";
+import { createNotification } from "./notifications.js";
 
 /* =========================
    HELPERS
@@ -151,12 +152,6 @@ export async function loadProfiles() {
 
   state.allProfilesCache = visibleProfiles;
   setProfilesCache(visibleProfiles);
-
-console.log("PROFILS SUPABASE:", profiles);
-console.log("PROFILS VISIBLES:", visibleProfiles);
-console.log("CURRENT USER:", state.currentUserId);
-console.log("FAVORITES:", state.favoritesSet);
-console.log("BLOCKS:", blockedIds);
 
   renderMyProfile();
   renderProfiles();
@@ -465,6 +460,19 @@ export function renderProfiles() {
         alert(error.message);
         return;
       }
+
+      const currentUser = state.allProfilesCache.find(
+        (u) => u.id === state.currentUserId
+      );
+
+      const requesterName = currentUser?.pseudo || "Un utilisateur";
+
+      await createNotification(
+        p.id,
+        "chat_request",
+        `${requesterName} souhaite discuter avec vous.`,
+        "notifications.html"
+      );
 
       alert("Demande envoyée !");
     });
