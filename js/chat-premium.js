@@ -24,6 +24,21 @@ export async function initChat() {
   subscribeRealtimeMessages();
 }
 
+function getAvatarUrl(avatarPath) {
+  if (!avatarPath) return "default-avatar.png";
+
+  if (avatarPath.startsWith("http")) {
+    return avatarPath;
+  }
+
+  const cleanPath = avatarPath.replace(/^\/+/, "");
+
+  return supabaseClient.storage
+    .from("avatars")
+    .getPublicUrl(cleanPath)
+    .data.publicUrl;
+}
+
 async function loadChatUsers() {
   const chatUsers = document.getElementById("chatUsers");
 
@@ -65,15 +80,7 @@ async function loadChatUsers() {
 
 div.innerHTML = `
   <img
-    src="${
-      profile.avatar_url
-        ? profile.avatar_url.startsWith("http")
-          ? profile.avatar_url
-          : supabaseClient.storage
-              .from("avatars")
-              .getPublicUrl(profile.avatar_url).data.publicUrl
-        : "default-avatar.png"
-    }"
+    src="${getAvatarUrl(profile.avatar_url)}"
     class="chat-avatar"
     onerror="this.src='default-avatar.png'"
   >
