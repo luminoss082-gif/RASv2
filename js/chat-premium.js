@@ -40,43 +40,132 @@ function getAvatarUrl(avatarPath) {
 }
 
 async function loadChatUsers() {
-  const chatUsers = document.getElementById("chatUsers");
+
+  const chatUsers =
+    document.getElementById("chatUsers");
 
   if (!chatUsers) return;
 
-  const { data: access, error } = await supabaseClient
-   .from("chat_access")
-.select("*")
-.or(`
-  user_1.eq.${state.currentUserId},
-  user_2.eq.${state.currentUserId}
-`);
+  const { data: access, error } =
+    await supabaseClient
+      .from("chat_access")
+      .select("*")
+      .or(`
+        user_1.eq.${state.currentUserId},
+        user_2.eq.${state.currentUserId}
+      `);
 
   if (error) {
-    chatUsers.innerHTML = `<p>${error.message}</p>`;
+
+    chatUsers.innerHTML =
+      `<p>${error.message}</p>`;
+
     return;
   }
 
   chatUsers.innerHTML = "";
 
-for (const row of access || []) {
+  if (!access || access.length === 0) {
 
-  const otherUserId =
-    row.user_1 === state.currentUserId
-      ? row.user_2
-      : row.user_1;
+    chatUsers.innerHTML = `
+      <div class="chat-empty">
 
-  const { data: profile } =
-    await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id", otherUserId)
-      .maybeSingle();
+        <div>
+          <strong>
+            Aucun chat débloqué
+          </strong>
 
-  if (!profile) continue;
+          <span>
+            Vous devez avoir un match validé.
+          </span>
+        </div>
+
+      </div>
+    `;
+
+    return;
+  }
+
+  for (const row of access) {
+
+    const otherUserId =
+      row.user_1 === state.currentUserId
+        ? row.user_2
+        : row.user_1;
+
+    const { data: profile } =
+      await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", otherUserId)
+        .maybeSingle();
+
+    if (!profile) continue;
+
+    const div =
+      document.createElement("div");
+
+    div.className = "chat-user";
+
+    div.innerHTML = `
+
+      <img
+        src="${getAvatarUrl(profile.avatar_url)}"
+        class="chat-avatar"
+        onerror="this.src='default-avatar.png'"
+      >
+
+      <div class="chat-user-info">
+
+        <strong>
+          ${profile.pseudo || "Utilisateur"}
+        </strong>
+
+        <small>
+          ${profile.city || ""}
+        </small>
+
+      </div>
+    `;
+
+    div.onclick = async () => {
+
+      currentChatUserId = profile.id;
+
+      document
+        .querySelectorAll(".chat-user")
+        .forEach((u) => {
+          u.classList.remove("active");
+        });
+
+      div.classList.add("active");
+
+      const chatHeader =
+        document.getElementById("chatHeader");
+
+      if (chatHeader) {
+
+        chatHeader.innerHTML = `
+          <h2>
+            ${profile.pseudo || "Conversation"}
+          </h2>
+
+          <p>
+            Chat débloqué ❤️
+          </p>
+        `;
+      }
+
+      await loadMessages(profile.id);
+
+    };
+
+    chatUsers.appendChild(div);
+
   }
 
 }
+
 async function loadMessages(otherUserId) {
   const chatMessages = document.getElementById("chatMessages");
   if (!chatMessages) return;
