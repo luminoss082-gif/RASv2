@@ -50,10 +50,7 @@ async function loadChatUsers() {
     await supabaseClient
       .from("chat_access")
       .select("*")
-      .or(`
-        user_1.eq.${state.currentUserId},
-        user_2.eq.${state.currentUserId}
-      `);
+  .or(`user_1.eq.${state.currentUserId},user_2.eq.${state.currentUserId}`)
 
   if (error) {
 
@@ -173,9 +170,7 @@ async function loadMessages(otherUserId) {
   const { data: messages, error } = await supabaseClient
     .from("messages")
     .select("*")
-    .or(
-      `and(sender_id.eq.${state.currentUserId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${state.currentUserId})`
-    )
+ .or(`and(user_1.eq.${state.currentUserId},user_2.eq.${currentChatUserId}),and(user_1.eq.${currentChatUserId},user_2.eq.${state.currentUserId})`)
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -243,10 +238,7 @@ function initChatForm() {
 const { data: allowed } = await supabaseClient
   .from("chat_access")
   .select("id")
-  .or(`
-    and(user_1.eq.${state.currentUserId},user_2.eq.${currentChatUserId}),
-    and(user_1.eq.${currentChatUserId},user_2.eq.${state.currentUserId})
-  `)
+.or(`and(user_1.eq.${state.currentUserId},user_2.eq.${currentChatUserId}),and(user_1.eq.${currentChatUserId},user_2.eq.${state.currentUserId})`)
   .maybeSingle();
 
     if (!allowed) {
