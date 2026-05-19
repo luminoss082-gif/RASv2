@@ -285,7 +285,7 @@ async function loadChatRequests() {
   if (!box) return;
 
   const { data, error } = await supabaseClient
-    .from("chat_requests")
+    .from("likes")
     .select(`
       id,
       status,
@@ -361,7 +361,7 @@ async function loadChatRequests() {
       const request = data.find(r => r.id === requestId);
 
       await supabaseClient
-        .from("chat_requests")
+     .from("likes")
         .update({ status: "accepted" })
         .eq("id", requestId);
 
@@ -382,7 +382,7 @@ async function loadChatRequests() {
       const request = data.find(r => r.id === requestId);
 
       await supabaseClient
-        .from("chat_requests")
+        .from("likes")
         .update({ status: "refused" })
         .eq("id", requestId);
 
@@ -403,7 +403,7 @@ async function loadChatRequests() {
       const targetId = btn.dataset.target;
 
       await supabaseClient
-        .from("chat_requests")
+        .from("likes")
         .update({
           status: "paid",
           payment_note: "PayPal manuel confirmé"
@@ -445,7 +445,7 @@ async function loadChatRequests() {
       }
 
       await supabaseClient
-        .from("chat_requests")
+        .from("likes")
         .update({ status: "unlocked" })
         .eq("id", requestId);
 
@@ -633,3 +633,125 @@ exportUsersCsvBtn?.addEventListener("click", async () => {
 
   URL.revokeObjectURL(url);
 });
+
+async function loadMatches() {
+
+  const { data: likes, error } =
+    await supabaseClient
+      .from("likes")
+      .select("*");
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const matches = [];
+
+  likes.forEach((like) => {
+
+    const reverse = likes.find(
+      (l) =>
+        l.liker_id === like.liked_id &&
+        l.liked_id === like.liker_id
+    );
+
+    if (reverse) {
+
+      const alreadyExists = matches.find(
+        (m) =>
+          (m.user1 === like.liker_id &&
+            m.user2 === like.liked_id) ||
+
+          (m.user1 === like.liked_id &&
+            m.user2 === like.liker_id)
+      );
+
+      if (!alreadyExists) {
+
+        matches.push({
+          user1: like.liker_id,
+          user2: like.liked_id
+        });
+
+      }
+    }
+
+  });
+
+  renderMatches(matches);
+}
+
+function renderMatches(matches) {
+
+  const matchesList =
+    document.getElementById("matchesList");
+
+  if (!matchesList) return;
+
+  matchesList.innerHTML = "";
+
+  matches.forEach((match) => {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "admin-match-card";
+
+    div.innerHTML = `
+
+      <div class="admin-match-content">
+
+        <p>
+          ❤️ Match trouvé
+        </p>
+
+        <small>
+          ${match.user1}
+          ↔
+          ${match.user2}
+        </small>
+
+        <button
+          class="btn success unlock-chat-btn"
+          data-user1="${match.user1}"
+          data-user2="${match.user2}"
+        >
+          🔓 Débloquer le chat
+        </button>
+
+      </div>
+    `;
+
+    const unlockBtn =
+      div.querySelector(".unlock-chat-btn");
+
+    unlockBtn?.addEventListener(
+      "click",
+      async () => {
+
+        const { error } =
+          await supabaseClient
+            .from("chat_access")
+            .insert({
+              user_1: match.user1,
+              user_2: match.user2,
+              active: true
+            });
+
+        if (error) {
+          alert(error.message);
+          return;
+        }
+
+        alert("Chat débloqué ❤️");
+
+      }
+    );
+
+    matchesList.appendChild(div);
+
+  });
+
+}
+loadMatches();
