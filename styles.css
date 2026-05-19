@@ -2276,31 +2276,35 @@ body {
   opacity:.8;
 }
 
-.admin-match-users{
+#matchesList,
+#activeChatsList{
+  display:grid;
+  gap:14px;
+}
 
+.admin-match-card-inner{
+  padding:18px;
+  border-radius:22px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(212,175,55,.22);
+}
+
+.admin-match-users{
   display:flex;
-  align-items:center;
   justify-content:center;
   gap:12px;
-
-  padding:14px;
-
-  border-radius:16px;
-
-  background:
-    rgba(255,255,255,.05);
-
-  margin-bottom:16px;
+  padding:12px;
+  margin:14px 0;
+  border-radius:14px;
+  background:rgba(255,255,255,.06);
 }
 
 .match-user{
-  font-weight:800;
   color:#fff3b0;
-  font-size:1rem;
+  font-weight:800;
 }
 
 .match-vs{
   color:#d4af37;
   font-weight:900;
-  font-size:1.1rem;
 }
