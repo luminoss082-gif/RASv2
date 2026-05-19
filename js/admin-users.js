@@ -634,51 +634,119 @@ exportUsersCsvBtn?.addEventListener("click", async () => {
 });
 
 async function loadMatches() {
-
-  const { data: likes, error } =
-    await supabaseClient
-      .from("likes")
-      .select("*");
+  const { data: likes, error } = await supabaseClient
+    .from("likes")
+    .select("*");
 
   if (error) {
     console.error(error);
     return;
   }
 
+  const { data: chatAccess } = await supabaseClient
+    .from("chat_access")
+    .select("*");
+
   const matches = [];
+  const activeChats = [];
 
   likes.forEach((like) => {
-
     const reverse = likes.find(
       (l) =>
         l.liker_id === like.liked_id &&
         l.liked_id === like.liker_id
     );
 
-    if (reverse) {
+    if (!reverse) return;
 
-      const alreadyExists = matches.find(
+    const alreadyAdded =
+      matches.some(
         (m) =>
-          (m.user1 === like.liker_id &&
-            m.user2 === like.liked_id) ||
-
-          (m.user1 === like.liked_id &&
-            m.user2 === like.liker_id)
+          (m.user1 === like.liker_id && m.user2 === like.liked_id) ||
+          (m.user1 === like.liked_id && m.user2 === like.liker_id)
+      ) ||
+      activeChats.some(
+        (m) =>
+          (m.user1 === like.liker_id && m.user2 === like.liked_id) ||
+          (m.user1 === like.liked_id && m.user2 === like.liker_id)
       );
 
-      if (!alreadyExists) {
+    if (alreadyAdded) return;
 
-        matches.push({
-          user1: like.liker_id,
-          user2: like.liked_id
-        });
+    const isUnlocked = (chatAccess || []).some(
+      (c) =>
+        (c.user_1 === like.liker_id && c.user_2 === like.liked_id) ||
+        (c.user_1 === like.liked_id && c.user_2 === like.liker_id)
+    );
 
-      }
+    const match = {
+      user1: like.liker_id,
+      user2: like.liked_id
+    };
+
+    if (isUnlocked) {
+      activeChats.push(match);
+    } else {
+      matches.push(match);
     }
-
   });
 
   renderMatches(matches);
+  renderActiveChats(activeChats);
+  await loadMatches();
+  alert("Chat débloqué ❤️");
+}
+
+async function renderActiveChats(activeChats) {
+  const activeChatsList = document.getElementById("activeChatsList");
+  if (!activeChatsList) return;
+
+  activeChatsList.innerHTML = "";
+
+  if (activeChats.length === 0) {
+    activeChatsList.innerHTML = `<p>Aucune conversation active.</p>`;
+    return;
+  }
+
+  for (const chat of activeChats) {
+    const { data: user1 } = await supabaseClient
+      .from("profiles")
+      .select("pseudo")
+      .eq("id", chat.user1)
+      .maybeSingle();
+
+    const { data: user2 } = await supabaseClient
+      .from("profiles")
+      .select("pseudo")
+      .eq("id", chat.user2)
+      .maybeSingle();
+
+    const pseudo1 = user1?.pseudo || "Utilisateur";
+    const pseudo2 = user2?.pseudo || "Utilisateur";
+
+    const div = document.createElement("div");
+    div.className = "admin-match-card";
+
+    div.innerHTML = `
+      <div class="admin-match-card-inner">
+        <div class="admin-match-title">
+          <span class="match-icon">💬</span>
+          <div>
+            <h3>Conversation active</h3>
+            <p>Chat déjà débloqué</p>
+          </div>
+        </div>
+
+        <div class="admin-match-users">
+          <span class="match-user">${pseudo1}</span>
+          <span class="match-vs">↔</span>
+          <span class="match-user">${pseudo2}</span>
+        </div>
+      </div>
+    `;
+
+    activeChatsList.appendChild(div);
+  }
 }
 
 async function renderMatches(matches) {
