@@ -693,8 +693,10 @@ async function loadMatches() {
 
   renderMatches(matches);
   renderActiveChats(activeChats);
-  await loadMatches();
   alert("Chat débloqué ❤️");
+  setTimeout(() => {
+  location.reload();
+}, 500);
 }
 
 async function renderActiveChats(activeChats) {
