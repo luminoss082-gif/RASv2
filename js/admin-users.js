@@ -636,32 +636,30 @@ async function renderMatches(matches) {
   </div>
 `;
 
-    const unlockBtn =
-      div.querySelector(".unlock-chat-btn");
+   unlockBtn?.addEventListener("click", async () => {
 
-    unlockBtn?.addEventListener(
-      "click",
-      async () => {
+  const confirmUnlock = confirm(
+    `Débloquer le chat entre ${pseudo1} et ${pseudo2} ?`
+  );
 
-        const { error } =
-          await supabaseClient
-      .insert({
-  user_1: match.user1,
-  user_2: match.user2
+  if (!confirmUnlock) return;
+
+  const { error } = await supabaseClient
+    .from("chat_access")
+    .insert({
+      user_1: match.user1,
+      user_2: match.user2
+    });
+
+  if (error && error.code !== "23505") {
+    alert(error.message);
+    return;
+  }
+
+  alert(`Chat débloqué entre ${pseudo1} et ${pseudo2} ❤️`);
+
+  await loadMatches();
 });
-
-        if (error) {
-          alert(error.message);
-          return;
-        }
-
-        alert(
-          `Chat débloqué entre ${pseudo1} et ${pseudo2} ❤️`
-        );
-
-      }
-    );
-
     matchesList.appendChild(div);
 
   }
