@@ -848,4 +848,3 @@ async function renderMatches(matches) {
   }
 
 }
-loadMatches();
