@@ -523,8 +523,39 @@ export function renderProfiles() {
       if (!confirmPaid) return;
 
    const currentPseudo =
-  state.currentProfile?.pseudo ||
-  "Quelqu’un";
+  state.allProfilesCache.find((p) => p.id === state.currentUserId)?.pseudo || "Utilisateur";
+ const { data: myProfile } = await supabaseClient
+  .from("profiles")
+  .select("pseudo")
+  .eq("id", state.currentUserId)
+  .maybeSingle();
+
+const currentPseudo =
+  myProfile?.pseudo || "Utilisateur";
+
+const targetPseudo =
+  profile.pseudo || "Profil";
+
+const message = encodeURIComponent(
+`✨ LOVE CONNECT — Déblocage Chat ✨
+
+Bonjour 👋
+
+Un nouveau match souhaite débloquer une conversation ❤️
+
+━━━━━━━━━━━━━━
+
+💌 ${currentPseudo}
+souhaite discuter avec
+💌 ${targetPseudo}
+
+━━━━━━━━━━━━━━
+
+Le paiement vient d’être effectué.
+
+Merci de débloquer leur accès au chat 🔓`
+);
+
 
 const targetPseudo =
   profile.pseudo || "Profil";
@@ -633,7 +664,7 @@ export function initProfilesList() {
 
   const clearFiltersBtn = document.getElementById("clearFiltersBtn");
 
-  clearFiltersBtn?.addEventListener("click", () => {
+ .addEventListener("click", async () => {
     const searchInput = document.getElementById("searchInput");
     const cityFilter = document.getElementById("cityFilter");
     const genderFilter = document.getElementById("genderFilter");
