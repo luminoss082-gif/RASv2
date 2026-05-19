@@ -12,7 +12,6 @@ export async function initAdminUsers() {
   await loadReports();
   await loadChatRequests();
   await loadManualPayments();
-  loadMatches();
 }
 
 let adminUsersCache = [];
@@ -754,3 +753,4 @@ function renderMatches(matches) {
   });
 
 }
+loadMatches();
