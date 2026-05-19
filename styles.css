@@ -2148,3 +2148,64 @@ body {
   border:2px solid #d4af37;
   background:rgba(212,175,55,.12);
 }
+
+.admin-match-card{
+  margin:12px 0;
+}
+
+.admin-match-card-inner{
+  padding:16px;
+  border-radius:18px;
+  background:linear-gradient(145deg, rgba(26,16,61,.96), rgba(7,11,26,.98));
+  border:1px solid rgba(212,175,55,.25);
+  box-shadow:0 10px 30px rgba(0,0,0,.28);
+}
+
+.admin-match-title{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
+}
+
+.match-icon{
+  width:44px;
+  height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:rgba(212,175,55,.15);
+  font-size:1.4rem;
+}
+
+.admin-match-title h3{
+  margin:0;
+  color:#fff3b0;
+}
+
+.admin-match-title p{
+  margin:2px 0 0;
+  font-size:.85rem;
+}
+
+.admin-match-users{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:12px;
+  margin-bottom:14px;
+  border-radius:14px;
+  background:rgba(255,255,255,.06);
+}
+
+.match-user{
+  font-weight:800;
+  color:#fff3b0;
+}
+
+.match-vs{
+  color:#d4af37;
+  font-weight:900;
+}

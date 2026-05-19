@@ -720,28 +720,32 @@ async function renderMatches(matches) {
 
     div.innerHTML = `
 
-      <div class="admin-match-content">
+  <div class="admin-match-card-inner">
 
-        <p>
-          ❤️ Match trouvé
-        </p>
-
-        <small>
-          ${pseudo1}
-          ❤️
-          ${pseudo2}
-        </small>
-
-        <button
-          class="btn success unlock-chat-btn"
-          data-user1="${match.user1}"
-          data-user2="${match.user2}"
-        >
-          🔓 Débloquer le chat
-        </button>
-
+    <div class="admin-match-title">
+      <span class="match-icon">❤️</span>
+      <div>
+        <h3>Match trouvé</h3>
+        <p>Conversation prête à débloquer</p>
       </div>
-    `;
+    </div>
+
+    <div class="admin-match-users">
+      <span class="match-user">${pseudo1}</span>
+      <span class="match-vs">↔</span>
+      <span class="match-user">${pseudo2}</span>
+    </div>
+
+    <button
+      class="btn success unlock-chat-btn"
+      data-user1="${match.user1}"
+      data-user2="${match.user2}"
+    >
+      🔓 Débloquer le chat
+    </button>
+
+  </div>
+`;
 
     const unlockBtn =
       div.querySelector(".unlock-chat-btn");
