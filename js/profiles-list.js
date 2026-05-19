@@ -252,6 +252,89 @@ export function renderMyProfile() {
 }
 
 /* =========================
+   Like + Match
+========================= */
+const likeBtn = div.querySelector("[data-like-user]");
+
+likeBtn?.addEventListener("click", async (e) => {
+  e.stopPropagation();
+
+  if (!state.currentUserId) {
+    alert("Connectez-vous.");
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("likes")
+    .insert({
+      liker_id: state.currentUserId,
+      liked_id: p.id
+    });
+
+  if (error && error.code !== "23505") {
+    alert(error.message);
+    return;
+  }
+
+  const { data: reverseLike } = await supabaseClient
+    .from("likes")
+    .select("id")
+    .eq("liker_id", p.id)
+    .eq("liked_id", state.currentUserId)
+    .maybeSingle();
+
+  if (reverseLike) {
+    showMatchBox(p);
+  } else {
+    alert("Like envoyé ❤️");
+  }
+});
+
+/* =========================
+   MATCH BOX
+========================= */
+function showMatchBox(profile) {
+  const matchBox = document.getElementById("matchBox");
+  if (!matchBox) return;
+
+  matchBox.classList.remove("hidden");
+
+  matchBox.innerHTML = `
+    <div class="card match-card">
+      <h2>🎉 Match avec ${profile.pseudo || "ce profil"} !</h2>
+      <p>Vous vous êtes likés tous les deux.</p>
+      <p>Pour débloquer le chat, effectuez le paiement.</p>
+
+      <button class="btn success" id="payMatchBtn" type="button">
+        Payer et débloquer le chat
+      </button>
+    </div>
+  `;
+
+  document.getElementById("payMatchBtn")?.addEventListener("click", () => {
+    window.open("https://paypal.me/jeffreygadal1/5.00", "_blank");
+
+    const message = encodeURIComponent(
+      `Bonjour,
+
+J'ai payé pour débloquer le chat avec :
+${profile.pseudo || "ce profil"}
+
+Mon ID utilisateur :
+${state.currentUserId}
+
+ID du profil :
+${profile.id}
+
+Merci de débloquer le chat.`
+    );
+
+    setTimeout(() => {
+      window.location.href = `https://wa.me/33676615490?text=${message}`;
+    }, 1200);
+  });
+}
+/* =========================
    RENDER PROFILS
 ========================= */
 
@@ -358,31 +441,10 @@ export function renderProfiles() {
         ${
           !isMe
             ? `
-              <button
-                class="btn primary"
-                type="button"
-                data-request-chat="${p.id}"
-              >
-                Demander à discuter
-              </button>
 
-              <button
-                class="btn success"
-                type="button"
-                data-pay-chat="${p.id}"
-              >
-                Payer
-              </button>
-
-              <button
-                class="btn ghost hidden-whatsapp-btn"
-                type="button"
-                data-whatsapp-pay="${p.id}"
-                style="display:none;"
-              >
-                J’ai payé — contacter admin
-              </button>
-
+      <button class="btn primary" type="button" data-like-user="${p.id}">
+  ❤️ Like
+</button>
               <button
                 class="btn ghost"
                 type="button"
@@ -433,50 +495,7 @@ export function renderProfiles() {
       await loadProfiles();
     });
 
-    const requestChatBtn = div.querySelector("[data-request-chat]");
-
-    requestChatBtn?.addEventListener("click", async (e) => {
-      e.stopPropagation();
-
-      if (!state.currentUserId) {
-        alert("Connectez-vous.");
-        return;
-      }
-
-      const { error } = await supabaseClient
-        .from("chat_requests")
-        .insert({
-          requester_id: state.currentUserId,
-          target_id: p.id,
-          status: "pending"
-        });
-
-      if (error) {
-        if (error.code === "23505") {
-          alert("Demande déjà envoyée.");
-          return;
-        }
-
-        alert(error.message);
-        return;
-      }
-
-      const currentUser = state.allProfilesCache.find(
-        (u) => u.id === state.currentUserId
-      );
-
-      const requesterName = currentUser?.pseudo || "Un utilisateur";
-
-      await createNotification(
-        p.id,
-        "chat_request",
-        `${requesterName} souhaite discuter avec vous.`,
-        "notifications.html"
-      );
-
-      alert("Demande envoyée !");
-    });
-
+    
     const payChatBtn = div.querySelector("[data-pay-chat]");
     const whatsappPayBtn = div.querySelector("[data-whatsapp-pay]");
 
@@ -503,26 +522,24 @@ export function renderProfiles() {
 
       if (!confirmPaid) return;
 
-      const currentUser = state.allProfilesCache.find(
-        (u) => u.id === state.currentUserId
-      );
+      const currentPseudo =
+  state.currentProfile?.pseudo ||
+  "Utilisateur";
 
-      const requesterName = currentUser?.pseudo || "Utilisateur";
+const targetPseudo =
+  profile.pseudo || "Profil";
 
-      const message = encodeURIComponent(
-        `Bonjour,
+const message = encodeURIComponent(
+`Bonjour 👋
 
-J'ai payé pour débloquer le chat avec :
-${p.pseudo || "ce profil"}
+Je viens de payer pour débloquer le chat ❤️
 
-Nom utilisateur :
-${requesterName}
+${currentPseudo}
+veut parler avec
+${targetPseudo}
 
-ID utilisateur :
-${state.currentUserId}
-
-Merci !`
-      );
+Merci de débloquer leur conversation.`
+);
 
       window.location.href = `https://wa.me/33676615490?text=${message}`;
     });
