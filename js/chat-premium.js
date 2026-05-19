@@ -170,9 +170,9 @@ async function loadMessages(otherUserId) {
   const { data: messages, error } = await supabaseClient
     .from("messages")
     .select("*")
- .or(`and(user_1.eq.${state.currentUserId},user_2.eq.${currentChatUserId}),and(user_1.eq.${currentChatUserId},user_2.eq.${state.currentUserId})`)
-    .order("created_at", { ascending: true });
-
+.or(
+  `and(sender_id.eq.${state.currentUserId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${state.currentUserId})`
+)
   if (error) {
     chatMessages.innerHTML = `<p>${error.message}</p>`;
     return;
