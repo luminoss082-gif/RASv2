@@ -522,23 +522,31 @@ export function renderProfiles() {
 
       if (!confirmPaid) return;
 
-      const currentPseudo =
+   const currentPseudo =
   state.currentProfile?.pseudo ||
-  "Utilisateur";
+  "Quelqu’un";
 
 const targetPseudo =
   profile.pseudo || "Profil";
 
 const message = encodeURIComponent(
-`Bonjour 👋
+`✨ LOVE CONNECT — Déblocage Chat ✨
 
-Je viens de payer pour débloquer le chat ❤️
+Bonjour 👋
 
-${currentPseudo}
-veut parler avec
-${targetPseudo}
+Un nouveau match souhaite débloquer une conversation ❤️
 
-Merci de débloquer leur conversation.`
+━━━━━━━━━━━━━━
+
+💌 ${currentPseudo}
+souhaite discuter avec
+💌 ${targetPseudo}
+
+━━━━━━━━━━━━━━
+
+Le paiement vient d’être effectué.
+
+Merci de débloquer leur accès au chat 🔓`
 );
 
       window.location.href = `https://wa.me/33676615490?text=${message}`;
