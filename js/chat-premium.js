@@ -76,7 +76,7 @@ for (const row of access || []) {
   if (!profile) continue;
   }
 
-
+}
 async function loadMessages(otherUserId) {
   const chatMessages = document.getElementById("chatMessages");
   if (!chatMessages) return;
