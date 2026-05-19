@@ -681,7 +681,7 @@ async function loadMatches() {
   renderMatches(matches);
 }
 
-function renderMatches(matches) {
+async function renderMatches(matches) {
 
   const matchesList =
     document.getElementById("matchesList");
@@ -690,12 +690,33 @@ function renderMatches(matches) {
 
   matchesList.innerHTML = "";
 
-  matches.forEach((match) => {
+  for (const match of matches) {
+
+    const { data: user1 } =
+      await supabaseClient
+        .from("profiles")
+        .select("pseudo")
+        .eq("id", match.user1)
+        .maybeSingle();
+
+    const { data: user2 } =
+      await supabaseClient
+        .from("profiles")
+        .select("pseudo")
+        .eq("id", match.user2)
+        .maybeSingle();
+
+    const pseudo1 =
+      user1?.pseudo || "Utilisateur";
+
+    const pseudo2 =
+      user2?.pseudo || "Utilisateur";
 
     const div =
       document.createElement("div");
 
-    div.className = "admin-match-card";
+    div.className =
+      "admin-match-card";
 
     div.innerHTML = `
 
@@ -706,9 +727,9 @@ function renderMatches(matches) {
         </p>
 
         <small>
-          ${match.user1}
-          ↔
-          ${match.user2}
+          ${pseudo1}
+          ❤️
+          ${pseudo2}
         </small>
 
         <button
@@ -743,14 +764,16 @@ function renderMatches(matches) {
           return;
         }
 
-        alert("Chat débloqué ❤️");
+        alert(
+          `Chat débloqué entre ${pseudo1} et ${pseudo2} ❤️`
+        );
 
       }
     );
 
     matchesList.appendChild(div);
 
-  });
+  }
 
 }
 loadMatches();
