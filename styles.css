@@ -2209,3 +2209,98 @@ body {
   color:#d4af37;
   font-weight:900;
 }
+/* =========================
+   ADMIN MATCHES
+========================= */
+
+.admin-section{
+  margin-top:24px;
+}
+
+.admin-match-card{
+  margin:14px 0;
+}
+
+.admin-match-card-inner{
+
+  padding:18px;
+
+  border-radius:22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(26,16,61,.96),
+      rgba(7,11,26,.98)
+    );
+
+  border:
+    1px solid rgba(212,175,55,.22);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.28);
+}
+
+.admin-match-title{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.match-icon{
+
+  width:48px;
+  height:48px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+
+  background:
+    rgba(212,175,55,.14);
+
+  font-size:1.5rem;
+}
+
+.admin-match-title h3{
+  margin:0;
+  color:#fff3b0;
+}
+
+.admin-match-title p{
+  margin:4px 0 0;
+  font-size:.85rem;
+  opacity:.8;
+}
+
+.admin-match-users{
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+
+  padding:14px;
+
+  border-radius:16px;
+
+  background:
+    rgba(255,255,255,.05);
+
+  margin-bottom:16px;
+}
+
+.match-user{
+  font-weight:800;
+  color:#fff3b0;
+  font-size:1rem;
+}
+
+.match-vs{
+  color:#d4af37;
+  font-weight:900;
+  font-size:1.1rem;
+}
