@@ -90,9 +90,13 @@ function renderUsers(users) {
     tr.innerHTML = `
       <td>
         <img
-          src="${u.avatar_url || "assets/default-avatar.png"}"
+          src="${
+  u.avatar_url
+    ? u.avatar_url
+    : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+}"
           class="chat-avatar"
-          onerror="this.src='assets/default-avatar.png'"
+          onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'"
         >
       </td>
 
@@ -512,10 +516,6 @@ async function loadMatches() {
 
   renderMatches(matches);
   renderActiveChats(activeChats);
-  alert("Chat débloqué ❤️");
-  setTimeout(() => {
-  location.reload();
-}, 500);
 }
 
 async function renderActiveChats(activeChats) {
@@ -645,12 +645,10 @@ async function renderMatches(matches) {
 
         const { error } =
           await supabaseClient
-            .from("chat_access")
-            .insert({
-              user_1: match.user1,
-              user_2: match.user2,
-              active: true
-            });
+      .insert({
+  user_1: match.user1,
+  user_2: match.user2
+});
 
         if (error) {
           alert(error.message);
@@ -669,3 +667,9 @@ async function renderMatches(matches) {
   }
 
 }
+document.addEventListener("DOMContentLoaded", async () => {
+
+  await initAdminUsers();
+  await loadMatches();
+
+});
