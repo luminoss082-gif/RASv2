@@ -34,13 +34,20 @@ function getAvatarUrl(url) {
 
   if (!url) return defaultAvatar;
 
+  /* URL complète */
   if (url.startsWith("http")) {
     return url;
   }
 
-  const cleanUrl = url.replace(/^\/+/, "");
+  /* Nettoyage */
+  let cleanUrl = url.replace(/^\/+/, "");
 
-  return `https://ulfkjmdhryaulesxlbxf.supabase.co/storage/v1/object/public/avatars/${cleanUrl}`;
+  /* évite avatars/avatars/... */
+  cleanUrl = cleanUrl.replace(/^avatars\//, "");
+
+  return `
+https://ulfkjmdhryaulesxlbxf.supabase.co/storage/v1/object/public/avatars/${cleanUrl}
+  `.trim();
 }
 
 function normalizeGender(value) {
