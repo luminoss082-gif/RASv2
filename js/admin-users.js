@@ -177,31 +177,28 @@ document.querySelectorAll(".ban-btn").forEach((btn) => {
         ? "Utilisateur débanni."
         : "Utilisateur banni."
     );
+    document.querySelectorAll(".delete-profile-btn").forEach((btn) => {
 
-    await loadAdminUsers();
-  };
-});
-}
-
-/* Supprimer profil */
-const deleteProfileBtns = document.querySelectorAll(".delete-profile-btn");
-
-if (deleteProfileBtns) {
-document.querySelectorAll(".delete-profile-btn").forEach((btn) => {
   btn.onclick = async () => {
-    const user = users.find(u => u.id === btn.dataset.id);
+
+    const user =
+      users.find(
+        u => u.id === btn.dataset.id
+      );
+
     if (!user) return;
 
     const confirmDelete = confirm(
-      `Supprimer définitivement le profil ${user.pseudo || "cet utilisateur"} ?`
+      `Supprimer définitivement ${user.pseudo || "cet utilisateur"} ?`
     );
 
     if (!confirmDelete) return;
 
-    const { error } = await supabaseClient
-      .from("profiles")
-      .delete()
-      .eq("id", user.id);
+    const { error } =
+      await supabaseClient
+        .from("profiles")
+        .delete()
+        .eq("id", user.id);
 
     if (error) {
       alert(error.message);
@@ -209,10 +206,15 @@ document.querySelectorAll(".delete-profile-btn").forEach((btn) => {
     }
 
     alert("Profil supprimé.");
+
     await loadAdminUsers();
+
   };
+
 });
 }
+
+
 
 /* Débloquer chat */
 const unlockChatBtn = document.getElementById("unlockChatBtn");
