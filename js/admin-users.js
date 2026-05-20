@@ -576,6 +576,7 @@ async function renderActiveChats(activeChats) {
   }
 }
 
+/* Affiche les matches en attente de déblocage */
 async function renderMatches(matches) {
 
   const matchesList =
@@ -584,6 +585,13 @@ async function renderMatches(matches) {
   if (!matchesList) return;
 
   matchesList.innerHTML = "";
+
+  if (!matches || matches.length === 0) {
+    matchesList.innerHTML = `
+      <p>Aucun match à débloquer.</p>
+    `;
+    return;
+  }
 
   for (const match of matches) {
 
@@ -614,65 +622,72 @@ async function renderMatches(matches) {
       "admin-match-card";
 
     div.innerHTML = `
+      <div class="admin-match-card-inner">
 
-  <div class="admin-match-card-inner">
+        <div class="admin-match-title">
+          <span class="match-icon">❤️</span>
 
-    <div class="admin-match-title">
-      <span class="match-icon">❤️</span>
-      <div>
-        <h3>Match trouvé</h3>
-        <p>Conversation prête à débloquer</p>
+          <div>
+            <h3>Match trouvé</h3>
+            <p>Conversation prête à débloquer</p>
+          </div>
+        </div>
+
+        <div class="admin-match-users">
+          <span class="match-user">${pseudo1}</span>
+          <span class="match-vs">↔</span>
+          <span class="match-user">${pseudo2}</span>
+        </div>
+
+        <button
+          class="btn success unlock-chat-btn"
+          data-user1="${match.user1}"
+          data-user2="${match.user2}"
+          type="button"
+        >
+          🔓 Débloquer le chat
+        </button>
+
       </div>
-    </div>
+    `;
 
-    <div class="admin-match-users">
-      <span class="match-user">${pseudo1}</span>
-      <span class="match-vs">↔</span>
-      <span class="match-user">${pseudo2}</span>
-    </div>
+    const unlockBtn =
+      div.querySelector(".unlock-chat-btn");
 
-    <button
-      class="btn success unlock-chat-btn"
-      data-user1="${match.user1}"
-      data-user2="${match.user2}"
-    >
-      🔓 Débloquer le chat
-    </button>
+    unlockBtn?.addEventListener("click", async () => {
 
-  </div>
-`;
-const unlockBtn =
-  div.querySelector(".unlock-chat-btn");
+      const confirmUnlock = confirm(
+        `Débloquer le chat entre ${pseudo1} et ${pseudo2} ?`
+      );
 
-unlockBtn?.addEventListener("click", async () => {
+      if (!confirmUnlock) return;
 
-  const confirmUnlock = confirm(
-    `Débloquer le chat entre ${pseudo1} et ${pseudo2} ?`
-  );
+      const { error } =
+        await supabaseClient
+          .from("chat_access")
+          .insert({
+            user_1: match.user1,
+            user_2: match.user2
+          });
 
-  if (!confirmUnlock) return;
+      if (error && error.code !== "23505") {
+        alert(error.message);
+        return;
+      }
 
-  const { error } = await supabaseClient
-    .from("chat_access")
-    .insert({
-      user_1: match.user1,
-      user_2: match.user2
+      alert(
+        `Chat débloqué entre ${pseudo1} et ${pseudo2} ❤️`
+      );
+
+      await loadMatches();
+
     });
 
-  if (error && error.code !== "23505") {
-    alert(error.message);
-    return;
-  }
-
-  alert(`Chat débloqué entre ${pseudo1} et ${pseudo2} ❤️`);
-
-  await loadMatches();
-});
     matchesList.appendChild(div);
-
   }
-
 }
+
+
 document.addEventListener("DOMContentLoaded", async () => {
 
   await initAdminUsers();
