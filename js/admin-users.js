@@ -123,6 +123,8 @@ function renderUsers(users) {
         <button class="btn danger ban-btn" data-id="${u.id}">
           ${u.is_banned ? "Débannir" : "Bannir"}
         </button>
+
+        <button class="btn danger delete-profile-btn" data-id="${u.id}">Supprimer</button>
       </td>
     `;
 
@@ -181,7 +183,36 @@ document.querySelectorAll(".ban-btn").forEach((btn) => {
 });
 }
 
-/* Ban profil */
+/* Supprimer profil */
+const deleteProfileBtns = document.querySelectorAll(".delete-profile-btn");
+
+if (deleteProfileBtns) {
+document.querySelectorAll(".delete-profile-btn").forEach((btn) => {
+  btn.onclick = async () => {
+    const user = users.find(u => u.id === btn.dataset.id);
+    if (!user) return;
+
+    const confirmDelete = confirm(
+      `Supprimer définitivement le profil ${user.pseudo || "cet utilisateur"} ?`
+    );
+
+    if (!confirmDelete) return;
+
+    const { error } = await supabaseClient
+      .from("profiles")
+      .delete()
+      .eq("id", user.id);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert("Profil supprimé.");
+    await loadAdminUsers();
+  };
+});
+}
 
 /* Débloquer chat */
 const unlockChatBtn = document.getElementById("unlockChatBtn");
